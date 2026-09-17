@@ -1,0 +1,10 @@
+const { PrismaClient } = require("@prisma/client");
+const p = new PrismaClient();
+console.log("staff type:", typeof p.staff);
+console.log("staffTask type:", typeof p.staffTask);
+console.log("camera type:", typeof p.camera);
+console.log("carCompany type:", typeof p.carCompany);
+console.log("car type:", typeof p.car);
+console.log("carBooking type:", typeof p.carBooking);
+console.log("salaryPayment type:", typeof p.salaryPayment);
+p.$disconnect();

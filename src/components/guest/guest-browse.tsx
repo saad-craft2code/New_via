@@ -8,18 +8,20 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
 import { BrandLogo } from "@/components/provider/brand-logo";
 import { HotelStars, StarRating, formatCurrency, EmptyState } from "@/components/widgets";
 import { guestService, type GuestHotel, type GuestBundle, type GuestHotelDetail, type GuestBundleDetail } from "@/services/guest.service";
-import { Hotel, Package, MapPin, Search, Star, Users, Calendar, ArrowLeft, ArrowRight, Moon, Sun, Globe, Loader2, Compass, Heart, Share2, ShieldCheck, Sparkles } from "lucide-react";
+import { guestCarService } from "@/services/car.service";
+import { Hotel, Package, MapPin, Search, Star, Users, Calendar, ArrowLeft, ArrowRight, Moon, Sun, Globe, Loader2, Compass, Heart, Share2, ShieldCheck, Sparkles, Car as CarIcon, Fuel, Settings as SettingsIcon, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMounted } from "@/hooks/use-mounted";
 import { toast } from "react-hot-toast";
 import { HotelBookingForm, BundleBookingForm } from "./guest-booking-forms";
 
-type Tab = "hotels" | "bundles";
+type Tab = "hotels" | "bundles" | "cars";
 
 export function GuestBrowse() {
   const lang = useAppStore((s) => s.lang);
@@ -34,6 +36,7 @@ export function GuestBrowse() {
   const [tab, setTab] = useState<Tab>("hotels");
   const [hotels, setHotels] = useState<GuestHotel[]>([]);
   const [bundles, setBundles] = useState<GuestBundle[]>([]);
+  const [cars, setCars] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // filters
@@ -44,9 +47,11 @@ export function GuestBrowse() {
   const [destination, setDestination] = useState<string>("all");
   const [difficulty, setDifficulty] = useState<string>("all");
   const [maxPrice, setMaxPrice] = useState<string>("");
+  const [carCategory, setCarCategory] = useState<string>("all");
 
   const [selectedHotel, setSelectedHotel] = useState<GuestHotelDetail | null>(null);
   const [selectedBundle, setSelectedBundle] = useState<GuestBundleDetail | null>(null);
+  const [selectedCar, setSelectedCar] = useState<any | null>(null);
   const [hotelLoading, setHotelLoading] = useState(false);
   const [bundleLoading, setBundleLoading] = useState(false);
 
@@ -56,13 +61,15 @@ export function GuestBrowse() {
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [h, b, s] = await Promise.all([
+      const [h, b, c, s] = await Promise.all([
         guestService.listHotels({ search, city: city === "all" ? undefined : city, starRating: starRating === "all" ? undefined : starRating, sortBy }),
         guestService.listBundles({ search, destination: destination === "all" ? undefined : destination, difficulty: difficulty === "all" ? undefined : difficulty, maxPrice: maxPrice || undefined, sortBy }),
+        guestCarService.list({ search, city: city === "all" ? undefined : city, category: carCategory === "all" ? undefined : carCategory, maxPrice: maxPrice || undefined, sortBy }).catch(() => []),
         guestService.getStats(),
       ]);
       setHotels(h);
       setBundles(b);
+      setCars(c);
       setStats(s);
     } catch (e) {
       console.error("loadAll error", e);
@@ -70,7 +77,7 @@ export function GuestBrowse() {
     } finally {
       setLoading(false);
     }
-  }, [search, city, sortBy, starRating, destination, difficulty, maxPrice, lang]);
+  }, [search, city, sortBy, starRating, destination, difficulty, maxPrice, carCategory, lang]);
 
   useEffect(() => {
     const id = setTimeout(loadAll, 300);
@@ -197,6 +204,11 @@ export function GuestBrowse() {
                 {lang === "ar" ? "الباقات" : "Bundles"}
                 <Badge variant="secondary" className="ml-1">{bundles.length}</Badge>
               </TabsTrigger>
+              <TabsTrigger value="cars" className="gap-2">
+                <CarIcon className="h-4 w-4" />
+                {lang === "ar" ? "السيارات" : "Cars"}
+                <Badge variant="secondary" className="ml-1">{cars.length}</Badge>
+              </TabsTrigger>
             </TabsList>
 
             {/* Common search */}
@@ -305,6 +317,43 @@ export function GuestBrowse() {
               </div>
             )}
           </TabsContent>
+
+          {/* Cars tab */}
+          <TabsContent value="cars">
+            <div className="flex flex-wrap gap-3 mb-6">
+              <Select value={carCategory} onValueChange={setCarCategory}>
+                <SelectTrigger className="w-[180px]"><SelectValue placeholder={lang === "ar" ? "كل الفئات" : "All Categories"} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{lang === "ar" ? "كل الفئات" : "All Categories"}</SelectItem>
+                  <SelectItem value="economy">{lang === "ar" ? "اقتصادية" : "Economy"}</SelectItem>
+                  <SelectItem value="sedan">{lang === "ar" ? "صالون" : "Sedan"}</SelectItem>
+                  <SelectItem value="suv">SUV</SelectItem>
+                  <SelectItem value="luxury">{lang === "ar" ? "فاخرة" : "Luxury"}</SelectItem>
+                  <SelectItem value="van">{lang === "ar" ? "فان" : "Van"}</SelectItem>
+                  <SelectItem value="sports">{lang === "ar" ? "رياضية" : "Sports"}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                type="number"
+                placeholder={t("cars_filter_max_price", lang)}
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                className="w-[200px]"
+              />
+            </div>
+
+            {loading ? (
+              <ListingSkeleton />
+            ) : cars.length === 0 ? (
+              <EmptyState icon={CarIcon} title={lang === "ar" ? "لا سيارات متاحة" : "No cars available"} desc={lang === "ar" ? "جرّب تعديل عوامل التصفية" : "Try adjusting your filters"} />
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {cars.map((c, idx) => (
+                  <CarCard key={c.id} car={c} lang={lang} onClick={() => setSelectedCar(c)} delay={idx * 0.05} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </main>
 
@@ -342,6 +391,15 @@ export function GuestBrowse() {
             <div className="py-20 flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
           ) : selectedBundle ? (
             <BundleDetail bundle={selectedBundle} lang={lang} />
+          ) : null}
+        </DialogContent>
+      </Dialog>
+
+      {/* Car detail dialog */}
+      <Dialog open={!!selectedCar} onOpenChange={(o) => !o && setSelectedCar(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedCar ? (
+            <CarDetail car={selectedCar} lang={lang} />
           ) : null}
         </DialogContent>
       </Dialog>
@@ -646,6 +704,47 @@ function Stat({ label, value }: { label: string; value: string | number }) {
   );
 }
 
+function CarCard({ car, lang, onClick, delay }: { car: any; lang: "ar" | "en"; onClick: () => void; delay: number }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay }}>
+      <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group" onClick={onClick}>
+        <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+          {car.images?.[0] ? (
+             
+            <img src={car.images[0]} alt={`${car.make} ${car.model}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-900"><CarIcon className="h-12 w-12 text-white/40" /></div>
+          )}
+          <div className="absolute top-2 start-2 flex gap-1">
+            <Badge className="bg-background/90 text-foreground backdrop-blur capitalize">{car.category}</Badge>
+            {car.available ? (
+              <Badge className="bg-emerald-500/90 text-white backdrop-blur">{lang === "ar" ? "متاح" : "Available"}</Badge>
+            ) : (
+              <Badge className="bg-red-500/90 text-white backdrop-blur">{lang === "ar" ? "محجوز" : "Rented"}</Badge>
+            )}
+          </div>
+        </div>
+        <CardContent className="p-4">
+          <h3 className="font-semibold text-base">{car.make} {car.model}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{car.year} • {car.company?.name ?? "Unknown"}</p>
+          <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1"><Users className="h-3 w-3" />{car.seats}</span>
+            <span className="flex items-center gap-1"><Fuel className="h-3 w-3" />{t(`cars_${car.fuelType}` as any, lang)}</span>
+            <span className="flex items-center gap-1"><SettingsIcon className="h-3 w-3" />{t(`cars_${car.transmission}` as any, lang)}</span>
+          </div>
+          <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
+            <div>
+              <span className="text-xs text-muted-foreground">{lang === "ar" ? "يبدأ من" : "From"}</span>
+              <p className="font-bold text-primary">{formatCurrency(car.pricePerDay, lang)}<span className="text-xs text-muted-foreground font-normal">{t("cars_per_day", lang)}</span></p>
+            </div>
+            <Button size="sm">{t("cars_book_now", lang)}</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
 function ListingSkeleton() {
   return (
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -663,6 +762,181 @@ function ListingSkeleton() {
           </CardContent>
         </Card>
       ))}
+    </div>
+  );
+}
+
+function CarDetail({ car, lang }: { car: any; lang: "ar" | "en" }) {
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [pickup, setPickup] = useState("");
+  const [dropoff, setDropoff] = useState("");
+  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [endDate, setEndDate] = useState(new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10));
+  const [guestName, setGuestName] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const days = Math.max(1, Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000));
+  const totalAmount = car.pricePerDay * days;
+
+  async function submit() {
+    if (!guestName || !guestEmail) {
+      toast.error(lang === "ar" ? "الاسم والبريد مطلوبان" : "Name and email are required");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const { api } = await import("@/lib/api");
+      await api.post("/guest/bookings", {
+        type: "Car",
+        carId: car.id,
+        startDate,
+        endDate,
+        numGuests: 1,
+        totalAmount,
+        guestName,
+        guestEmail,
+        guestPhone,
+        metadata: { pickup, dropoff, days, deposit: car.deposit },
+      }, { skipAuth: true });
+      setSuccess(true);
+      toast.success(lang === "ar" ? "تم إرسال طلب الحجز!" : "Booking request sent!");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div>
+      <div className="relative aspect-[16/8] overflow-hidden rounded-lg mb-5 bg-muted">
+        {car.images?.[0] ? (
+           
+          <img src={car.images[0]} alt={`${car.make} ${car.model}`} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-900"><CarIcon className="h-12 w-12 text-white/40" /></div>
+        )}
+      </div>
+      <DialogHeader>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge variant="outline" className="capitalize">{car.category}</Badge>
+              <Badge variant="outline">{car.year}</Badge>
+              {car.plateNumber && <Badge variant="outline" dir="ltr">{car.plateNumber}</Badge>}
+            </div>
+            <DialogTitle className="text-2xl mt-1">{car.make} {car.model}</DialogTitle>
+            <DialogDescription className="flex items-center gap-2 mt-1">
+              <MapPin className="h-3.5 w-3.5" /> {car.company?.name} • {car.company?.city}
+            </DialogDescription>
+          </div>
+        </div>
+      </DialogHeader>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
+        <Stat label={t("cars_seats", lang)} value={car.seats} />
+        <Stat label={t("cars_fuel", lang)} value={t(`cars_${car.fuelType}` as any, lang)} />
+        <Stat label={t("cars_transmission", lang)} value={t(`cars_${car.transmission}` as any, lang)} />
+        <Stat label={lang === "ar" ? "اللون" : "Color"} value={car.color ?? "—"} />
+      </div>
+
+      {car.features?.length > 0 && (
+        <>
+          <h3 className="font-semibold mt-6 mb-2">{lang === "ar" ? "المميزات" : "Features"}</h3>
+          <div className="flex flex-wrap gap-2">
+            {car.features.map((f: string) => <Badge key={f} variant="outline">{f}</Badge>)}
+          </div>
+        </>
+      )}
+
+      <div className="mt-6 sticky bottom-0 bg-background/95 backdrop-blur border-t border-border p-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs text-muted-foreground">{lang === "ar" ? "يبدأ من" : "From"}</p>
+            <p className="font-bold text-xl text-primary">{formatCurrency(car.pricePerDay, lang)}<span className="text-xs text-muted-foreground font-normal">{t("cars_per_day", lang)}</span></p>
+            <p className="text-xs text-muted-foreground mt-0.5">{t("cars_deposit", lang)}: {formatCurrency(car.deposit, lang)}</p>
+          </div>
+          <Button size="lg" onClick={() => setBookingOpen(true)} className="gap-2" disabled={!car.available}>
+            {car.available ? (lang === "ar" ? "احجز الآن" : "Book Now") : (lang === "ar" ? "غير متاح" : "Unavailable")}
+          </Button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {bookingOpen && (
+          <Dialog open onOpenChange={(o) => !o && setBookingOpen(false)}>
+            <DialogContent className="max-w-md">
+              {success ? (
+                <div className="py-8 text-center">
+                  <CheckCircle2 className="h-14 w-14 text-emerald-500 mx-auto mb-3" />
+                  <DialogTitle className="text-xl">{lang === "ar" ? "تم إرسال طلب الحجز!" : "Booking Requested!"}</DialogTitle>
+                  <DialogDescription className="mt-2">
+                    {lang === "ar" ? "ستتواصل معك شركة التأجير خلال 24 ساعة." : "The rental company will contact you within 24 hours."}
+                  </DialogDescription>
+                  <Button className="mt-5" onClick={() => { setBookingOpen(false); setSelectedCar(null); }}>{lang === "ar" ? "حسنًا" : "OK"}</Button>
+                </div>
+              ) : (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>{lang === "ar" ? "احجز السيارة" : "Book this Car"}</DialogTitle>
+                    <DialogDescription>{car.make} {car.model}</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="text-xs">{lang === "ar" ? "الاسم الكامل" : "Full Name"}</Label>
+                      <Input value={guestName} onChange={(e) => setGuestName(e.target.value)} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Email</Label>
+                        <Input type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} dir="ltr" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">{lang === "ar" ? "الهاتف" : "Phone"}</Label>
+                        <Input value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} dir="ltr" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">{lang === "ar" ? "تاريخ الاستلام" : "Pickup Date"}</Label>
+                        <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label className="text-xs">{lang === "ar" ? "تاريخ التسليم" : "Return Date"}</Label>
+                        <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-xs">{t("cars_pickup", lang)}</Label>
+                      <Input value={pickup} onChange={(e) => setPickup(e.target.value)} placeholder={lang === "ar" ? "موقع الاستلام" : "Pickup location"} />
+                    </div>
+                    <div className="rounded-lg bg-muted/40 p-3 space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">{formatCurrency(car.pricePerDay, lang)} × {days} {lang === "ar" ? "يوم" : "days"}</span>
+                        <span>{formatCurrency(totalAmount, lang)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm pt-1 border-t border-border">
+                        <span className="font-semibold">{lang === "ar" ? "الإجمالي" : "Total"}</span>
+                        <span className="font-bold text-primary">{formatCurrency(totalAmount, lang)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setBookingOpen(false)}>{lang === "ar" ? "إلغاء" : "Cancel"}</Button>
+                    <Button onClick={submit} disabled={submitting} className="gap-2">
+                      {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                      {lang === "ar" ? "تأكيد الحجز" : "Confirm Booking"}
+                    </Button>
+                  </DialogFooter>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

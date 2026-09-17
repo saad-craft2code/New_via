@@ -23,6 +23,7 @@ import {
   Star,
   Quote,
   Compass,
+  Briefcase,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useMounted } from "@/hooks/use-mounted";
@@ -157,6 +158,15 @@ export function LandingPage() {
             >
               <Compass className="h-4 w-4" />
               {lang === "ar" ? "تصفّح كضيف" : "Browse as Guest"}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setAuthScreen("staff_login")}
+              className="hidden sm:inline-flex gap-1.5"
+            >
+              <Briefcase className="h-4 w-4 text-amber-600" />
+              {lang === "ar" ? "بوابة الموظف" : "Staff Portal"}
             </Button>
             <Button
               variant="outline"

@@ -11,16 +11,27 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "/api/v1";
 
 const TOKEN_KEY = "via-token";
+const STAFF_TOKEN_KEY = "via-staff-token";
 
 export function getToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem(TOKEN_KEY);
+  return localStorage.getItem(TOKEN_KEY) ?? localStorage.getItem(STAFF_TOKEN_KEY);
 }
 
 export function setToken(token: string | null) {
   if (typeof window === "undefined") return;
-  if (token) localStorage.setItem(TOKEN_KEY, token);
-  else localStorage.removeItem(TOKEN_KEY);
+  if (token) {
+    // Staff tokens (staff-*) go to the staff key; everything else to the user key
+    if (token.startsWith("staff-")) localStorage.setItem(STAFF_TOKEN_KEY, token);
+    else localStorage.setItem(TOKEN_KEY, token);
+  } else {
+    localStorage.removeItem(TOKEN_KEY);
+  }
+}
+
+export function clearStaffToken() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(STAFF_TOKEN_KEY);
 }
 
 export class ApiError extends Error {

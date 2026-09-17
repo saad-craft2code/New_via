@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Loader2,
   AlertCircle,
+  Briefcase,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -266,6 +267,24 @@ export function LoginForm() {
                 </motion.div>
               </CardContent>
             </Card>
+
+            {/* Staff Portal access */}
+            <motion.div
+              initial={mounted ? { opacity: 0, y: 8 } : false}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-3"
+            >
+              <button
+                type="button"
+                onClick={() => setAuthScreen("staff_login")}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-border bg-background hover:bg-accent text-sm font-medium transition-colors"
+              >
+                <Briefcase className="h-4 w-4 text-amber-600" />
+                {lang === "ar" ? "دخول الموظفين (بوابة الموظف)" : "Staff Login (Staff Portal)"}
+                <ChevronRight className="h-3.5 w-3.5 opacity-50 rtl:rotate-180" />
+              </button>
+            </motion.div>
           </motion.div>
         </div>
       </main>

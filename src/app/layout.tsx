@@ -21,6 +21,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <head>
+        {/* Local fonts — IBM Plex Sans Arabic for Arabic UI, Plus Jakarta Sans for Latin */}
+        <link rel="preload" href="/fonts/IBM-Plex-Sans-Arabic-Regular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/IBM-Plex-Sans-Arabic-Bold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/IBM-Plex-Sans-Arabic-SemiBold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+      </head>
       <body className="font-sans antialiased bg-background text-foreground">
         <SessionGate>{children}</SessionGate>
         <Toaster

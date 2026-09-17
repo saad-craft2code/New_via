@@ -58,7 +58,14 @@ import { HOSettings } from "@/components/hotel-owner/ho-settings";
 import { HOKyc } from "@/components/hotel-owner/ho-kyc";
 import { AnalyticsDashboard } from "@/components/analytics/analytics-dashboard";
 import { GuestBrowse } from "@/components/guest/guest-browse";
-import { BarChart3, Compass } from "lucide-react";
+import { StaffManagement } from "@/components/operations/staff-management";
+import { TaskManagement } from "@/components/operations/task-management";
+import { SalariesManagement } from "@/components/operations/salaries-management";
+import { CamerasManagement } from "@/components/operations/cameras-management";
+import { CarCompaniesAdmin } from "@/components/cars/car-companies-admin";
+import { CarsAdmin } from "@/components/cars/cars-admin";
+import { CarBookingsAdmin } from "@/components/cars/car-bookings-admin";
+import { BarChart3, Compass, Camera, Car as CarIcon, Building2 } from "lucide-react";
 
 interface NavItem {
   key: string;
@@ -77,6 +84,13 @@ const bcNavItems: NavItem[] = [
   { key: "analytics", labelKey: "nav_analytics", icon: BarChart3, view: "analytics" },
   { key: "reviews", labelKey: "nav_reviews", icon: Star, view: "reviews" },
   { key: "notifications", labelKey: "nav_notifications", icon: Bell, view: "notifications" },
+  { key: "operations_staff", labelKey: "nav_staff", icon: Users, view: "staff" },
+  { key: "operations_tasks", labelKey: "nav_tasks", icon: ClipboardList, view: "tasks" },
+  { key: "operations_salaries", labelKey: "nav_salaries", icon: Wallet, view: "salaries" },
+  { key: "operations_cameras", labelKey: "nav_cameras", icon: Camera, view: "cameras" },
+  { key: "cars_companies", labelKey: "nav_car_companies", icon: Building2, view: "car_companies" },
+  { key: "cars_cars", labelKey: "nav_cars", icon: CarIcon, view: "cars" },
+  { key: "cars_bookings", labelKey: "nav_car_bookings", icon: ClipboardList, view: "car_bookings" },
   { key: "kyc", labelKey: "nav_kyc", icon: ShieldCheck, view: "kyc" },
   { key: "profile", labelKey: "nav_profile", icon: User, view: "profile" },
   { key: "settings", labelKey: "nav_settings", icon: Settings, view: "settings" },
@@ -94,6 +108,13 @@ const hoNavItems: NavItem[] = [
   { key: "analytics", labelKey: "nav_analytics", icon: BarChart3, view: "analytics" },
   { key: "reviews", labelKey: "nav_reviews", icon: Star, view: "reviews" },
   { key: "notifications", labelKey: "nav_notifications", icon: Bell, view: "notifications" },
+  { key: "operations_staff", labelKey: "nav_staff", icon: Users, view: "staff" },
+  { key: "operations_tasks", labelKey: "nav_tasks", icon: ClipboardList, view: "tasks" },
+  { key: "operations_salaries", labelKey: "nav_salaries", icon: Wallet, view: "salaries" },
+  { key: "operations_cameras", labelKey: "nav_cameras", icon: Camera, view: "cameras" },
+  { key: "cars_companies", labelKey: "nav_car_companies", icon: Building2, view: "car_companies" },
+  { key: "cars_cars", labelKey: "nav_cars", icon: CarIcon, view: "cars" },
+  { key: "cars_bookings", labelKey: "nav_car_bookings", icon: ClipboardList, view: "car_bookings" },
   { key: "kyc", labelKey: "nav_kyc", icon: ShieldCheck, view: "kyc" },
   { key: "profile", labelKey: "nav_profile", icon: User, view: "profile" },
   { key: "settings", labelKey: "nav_settings", icon: Settings, view: "settings" },
@@ -153,6 +174,13 @@ export function AppShell() {
         case "kyc": return <HOKyc />;
         case "analytics": return <AnalyticsDashboard />;
         case "guest_view": return <GuestBrowse />;
+        case "staff": return <StaffManagement />;
+        case "tasks": return <TaskManagement />;
+        case "salaries": return <SalariesManagement />;
+        case "cameras": return <CamerasManagement />;
+        case "car_companies": return <CarCompaniesAdmin />;
+        case "cars": return <CarsAdmin />;
+        case "car_bookings": return <CarBookingsAdmin />;
       }
     } else {
       switch (hoView) {
@@ -171,6 +199,13 @@ export function AppShell() {
         case "kyc": return <HOKyc />;
         case "analytics": return <AnalyticsDashboard />;
         case "guest_view": return <GuestBrowse />;
+        case "staff": return <StaffManagement />;
+        case "tasks": return <TaskManagement />;
+        case "salaries": return <SalariesManagement />;
+        case "cameras": return <CamerasManagement />;
+        case "car_companies": return <CarCompaniesAdmin />;
+        case "cars": return <CarsAdmin />;
+        case "car_bookings": return <CarBookingsAdmin />;
       }
     }
     return null;
