@@ -9,9 +9,12 @@ import { VerificationScreen } from "@/components/auth/verification-screen";
 import { LoginForm } from "@/components/auth/login-form";
 import { AppShell } from "@/components/provider/app-shell";
 import { GuestBrowse } from "@/components/guest/guest-browse";
+import { StaffLogin } from "@/components/staff/staff-login";
+import { StaffPortal } from "@/components/staff/staff-portal";
 
 export default function Home() {
   const isAuthed = useAppStore((s) => s.isAuthed);
+  const isStaffAuthed = useAppStore((s) => s.isStaffAuthed);
   const authScreen = useAppStore((s) => s.authScreen);
   const lang = useAppStore((s) => s.lang);
   const theme = useAppStore((s) => s.theme);
@@ -28,6 +31,14 @@ export default function Home() {
     if (theme === "dark") html.classList.add("dark");
     else html.classList.remove("dark");
   }, [theme]);
+
+  // Staff portal takes priority (separate auth namespace)
+  if (isStaffAuthed && (authScreen === "staff_portal" || authScreen === "staff_login")) {
+    return <StaffPortal />;
+  }
+  if (authScreen === "staff_login") {
+    return <StaffLogin />;
+  }
 
   if (isAuthed) {
     return <AppShell />;
@@ -46,6 +57,10 @@ export default function Home() {
       return <LoginForm />;
     case "guest_browse":
       return <GuestBrowse />;
+    case "staff_login":
+      return <StaffLogin />;
+    case "staff_portal":
+      return <StaffPortal />;
     default:
       return <LandingPage />;
   }

@@ -23,7 +23,14 @@ export type BCView =
   | "settings"
   | "kyc"
   | "analytics"
-  | "guest_view";
+  | "guest_view"
+  | "staff"
+  | "tasks"
+  | "salaries"
+  | "cameras"
+  | "car_companies"
+  | "cars"
+  | "car_bookings";
 
 export type HOView =
   | "dashboard"
@@ -40,7 +47,14 @@ export type HOView =
   | "settings"
   | "kyc"
   | "analytics"
-  | "guest_view";
+  | "guest_view"
+  | "staff"
+  | "tasks"
+  | "salaries"
+  | "cameras"
+  | "car_companies"
+  | "cars"
+  | "car_bookings";
 
 export type AuthScreen =
   | "landing"
@@ -48,7 +62,9 @@ export type AuthScreen =
   | "register"
   | "verification"
   | "login"
-  | "guest_browse";
+  | "guest_browse"
+  | "staff_login"
+  | "staff_portal";
 
 interface AppState {
   // auth
@@ -57,6 +73,24 @@ interface AppState {
   role: Role;
   token: string | null;
   user: User | null;
+  // staff auth (separate from regular user)
+  isStaffAuthed: boolean;
+  staffToken: string | null;
+  staff: {
+    id: string;
+    email: string;
+    name: string;
+    nameAr?: string;
+    phone?: string;
+    role: string;
+    department: string;
+    hotelId?: string;
+    hotelName?: string;
+    avatarUrl?: string;
+    baseSalary: number;
+    hourlyRate: number;
+    isActive: boolean;
+  } | null;
   // navigation
   bcView: BCView;
   hoView: HOView;
@@ -69,6 +103,8 @@ interface AppState {
   // loading flags
   isAuthLoading: boolean;
   authError: string | null;
+  isStaffAuthLoading: boolean;
+  staffAuthError: string | null;
   // actions
   setAuthed: (v: boolean) => void;
   setAuthScreen: (s: AuthScreen) => void;
@@ -84,6 +120,14 @@ interface AppState {
   setToken: (t: string | null) => void;
   setAuthLoading: (v: boolean) => void;
   setAuthError: (e: string | null) => void;
+  // staff actions
+  setStaff: (s: AppState["staff"]) => void;
+  setStaffToken: (t: string | null) => void;
+  setStaffAuthed: (v: boolean) => void;
+  setStaffAuthLoading: (v: boolean) => void;
+  setStaffAuthError: (e: string | null) => void;
+  staffLogin: (email: string, password: string) => Promise<void>;
+  staffLogout: () => void;
   // api-driven actions
   login: (email: string, password: string, role?: UserRole) => Promise<void>;
   register: (payload: {
@@ -109,6 +153,9 @@ export const useAppStore = create<AppState>()(
       role: "bundle_creator",
       token: null,
       user: null,
+      isStaffAuthed: false,
+      staffToken: null,
+      staff: null,
       bcView: "dashboard",
       hoView: "dashboard",
       selectedHotelId: null,
@@ -118,6 +165,8 @@ export const useAppStore = create<AppState>()(
       sidebarOpen: true,
       isAuthLoading: false,
       authError: null,
+      isStaffAuthLoading: false,
+      staffAuthError: null,
       setAuthed: (v) => set({ isAuthed: v }),
       setAuthScreen: (s) => set({ authScreen: s }),
       setRole: (r) => set({ role: r }),
@@ -132,6 +181,47 @@ export const useAppStore = create<AppState>()(
       setToken: (t) => set({ token: t }),
       setAuthLoading: (v) => set({ isAuthLoading: v }),
       setAuthError: (e) => set({ authError: e }),
+      setStaff: (s) => set({ staff: s }),
+      setStaffToken: (t) => set({ staffToken: t }),
+      setStaffAuthed: (v) => set({ isStaffAuthed: v }),
+      setStaffAuthLoading: (v) => set({ isStaffAuthLoading: v }),
+      setStaffAuthError: (e) => set({ staffAuthError: e }),
+
+      staffLogin: async (email, password) => {
+        set({ isStaffAuthLoading: true, staffAuthError: null });
+        try {
+          const { staffService } = await import("@/services/staff.service");
+          const res = await staffService.login(email, password);
+          // Persist staff token separately in localStorage
+          if (typeof window !== "undefined") {
+            localStorage.setItem("via-staff-token", res.token);
+          }
+          set({
+            staffToken: res.token,
+            staff: res.staff as any,
+            isStaffAuthed: true,
+            authScreen: "staff_portal",
+            isStaffAuthLoading: false,
+          });
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : "Staff login failed";
+          set({ isStaffAuthLoading: false, staffAuthError: msg });
+          throw e;
+        }
+      },
+
+      staffLogout: () => {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("via-staff-token");
+        }
+        set({
+          isStaffAuthed: false,
+          staffToken: null,
+          staff: null,
+          authScreen: "staff_login",
+          staffAuthError: null,
+        });
+      },
 
       login: async (email, password, role) => {
         set({ isAuthLoading: true, authError: null });
@@ -219,6 +309,9 @@ export const useAppStore = create<AppState>()(
         hoView: s.hoView,
         token: s.token,
         user: s.user,
+        isStaffAuthed: s.isStaffAuthed,
+        staffToken: s.staffToken,
+        staff: s.staff,
       }),
     },
   ),
