@@ -1,0 +1,646 @@
+     1→"use client";
+     2→
+     3→import { useAppStore, type Role } from "@/lib/store";
+     4→import { t } from "@/lib/i18n";
+     5→import { cn } from "@/lib/utils";
+     6→import { Button } from "@/components/ui/button";
+     7→import { BrandLogo } from "./brand-logo";
+     8→import { mockProviderProfile, mockNotifications } from "@/lib/mock-data";
+     9→import {
+    10→  LayoutDashboard,
+    11→  Calendar,
+    12→  ClipboardList,
+    13→  Wallet,
+    14→  Star,
+    15→  Bell,
+    16→  Settings,
+    17→  User,
+    18→  Gift,
+    19→  Hotel,
+    20→  BedDouble,
+    21→  Users,
+    22→  Globe,
+    23→  Moon,
+    24→  Sun,
+    25→  LogOut,
+    26→  ChevronLeft,
+    27→  ChevronRight,
+    28→  Menu,
+    29→  X,
+    30→  Search,
+    31→  ShieldCheck,
+    32→  type LucideIcon,
+    33→} from "lucide-react";
+    34→import { useMemo, useState, useEffect } from "react";
+    35→import { motion, AnimatePresence } from "framer-motion";
+    36→import { BCDashboard } from "@/components/bundle-creator/bc-dashboard";
+    37→import { BCBundles } from "@/components/bundle-creator/bc-bundles";
+    38→import { BCBundleWizard } from "@/components/bundle-creator/bc-bundle-wizard";
+    39→import { BCCalendar } from "@/components/bundle-creator/bc-calendar";
+    40→import { BCBookings } from "@/components/bundle-creator/bc-bookings";
+    41→import { BCEarnings } from "@/components/bundle-creator/bc-earnings";
+    42→import { BCReviews } from "@/components/bundle-creator/bc-reviews";
+    43→import { BCNotifications } from "@/components/bundle-creator/bc-notifications";
+    44→import { BCProfile } from "@/components/bundle-creator/bc-profile";
+    45→import { BCSettings } from "@/components/bundle-creator/bc-settings";
+    46→import { HODashboard } from "@/components/hotel-owner/ho-dashboard";
+    47→import { HOHotels } from "@/components/hotel-owner/ho-hotels";
+    48→import { HOHotelWizard } from "@/components/hotel-owner/ho-hotel-wizard";
+    49→import { HORooms } from "@/components/hotel-owner/ho-rooms";
+    50→import { HOCalendar } from "@/components/hotel-owner/ho-calendar";
+    51→import { HOBookings } from "@/components/hotel-owner/ho-bookings";
+    52→import { HOGuests } from "@/components/hotel-owner/ho-guests";
+    53→import { HOEarnings } from "@/components/hotel-owner/ho-earnings";
+    54→import { HOReviews } from "@/components/hotel-owner/ho-reviews";
+    55→import { HONotifications } from "@/components/hotel-owner/ho-notifications";
+    56→import { HOProfile } from "@/components/hotel-owner/ho-profile";
+    57→import { HOSettings } from "@/components/hotel-owner/ho-settings";
+    58→import { HOKyc } from "@/components/hotel-owner/ho-kyc";
+    59→
+    60→interface NavItem {
+    61→  key: string;
+    62→  labelKey: any;
+    63→  icon: LucideIcon;
+    64→  view: string;
+    65→  roleSpecific?: boolean;
+    66→}
+    67→
+    68→const bcNavItems: NavItem[] = [
+    69→  { key: "dashboard", labelKey: "nav_dashboard", icon: LayoutDashboard, view: "dashboard" },
+    70→  { key: "calendar", labelKey: "nav_calendar", icon: Calendar, view: "calendar" },
+    71→  { key: "bookings", labelKey: "nav_bookings", icon: ClipboardList, view: "bookings" },
+    72→  { key: "bundles", labelKey: "nav_bundles", icon: Gift, view: "bundles", roleSpecific: true },
+    73→  { key: "earnings", labelKey: "nav_earnings", icon: Wallet, view: "earnings" },
+    74→  { key: "reviews", labelKey: "nav_reviews", icon: Star, view: "reviews" },
+    75→  { key: "notifications", labelKey: "nav_notifications", icon: Bell, view: "notifications" },
+    76→  { key: "kyc", labelKey: "nav_kyc", icon: ShieldCheck, view: "kyc" },
+    77→  { key: "profile", labelKey: "nav_profile", icon: User, view: "profile" },
+    78→  { key: "settings", labelKey: "nav_settings", icon: Settings, view: "settings" },
+    79→];
+    80→
+    81→const hoNavItems: NavItem[] = [
+    82→  { key: "dashboard", labelKey: "nav_dashboard", icon: LayoutDashboard, view: "dashboard" },
+    83→  { key: "calendar", labelKey: "nav_calendar", icon: Calendar, view: "calendar" },
+    84→  { key: "hotels", labelKey: "nav_hotels", icon: Hotel, view: "hotels", roleSpecific: true },
+    85→  { key: "bookings", labelKey: "nav_bookings", icon: ClipboardList, view: "bookings" },
+    86→  { key: "rooms", labelKey: "nav_rooms", icon: BedDouble, view: "rooms", roleSpecific: true },
+    87→  { key: "guests", labelKey: "nav_guests", icon: Users, view: "guests", roleSpecific: true },
+    88→  { key: "earnings", labelKey: "nav_earnings", icon: Wallet, view: "earnings" },
+    89→  { key: "reviews", labelKey: "nav_reviews", icon: Star, view: "reviews" },
+    90→  { key: "notifications", labelKey: "nav_notifications", icon: Bell, view: "notifications" },
+    91→  { key: "kyc", labelKey: "nav_kyc", icon: ShieldCheck, view: "kyc" },
+    92→  { key: "profile", labelKey: "nav_profile", icon: User, view: "profile" },
+    93→  { key: "settings", labelKey: "nav_settings", icon: Settings, view: "settings" },
+    94→];
+    95→
+    96→export function AppShell() {
+    97→  const lang = useAppStore((s) => s.lang);
+    98→  const theme = useAppStore((s) => s.theme);
+    99→  const setLang = useAppStore((s) => s.setLang);
+   100→  const setTheme = useAppStore((s) => s.setTheme);
+   101→  const role = useAppStore((s) => s.role);
+   102→  const bcView = useAppStore((s) => s.bcView);
+   103→  const hoView = useAppStore((s) => s.hoView);
+   104→  const setBcView = useAppStore((s) => s.setBcView);
+   105→  const setHoView = useAppStore((s) => s.setHoView);
+   106→  const logout = useAppStore((s) => s.logout);
+   107→  const sidebarOpen = useAppStore((s) => s.sidebarOpen);
+   108→  const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
+   109→  const isRtl = lang === "ar";
+   110→
+   111→  const [mobileSidebar, setMobileSidebar] = useState(false);
+   112→  const [notifOpen, setNotifOpen] = useState(false);
+   113→  const [profileOpen, setProfileOpen] = useState(false);
+   114→
+   115→  const profile = mockProviderProfile[role];
+   116→  const navItems = role === "bundle_creator" ? bcNavItems : hoNavItems;
+   117→  const currentView = role === "bundle_creator" ? bcView : hoView;
+   118→  const setView = role === "bundle_creator" ? setBcView : setHoView;
+   119→
+   120→  const unreadCount = useMemo(() => mockNotifications.filter((n) => !n.read).length, []);
+   121→
+   122→  const pageTitle = useMemo(() => {
+   123→    const item = navItems.find((n) => n.view === currentView);
+   124→    return item ? t(item.labelKey, lang) : "";
+   125→  }, [navItems, currentView, lang]);
+   126→
+   127→  // Wrapper to switch view and close mobile sidebar in one click
+   128→  const handleNavClick = (v: any) => {
+   129→    setView(v);
+   130→    setMobileSidebar(false);
+   131→  };
+   132→
+   133→  const renderView = () => {
+   134→    if (role === "bundle_creator") {
+   135→      switch (bcView) {
+   136→        case "dashboard": return <BCDashboard />;
+   137→        case "bundles": return <BCBundles />;
+   138→        case "bundle_wizard": return <BCBundleWizard />;
+   139→        case "calendar": return <BCCalendar />;
+   140→        case "bookings": return <BCBookings />;
+   141→        case "earnings": return <BCEarnings />;
+   142→        case "reviews": return <BCReviews />;
+   143→        case "notifications": return <BCNotifications />;
+   144→        case "profile": return <BCProfile />;
+   145→        case "settings": return <BCSettings />;
+   146→        case "kyc": return <HOKyc />;
+   147→      }
+   148→    } else {
+   149→      switch (hoView) {
+   150→        case "dashboard": return <HODashboard />;
+   151→        case "hotels": return <HOHotels />;
+   152→        case "hotel_wizard": return <HOHotelWizard />;
+   153→        case "rooms": return <HORooms />;
+   154→        case "calendar": return <HOCalendar />;
+   155→        case "bookings": return <HOBookings />;
+   156→        case "guests": return <HOGuests />;
+   157→        case "earnings": return <HOEarnings />;
+   158→        case "reviews": return <HOReviews />;
+   159→        case "notifications": return <HONotifications />;
+   160→        case "profile": return <HOProfile />;
+   161→        case "settings": return <HOSettings />;
+   162→        case "kyc": return <HOKyc />;
+   163→      }
+   164→    }
+   165→    return null;
+   166→  };
+   167→
+   168→  return (
+   169→    <div className="min-h-screen bg-background flex">
+   170→      {/* Sidebar - Desktop */}
+   171→      <aside
+   172→        className={cn(
+   173→          "hidden lg:flex flex-col bg-sidebar/75 border-e border-sidebar-border/80 backdrop-blur-xl transition-all duration-300 sticky top-0 h-screen z-30",
+   174→          sidebarOpen ? "w-72" : "w-24"
+   175→        )}
+   176→      >
+   177→        <SidebarContent
+   178→          navItems={navItems}
+   179→          currentView={currentView}
+   180→          setView={handleNavClick}
+   181→          profile={profile}
+   182→          role={role}
+   183→          sidebarOpen={sidebarOpen}
+   184→          setSidebarOpen={setSidebarOpen}
+   185→          onLogout={logout}
+   186→          isRtl={isRtl}
+   187→          lang={lang}
+   188→          theme={theme}
+   189→          setLang={setLang}
+   190→          setTheme={setTheme}
+   191→        />
+   192→      </aside>
+   193→
+   194→      {/* Sidebar - Mobile */}
+   195→      <AnimatePresence>
+   196→        {mobileSidebar && (
+   197→          <>
+   198→            <motion.div
+   199→              initial={{ opacity: 0 }}
+   200→              animate={{ opacity: 1 }}
+   201→              exit={{ opacity: 0 }}
+   202→              onClick={() => setMobileSidebar(false)}
+   203→              className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+   204→            />
+   205→            <motion.aside
+   206→              initial={{ x: isRtl ? 280 : -280 }}
+   207→              animate={{ x: 0 }}
+   208→              exit={{ x: isRtl ? 280 : -280 }}
+   209→              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+   210→              className="lg:hidden fixed inset-y-0 start-0 z-50 w-72 bg-sidebar border-e border-sidebar-border flex flex-col"
+   211→            >
+   212→              <SidebarContent
+   213→                navItems={navItems}
+   214→                currentView={currentView}
+   215→                setView={handleNavClick}
+   216→                profile={profile}
+   217→                role={role}
+   218→                sidebarOpen={true}
+   219→                setSidebarOpen={setSidebarOpen}
+   220→                onLogout={logout}
+   221→                isRtl={isRtl}
+   222→                lang={lang}
+   223→                theme={theme}
+   224→                setLang={setLang}
+   225→                setTheme={setTheme}
+   226→                onClose={() => setMobileSidebar(false)}
+   227→              />
+   228→            </motion.aside>
+   229→          </>
+   230→        )}
+   231→      </AnimatePresence>
+   232→
+   233→      {/* Main content area */}
+   234→      <div className="flex-1 flex flex-col min-w-0">
+   235→        {/* Topbar */}
+   236→        <header className="sticky top-0 z-20 h-20 bg-background/70 backdrop-blur-xl border-b border-border/80 flex items-center px-4 lg:px-6 gap-3 shadow-[0_10px_35px_-24px_rgba(15,23,42,0.25)]">
+   237→          <Button
+   238→            variant="ghost"
+   239→            size="icon"
+   240→            className="lg:hidden"
+   241→            onClick={() => setMobileSidebar(true)}
+   242→          >
+   243→            <Menu className="h-5 w-5" />
+   244→          </Button>
+   245→          <Button
+   246→            variant="ghost"
+   247→            size="icon"
+   248→            className="hidden lg:flex"
+   249→            onClick={() => setSidebarOpen(!sidebarOpen)}
+   250→          >
+   251→            {isRtl ? (
+   252→              sidebarOpen ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />
+   253→            ) : (
+   254→              sidebarOpen ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />
+   255→            )}
+   256→          </Button>
+   257→
+   258→          <h1 className="text-lg font-semibold hidden sm:block">{pageTitle}</h1>
+   259→
+   260→          {/* Search */}
+   261→          <div className="flex-1 max-w-md mx-auto hidden md:block">
+   262→            <div className="relative">
+   263→              <Search className="absolute top-1/2 -translate-y-1/2 start-3 h-4 w-4 text-muted-foreground" />
+   264→              <input
+   265→                type="text"
+   266→                placeholder={t("search_placeholder", lang)}
+   267→                className="w-full h-9 ps-9 pe-3 rounded-lg bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 transition-all"
+   268→              />
+   269→            </div>
+   270→          </div>
+   271→
+   272→          <div className="flex-1 md:hidden" />
+   273→
+   274→          <div className="flex items-center gap-1">
+   275→            <Button
+   276→              variant="ghost"
+   277→              size="sm"
+   278→              onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+   279→              className="gap-1.5"
+   280→            >
+   281→              <Globe className="h-4 w-4" />
+   282→              <span className="text-xs hidden sm:inline">{t("language_toggle", lang)}</span>
+   283→            </Button>
+   284→            <Button
+   285→              variant="ghost"
+   286→              size="icon"
+   287→              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+   288→            >
+   289→              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+   290→            </Button>
+   291→
+   292→            {/* Notifications */}
+   293→            <div className="relative">
+   294→              <Button
+   295→                variant="ghost"
+   296→                size="icon"
+   297→                onClick={() => {
+   298→                  setNotifOpen((p) => !p);
+   299→                  setProfileOpen(false);
+   300→                }}
+   301→                className="relative"
+   302→              >
+   303→                <Bell className="h-5 w-5" />
+   304→                {unreadCount > 0 && (
+   305→                  <span className="absolute top-1.5 end-1.5 min-w-4 h-4 px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
+   306→                    {unreadCount}
+   307→                  </span>
+   308→                )}
+   309→              </Button>
+   310→              <AnimatePresence>
+   311→                {notifOpen && (
+   312→                  <>
+   313→                    <div
+   314→                      className="fixed inset-0 z-40"
+   315→                      onClick={() => setNotifOpen(false)}
+   316→                    />
+   317→                    <motion.div
+   318→                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+   319→                      animate={{ opacity: 1, y: 0, scale: 1 }}
+   320→                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+   321→                      transition={{ duration: 0.15 }}
+   322→                      className="absolute end-0 mt-2 w-80 sm:w-96 rounded-xl border border-border bg-popover shadow-xl z-50 overflow-hidden"
+   323→                    >
+   324→                      <div className="p-3 border-b border-border flex items-center justify-between">
+   325→                        <p className="font-semibold text-sm">
+   326→                          {t("nav_notifications", lang)}
+   327→                        </p>
+   328→                        <button
+   329→                          onClick={() => {
+   330→                            setView("notifications" as any);
+   331→                            setNotifOpen(false);
+   332→                          }}
+   333→                          className="text-xs text-primary hover:underline"
+   334→                        >
+   335→                          {t("view_all", lang)}
+   336→                        </button>
+   337→                      </div>
+   338→                      <div className="max-h-96 overflow-y-auto scrollbar-thin">
+   339→                        {mockNotifications.slice(0, 5).map((n) => (
+   340→                          <div
+   341→                            key={n.id}
+   342→                            className={cn(
+   343→                              "p-3 border-b border-border/50 last:border-b-0 hover:bg-muted/50 transition-colors cursor-pointer",
+   344→                              !n.read && "bg-primary/5"
+   345→                            )}
+   346→                          >
+   347→                            <div className="flex items-start gap-2.5">
+   348→                              <div className="h-8 w-8 rounded-lg bg-primary/15 text-primary flex items-center justify-center flex-shrink-0">
+   349→                                <Bell className="h-4 w-4" />
+   350→                              </div>
+   351→                              <div className="flex-1 min-w-0">
+   352→                                <p className="text-sm font-medium truncate">
+   353→                                  {lang === "ar" ? n.titleAr : n.titleEn}
+   354→                                </p>
+   355→                                <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+   356→                                  {lang === "ar" ? n.messageAr : n.messageEn}
+   357→                                </p>
+   358→                                <p className="text-[10px] text-muted-foreground/70 mt-1">
+   359→                                  {new Date(n.timestamp).toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
+   360→                                </p>
+   361→                              </div>
+   362→                              {!n.read && <span className="h-2 w-2 rounded-full bg-primary mt-1.5 flex-shrink-0" />}
+   363→                            </div>
+   364→                          </div>
+   365→                        ))}
+   366→                      </div>
+   367→                    </motion.div>
+   368→                  </>
+   369→                )}
+   370→              </AnimatePresence>
+   371→            </div>
+   372→
+   373→            {/* Profile */}
+   374→            <div className="relative">
+   375→              <button
+   376→                onClick={() => {
+   377→                  setProfileOpen((p) => !p);
+   378→                  setNotifOpen(false);
+   379→                }}
+   380→                className="flex items-center gap-2 ms-1 rounded-lg hover:bg-muted p-1 pe-2 transition-colors"
+   381→              >
+   382→                <img
+   383→                  src={profile.avatar}
+   384→                  alt="profile"
+   385→                  className="h-8 w-8 rounded-full object-cover ring-2 ring-border"
+   386→                />
+   387→                <div className="hidden sm:block text-start">
+   388→                  <p className="text-xs font-semibold leading-tight">
+   389→                    {lang === "ar" ? profile.fullNameAr : profile.fullNameEn}
+   390→                  </p>
+   391→                  <p className="text-[10px] text-muted-foreground leading-tight">
+   392→                    {role === "bundle_creator" ? t("i_am_bundle_creator", lang) : t("i_am_hotel_owner", lang)}
+   393→                  </p>
+   394→                </div>
+   395→              </button>
+   396→              <AnimatePresence>
+   397→                {profileOpen && (
+   398→                  <>
+   399→                    <div
+   400→                      className="fixed inset-0 z-40"
+   401→                      onClick={() => setProfileOpen(false)}
+   402→                    />
+   403→                    <motion.div
+   404→                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+   405→                      animate={{ opacity: 1, y: 0, scale: 1 }}
+   406→                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+   407→                      transition={{ duration: 0.15 }}
+   408→                      className="absolute end-0 mt-2 w-60 rounded-xl border border-border bg-popover shadow-xl z-50 overflow-hidden"
+   409→                    >
+   410→                      <div className="p-4 border-b border-border">
+   411→                        <div className="flex items-center gap-3">
+   412→                          <img
+   413→                            src={profile.avatar}
+   414→                            alt="profile"
+   415→                            className="h-12 w-12 rounded-full object-cover"
+   416→                          />
+   417→                          <div className="min-w-0">
+   418→                            <p className="text-sm font-semibold truncate">
+   419→                              {lang === "ar" ? profile.fullNameAr : profile.fullNameEn}
+   420→                            </p>
+   421→                            <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+   422→                          </div>
+   423→                        </div>
+   424→                        <div className="mt-2 flex items-center gap-1.5 text-xs">
+   425→                          <ShieldCheck className="h-3.5 w-3.5 text-[oklch(0.55_0.12_175)]" />
+   426→                          <span className="text-[oklch(0.42_0.08_175)] font-medium">
+   427→                            {t("verified", lang)}
+   428→                          </span>
+   429→                        </div>
+   430→                      </div>
+   431→                      <div className="p-1.5">
+   432→                        <button
+   433→                          onClick={() => {
+   434→                            setView("profile" as any);
+   435→                            setProfileOpen(false);
+   436→                          }}
+   437→                          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors text-start"
+   438→                        >
+   439→                          <User className="h-4 w-4" />
+   440→                          {t("nav_profile", lang)}
+   441→                        </button>
+   442→                        <button
+   443→                          onClick={() => {
+   444→                            setView("settings" as any);
+   445→                            setProfileOpen(false);
+   446→                          }}
+   447→                          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors text-start"
+   448→                        >
+   449→                          <Settings className="h-4 w-4" />
+   450→                          {t("nav_settings", lang)}
+   451→                        </button>
+   452→                        <div className="h-px bg-border my-1.5" />
+   453→                        <button
+   454→                          onClick={logout}
+   455→                          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-md hover:bg-destructive/10 hover:text-destructive transition-colors text-start"
+   456→                        >
+   457→                          <LogOut className="h-4 w-4" />
+   458→                          {t("logout", lang)}
+   459→                        </button>
+   460→                      </div>
+   461→                    </motion.div>
+   462→                  </>
+   463→                )}
+   464→              </AnimatePresence>
+   465→            </div>
+   466→          </div>
+   467→        </header>
+   468→
+   469→        {/* Page content */}
+   470→        <main className="flex-1 p-4 lg:p-8">
+   471→          <AnimatePresence mode="wait">
+   472→            <motion.div
+   473→              key={`${role}-${currentView}`}
+   474→              initial={{ opacity: 0, y: 8 }}
+   475→              animate={{ opacity: 1, y: 0 }}
+   476→              exit={{ opacity: 0, y: -8 }}
+   477→              transition={{ duration: 0.2 }}
+   478→            >
+   479→              {renderView()}
+   480→            </motion.div>
+   481→          </AnimatePresence>
+   482→        </main>
+   483→      </div>
+   484→    </div>
+   485→  );
+   486→}
+   487→
+   488→function SidebarContent({
+   489→  navItems,
+   490→  currentView,
+   491→  setView,
+   492→  profile,
+   493→  role,
+   494→  sidebarOpen,
+   495→  setSidebarOpen,
+   496→  onLogout,
+   497→  isRtl,
+   498→  lang,
+   499→  theme,
+   500→  setLang,
+   501→  setTheme,
+   502→  onClose,
+   503→}: {
+   504→  navItems: NavItem[];
+   505→  currentView: string;
+   506→  setView: (v: any) => void;
+   507→  profile: any;
+   508→  role: Role;
+   509→  sidebarOpen: boolean;
+   510→  setSidebarOpen: (v: boolean) => void;
+   511→  onLogout: () => void;
+   512→  isRtl: boolean;
+   513→  lang: "ar" | "en";
+   514→  theme: "light" | "dark";
+   515→  setLang: (l: "ar" | "en") => void;
+   516→  setTheme: (t: "light" | "dark") => void;
+   517→  onClose?: () => void;
+   518→}) {
+   519→  const roleSpecificItems = navItems.filter((n) => n.roleSpecific);
+   520→  const commonItems = navItems.filter((n) => !n.roleSpecific);
+   521→
+   522→  return (
+   523→    <>
+   524→      {/* Logo header */}
+   525→      <div className="h-20 flex items-center justify-between px-4 border-b border-sidebar-border/80 flex-shrink-0">
+   526→        {sidebarOpen ? (
+   527→          <BrandLogo size="sm" />
+   528→        ) : (
+   529→          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-neutral-950 via-zinc-800 to-zinc-600 flex items-center justify-center mx-auto">
+   530→            <svg viewBox="0 0 24 24" className="h-5 w-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
+   531→              <path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6" strokeLinecap="round" strokeLinejoin="round" />
+   532→            </svg>
+   533→          </div>
+   534→        )}
+   535→        {onClose && (
+   536→          <Button variant="ghost" size="icon" onClick={onClose} className="lg:hidden">
+   537→            <X className="h-5 w-5" />
+   538→          </Button>
+   539→        )}
+   540→      </div>
+   541→
+   542→      {/* Nav */}
+   543→      <nav className="flex-1 overflow-y-auto scrollbar-thin px-3 py-5 space-y-1.5">
+   544→        {commonItems.map((item) => (
+   545→          <NavButton
+   546→            key={item.key}
+   547→            item={item}
+   548→            active={currentView === item.view}
+   549→            onClick={() => setView(item.view as any)}
+   550→            sidebarOpen={sidebarOpen}
+   551→            lang={lang}
+   552→          />
+   553→        ))}
+   554→
+   555→        {roleSpecificItems.length > 0 && (
+   556→          <>
+   557→            <div className="pt-4 pb-1">
+   558→              {sidebarOpen && (
+   559→                <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold px-3 mb-1">
+   560→                  {role === "bundle_creator" ? (lang === "ar" ? "الباقات" : "Bundles") : (lang === "ar" ? "الفندق" : "Property")}
+   561→                </p>
+   562→              )}
+   563→              {roleSpecificItems.map((item) => (
+   564→                <NavButton
+   565→                  key={item.key}
+   566→                  item={item}
+   567→                  active={currentView === item.view}
+   568→                  onClick={() => setView(item.view as any)}
+   569→                  sidebarOpen={sidebarOpen}
+   570→                  lang={lang}
+   571→                />
+   572→              ))}
+   573→            </div>
+   574→          </>
+   575→        )}
+   576→      </nav>
+   577→
+   578→      {/* Footer */}
+   579→      <div className="border-t border-sidebar-border p-3 space-y-1.5 flex-shrink-0">
+   580→        <button
+   581→          onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+   582→          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-sidebar-accent transition-colors text-sidebar-foreground"
+   583→        >
+   584→          <Globe className="h-4 w-4 flex-shrink-0" />
+   585→          {sidebarOpen && <span>{t("language_toggle", lang)}</span>}
+   586→        </button>
+   587→        <button
+   588→          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+   589→          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-sidebar-accent transition-colors text-sidebar-foreground"
+   590→        >
+   591→          {theme === "dark" ? <Sun className="h-4 w-4 flex-shrink-0" /> : <Moon className="h-4 w-4 flex-shrink-0" />}
+   592→          {sidebarOpen && (
+   593→            <span>
+   594→              {theme === "dark"
+   595→                ? (lang === "ar" ? "الوضع الفاتح" : "Light Mode")
+   596→                : (lang === "ar" ? "الوضع الداكن" : "Dark Mode")}
+   597→            </span>
+   598→          )}
+   599→        </button>
+   600→        <button
+   601→          onClick={onLogout}
+   602→          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-destructive/10 hover:text-destructive transition-colors text-sidebar-foreground"
+   603→        >
+   604→          <LogOut className="h-4 w-4 flex-shrink-0" />
+   605→          {sidebarOpen && <span>{t("logout", lang)}</span>}
+   606→        </button>
+   607→      </div>
+   608→    </>
+   609→  );
+   610→}
+   611→
+   612→function NavButton({
+   613→  item,
+   614→  active,
+   615→  onClick,
+   616→  sidebarOpen,
+   617→  lang,
+   618→}: {
+   619→  item: NavItem;
+   620→  active: boolean;
+   621→  onClick: () => void;
+   622→  sidebarOpen: boolean;
+   623→  lang: "ar" | "en";
+   624→}) {
+   625→  const Icon = item.icon;
+   626→  return (
+   627→    <button
+   628→      onClick={onClick}
+   629→      title={!sidebarOpen ? t(item.labelKey, lang) : undefined}
+   630→      className={cn(
+   631→        "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all relative group",
+   632→        active
+   633→          ? "bg-primary text-primary-foreground shadow-[0_12px_26px_-18px_rgba(15,23,42,0.6)]"
+   634→          : "text-sidebar-foreground hover:bg-sidebar-accent",
+   635→        !sidebarOpen && "justify-center"
+   636→      )}
+   637→    >
+   638→      <Icon className={cn("h-4.5 w-4.5 flex-shrink-0", !active && "text-muted-foreground group-hover:text-foreground")} style={{ width: "1.125rem", height: "1.125rem" }} />
+   639→      {sidebarOpen && <span className="font-medium">{t(item.labelKey, lang)}</span>}
+   640→      {!sidebarOpen && active && (
+   641→        <span className="absolute -end-3 top-1/2 -translate-y-1/2 h-6 w-1 rounded-s-full bg-primary" />
+   642→      )}
+   643→    </button>
+   644→  );
+   645→}
+   646→

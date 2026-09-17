@@ -1,0 +1,213 @@
+// Prisma schema for Via Trips Provider Panel (SQLite)
+// Converted from apps/api/prisma/schema.prisma (postgres) — SQLite-safe:
+//   - enums → plain String fields with default literals
+//   - String[] → Json (array<string>) 
+//   - Decimal → Float
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  passwordHash       String?
+  name               String
+  role               String   @default("HotelOwner") // HotelOwner | BundleCreator | Admin
+  phone              String?
+  companyName        String?
+  businessLicense    String?
+  tourGuideLicense   String?
+  yearsExperience    Int?
+  languagesSpoken    String   @default("[]") // JSON-encoded array<string>
+  avatarUrl          String?
+  firebaseUid        String?  @unique
+  kycStatus          String   @default("NotSubmitted") // NotSubmitted | Pending | Approved | Rejected
+  kycSubmittedAt     DateTime?
+  kycReviewedAt      DateTime?
+  kycRejectionReason String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  hotels   Hotel[]
+  bundles  Bundle[]
+  bookings Booking[]
+  kycDocs  KycDocument[]
+
+  @@map("users")
+}
+
+model KycDocument {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       String // BusinessLicense | IdProof | TaxCertificate | HotelLicense | PropertyOwnership | TourGuideLicense
+  fileUrl    String
+  fileName   String
+  mimeType   String
+  status     String   @default("NotSubmitted")
+  adminNotes String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("kyc_documents")
+}
+
+model Hotel {
+  id          String   @id @default(cuid())
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  starRating  Int
+  location    String
+  city        String?
+  latitude    Float?
+  longitude   Float?
+  amenities   String   @default("[]") // JSON-encoded array<string>
+  images      String   @default("[]") // JSON-encoded array<string>
+  policies    String?  // JSON-encoded policies object
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  rooms    Room[]
+  bookings Booking[]
+
+  @@map("hotels")
+}
+
+model Room {
+  id             String   @id @default(cuid())
+  hotelId        String
+  hotel          Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  roomType       String
+  bedType        String
+  maxGuests      Int
+  pricePerNight  Float
+  size           Float?
+  amenities      String   @default("[]") // JSON-encoded array<string>
+  images         String   @default("[]") // JSON-encoded array<string>
+  totalUnits     Int      @default(1)
+  availableUnits Int      @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@map("rooms")
+}
+
+model Bundle {
+  id               String   @id @default(cuid())
+  creatorId        String
+  creator          User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  title            String
+  description      String
+  durationDays     Int
+  destinations     String   @default("[]") // JSON-encoded array<string>
+  images           String   @default("[]") // JSON-encoded array<string>
+  guideName        String?
+  price            Float
+  difficulty       String   @default("easy")
+  groupSize        Int?
+  includedServices String   @default("[]") // JSON-encoded array<string>
+  status           String   @default("Draft") // Draft | Published | Archived | SoldOut
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  days     BundleDay[]
+  bookings Booking[]
+
+  @@map("bundles")
+}
+
+model BundleDay {
+  id          String   @id @default(cuid())
+  bundleId    String
+  bundle      Bundle   @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  dayNumber   Int
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items BundleItem[]
+
+  @@map("bundle_days")
+}
+
+model BundleItem {
+  id               String   @id @default(cuid())
+  bundleDayId      String
+  bundleDay        BundleDay @relation(fields: [bundleDayId], references: [id], onDelete: Cascade)
+  type             String
+  title            String
+  description      String?
+  startTime        String?
+  endTime          String?
+  location         String?
+  cost             Float?
+  includedServices String   @default("[]") // JSON-encoded array<string>
+  metadata         String?  // JSON-encoded metadata object
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("bundle_items")
+}
+
+model Booking {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         String // HotelRoom | Bundle
+  hotelId      String?
+  hotel        Hotel?  @relation(fields: [hotelId], references: [id])
+  roomId       String?
+  room         Room?   @relation(fields: [roomId], references: [id])
+  bundleId     String?
+  bundle       Bundle? @relation(fields: [bundleId], references: [id])
+  startDate    DateTime
+  endDate      DateTime?
+  numGuests    Int      @default(1)
+  totalAmount  Float
+  status       String   @default("Pending") // Pending | Confirmed | Active | Completed | Cancelled | Refunded
+  metadata     String?  // JSON-encoded metadata
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("bookings")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String // booking | payment | verification | reviews | system | reminders
+  titleEn   String
+  titleAr   String
+  bodyEn    String
+  bodyAr    String
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  targetId  String
+  targetType String // hotel | bundle
+  rating    Int
+  commentEn String?
+  commentAr String?
+  author    String
+  createdAt DateTime @default(now())
+
+  @@map("reviews")
+}

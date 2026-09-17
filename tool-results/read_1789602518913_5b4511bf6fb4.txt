@@ -1,0 +1,993 @@
+     1→// Comprehensive mock data for Via Trips Provider Panel
+     2→
+     3→export interface Bundle {
+     4→  id: string;
+     5→  titleAr: string;
+     6→  titleEn: string;
+     7→  descriptionAr: string;
+     8→  descriptionEn: string;
+     9→  days: number;
+    10→  nights: number;
+    11→  destinations: string[];
+    12→  type: string;
+    13→  coverImage: string;
+    14→  startingPrice: number;
+    15→  totalBookings: number;
+    16→  rating: number;
+    17→  status: "published" | "draft" | "archived" | "sold_out";
+    18→  difficulty: "Easy" | "Moderate" | "Challenging";
+    19→  groupSizeMin: number;
+    20→  groupSizeMax: number;
+    21→  views: number;
+    22→  wishlist: number;
+    23→  conversionRate: number;
+    24→  revenue: number;
+    25→}
+    26→
+    27→export const mockBundles: Bundle[] = [
+    28→  {
+    29→    id: "BND-001",
+    30→    titleAr: "سحر دبي - 5 أيام",
+    31→    titleEn: "Dubai Magic - 5 Days",
+    32→    descriptionAr: "جولة شاملة في دبي تشمل برج خليفة والنخلة والصحراء",
+    33→    descriptionEn: "Comprehensive Dubai tour including Burj Khalifa, Palm Jumeirah, and desert safari",
+    34→    days: 5,
+    35→    nights: 4,
+    36→    destinations: ["Dubai", "Abu Dhabi"],
+    37→    type: "City Tour",
+    38→    coverImage: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80",
+    39→    startingPrice: 4200,
+    40→    totalBookings: 87,
+    41→    rating: 4.7,
+    42→    status: "published",
+    43→    difficulty: "Easy",
+    44→    groupSizeMin: 2,
+    45→    groupSizeMax: 12,
+    46→    views: 3421,
+    47→    wishlist: 215,
+    48→    conversionRate: 2.54,
+    49→    revenue: 365400,
+    50→  },
+    51→  {
+    52→    id: "BND-002",
+    53→    titleAr: "عمرة روحانية - 7 أيام",
+    54→    titleEn: "Spiritual Umrah - 7 Days",
+    55→    descriptionAr: "رحلة عمرة متكاملة مع زيارة الأماكن المقدسة في مكة والمدينة",
+    56→    descriptionEn: "Complete Umrah package with visits to holy sites in Makkah and Madinah",
+    57→    days: 7,
+    58→    nights: 6,
+    59→    destinations: ["Makkah", "Madinah"],
+    60→    type: "Religious",
+    61→    coverImage: "https://images.unsplash.com/photo-1591604425215-2dad9f5c0b09?w=800&q=80",
+    62→    startingPrice: 5800,
+    63→    totalBookings: 142,
+    64→    rating: 4.9,
+    65→    status: "published",
+    66→    difficulty: "Easy",
+    67→    groupSizeMin: 1,
+    68→    groupSizeMax: 20,
+    69→    views: 5892,
+    70→    wishlist: 432,
+    71→    conversionRate: 2.41,
+    72→    revenue: 823600,
+    73→  },
+    74→  {
+    75→    id: "BND-003",
+    76→    titleAr: "مغامرات جبال لبنان",
+    77→    titleEn: "Lebanon Mountain Adventure",
+    78→    descriptionAr: "مغامرات المشي والطبيعة في جبال لبنان الخلابة",
+    79→    descriptionEn: "Hiking and nature adventures in the stunning Lebanese mountains",
+    80→    days: 4,
+    81→    nights: 3,
+    82→    destinations: ["Beirut", "Cedars"],
+    83→    type: "Adventure",
+    84→    coverImage: "https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?w=800&q=80",
+    85→    startingPrice: 3100,
+    86→    totalBookings: 34,
+    87→    rating: 4.6,
+    88→    status: "published",
+    89→    difficulty: "Challenging",
+    90→    groupSizeMin: 4,
+    91→    groupSizeMax: 10,
+    92→    views: 1842,
+    93→    wishlist: 98,
+    94→    conversionRate: 1.85,
+    95→    revenue: 105400,
+    96→  },
+    97→  {
+    98→    id: "BND-004",
+    99→    titleAr: "شاطئ شرم الشيخ الفاخر",
+   100→    titleEn: "Luxury Sharm El-Sheikh Beach",
+   101→    descriptionAr: "عطلة شاطئية فاخرة في شرم الشيخ مع الغوص والرياضات المائية",
+   102→    descriptionEn: "Luxury beach holiday in Sharm El-Sheikh with diving and water sports",
+   103→    days: 6,
+   104→    nights: 5,
+   105→    destinations: ["Sharm El-Sheikh"],
+   106→    type: "Beach Holiday",
+   107→    coverImage: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+   108→    startingPrice: 6500,
+   109→    totalBookings: 56,
+   110→    rating: 4.8,
+   111→    status: "published",
+   112→    difficulty: "Easy",
+   113→    groupSizeMin: 2,
+   114→    groupSizeMax: 8,
+   115→    views: 2156,
+   116→    wishlist: 167,
+   117→    conversionRate: 2.6,
+   118→    revenue: 364000,
+   119→  },
+   120→  {
+   121→    id: "BND-005",
+   122→    titleAr: "عرس العسل في أنطاليا",
+   123→    titleEn: "Honeymoon in Antalya",
+   124→    descriptionAr: "باقة شهر عسل رومانسية في أنطاليا مع الإقامة الفاخرة",
+   125→    descriptionEn: "Romantic honeymoon package in Antalya with luxury accommodation",
+   126→    days: 8,
+   127→    nights: 7,
+   128→    destinations: ["Antalya"],
+   129→    type: "Honeymoon",
+   130→    coverImage: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80",
+   131→    startingPrice: 8900,
+   132→    totalBookings: 23,
+   133→    rating: 4.9,
+   134→    status: "published",
+   135→    difficulty: "Easy",
+   136→    groupSizeMin: 2,
+   137→    groupSizeMax: 2,
+   138→    views: 1456,
+   139→    wishlist: 287,
+   140→    conversionRate: 1.58,
+   141→    revenue: 204700,
+   142→  },
+   143→  {
+   144→    id: "BND-006",
+   145→    titleAr: "ثقافة الأردن القديمة",
+   146→    titleEn: "Ancient Jordan Culture",
+   147→    descriptionAr: "استكشاف البتراء ووادي رم والثقافة الأردنية الأصيلة",
+   148→    descriptionEn: "Explore Petra, Wadi Rum, and authentic Jordanian culture",
+   149→    days: 5,
+   150→    nights: 4,
+   151→    destinations: ["Amman", "Petra", "Wadi Rum"],
+   152→    type: "Cultural",
+   153→    coverImage: "https://images.unsplash.com/photo-1559591218-9751ff9b1cf2?w=800&q=80",
+   154→    startingPrice: 4700,
+   155→    totalBookings: 0,
+   156→    rating: 0,
+   157→    status: "draft",
+   158→    difficulty: "Moderate",
+   159→    groupSizeMin: 2,
+   160→    groupSizeMax: 15,
+   161→    views: 0,
+   162→    wishlist: 0,
+   163→    conversionRate: 0,
+   164→    revenue: 0,
+   165→  },
+   166→];
+   167→
+   168→export interface Hotel {
+   169→  id: string;
+   170→  nameAr: string;
+   171→  nameEn: string;
+   172→  starRating: 3 | 4 | 5 | 7;
+   173→  totalRooms: number;
+   174→  availableRooms: number;
+   175→  occupancyRate: number;
+   176→  ratingScore: number;
+   177→  status: "Active" | "Inactive" | "Under Review";
+   178→  coverImage: string;
+   179→  city: string;
+   180→  country: string;
+   181→  propertyType: string;
+   182→}
+   183→
+   184→export const mockHotels: Hotel[] = [
+   185→  {
+   186→    id: "HTL-001",
+   187→    nameAr: "فندق واحة الذهب",
+   188→    nameEn: "Golden Oasis Hotel",
+   189→    starRating: 5,
+   190→    totalRooms: 124,
+   191→    availableRooms: 38,
+   192→    occupancyRate: 69,
+   193→    ratingScore: 4.7,
+   194→    status: "Active",
+   195→    coverImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80",
+   196→    city: "Dubai",
+   197→    country: "UAE",
+   198→    propertyType: "Hotel",
+   199→  },
+   200→  {
+   201→    id: "HTL-002",
+   202→    nameAr: "منتجع البحر الأحمر",
+   203→    nameEn: "Red Sea Resort",
+   204→    starRating: 7,
+   205→    totalRooms: 210,
+   206→    availableRooms: 52,
+   207→    occupancyRate: 75,
+   208→    ratingScore: 4.9,
+   209→    status: "Active",
+   210→    coverImage: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
+   211→    city: "Sharm El-Sheikh",
+   212→    country: "Egypt",
+   213→    propertyType: "Resort",
+   214→  },
+   215→  {
+   216→    id: "HTL-003",
+   217→    nameAr: "فندق المدينة الفاخر",
+   218→    nameEn: "Madinah Luxury Hotel",
+   219→    starRating: 5,
+   220→    totalRooms: 180,
+   221→    availableRooms: 24,
+   222→    occupancyRate: 87,
+   223→    ratingScore: 4.8,
+   224→    status: "Active",
+   225→    coverImage: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&q=80",
+   226→    city: "Madinah",
+   227→    country: "Saudi Arabia",
+   228→    propertyType: "Hotel",
+   229→  },
+   230→  {
+   231→    id: "HTL-004",
+   232→    nameAr: "فندق بيروت بوتيك",
+   233→    nameEn: "Beirut Boutique Hotel",
+   234→    starRating: 4,
+   235→    totalRooms: 56,
+   236→    availableRooms: 18,
+   237→    occupancyRate: 68,
+   238→    ratingScore: 4.5,
+   239→    status: "Under Review",
+   240→    coverImage: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80",
+   241→    city: "Beirut",
+   242→    country: "Lebanon",
+   243→    propertyType: "Boutique Hotel",
+   244→  },
+   245→];
+   246→
+   247→export interface RoomType {
+   248→  id: string;
+   249→  hotelId: string;
+   250→  nameAr: string;
+   251→  nameEn: string;
+   252→  classification: string;
+   253→  classificationAr: string;
+   254→  basePrice: number;
+   255→  totalRooms: number;
+   256→  availableRooms: number;
+   257→  roomSize: number;
+   258→  bedConfig: string;
+   259→  bedConfigAr: string;
+   260→  maxAdults: number;
+   261→  maxChildren: number;
+   262→  occupancy: number;
+   263→  image: string;
+   264→  features: string[];
+   265→}
+   266→
+   267→export const mockRoomTypes: RoomType[] = [
+   268→  {
+   269→    id: "RT-001",
+   270→    hotelId: "HTL-001",
+   271→    nameAr: "الجناح الملكي",
+   272→    nameEn: "Royal Suite",
+   273→    classification: "Royal Suite",
+   274→    classificationAr: "جناح ملكي",
+   275→    basePrice: 1850,
+   276→    totalRooms: 8,
+   277→    availableRooms: 2,
+   278→    roomSize: 85,
+   279→    bedConfig: "King Bed",
+   280→    bedConfigAr: "سرير كينج",
+   281→    maxAdults: 2,
+   282→    maxChildren: 2,
+   283→    occupancy: 75,
+   284→    image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+   285→    features: ["Sea View", "Balcony", "Bathtub", "Mini Bar", "Safe"],
+   286→  },
+   287→  {
+   288→    id: "RT-002",
+   289→    hotelId: "HTL-001",
+   290→    nameAr: "غرفة ديلوكس",
+   291→    nameEn: "Deluxe Room",
+   292→    classification: "Deluxe Room",
+   293→    classificationAr: "غرفة ديلوكس",
+   294→    basePrice: 920,
+   295→    totalRooms: 48,
+   296→    availableRooms: 14,
+   297→    roomSize: 38,
+   298→    bedConfig: "Queen Bed",
+   299→    bedConfigAr: "سرير كوين",
+   300→    maxAdults: 2,
+   301→    maxChildren: 1,
+   302→    occupancy: 71,
+   303→    image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80",
+   304→    features: ["City View", "Air Conditioning", "Smart TV", "Work Desk"],
+   305→  },
+   306→  {
+   307→    id: "RT-003",
+   308→    hotelId: "HTL-001",
+   309→    nameAr: "غرفة قياسية",
+   310→    nameEn: "Standard Room",
+   311→    classification: "Standard Room",
+   312→    classificationAr: "غرفة قياسية",
+   313→    basePrice: 540,
+   314→    totalRooms: 68,
+   315→    availableRooms: 22,
+   316→    roomSize: 28,
+   317→    bedConfig: "Twin Beds",
+   318→    bedConfigAr: "سريرين توأم",
+   319→    maxAdults: 2,
+   320→    maxChildren: 1,
+   321→    occupancy: 68,
+   322→    image: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+   323→    features: ["Garden View", "Air Conditioning", "TV", "Work Desk"],
+   324→  },
+   325→  {
+   326→    id: "RT-004",
+   327→    hotelId: "HTL-002",
+   328→    nameAr: "جناح رئاسي",
+   329→    nameEn: "Presidential Suite",
+   330→    classification: "Presidential Suite",
+   331→    classificationAr: "جناح رئاسي",
+   332→    basePrice: 3200,
+   333→    totalRooms: 6,
+   334→    availableRooms: 1,
+   335→    roomSize: 120,
+   336→    bedConfig: "King Bed",
+   337→    bedConfigAr: "سرير كينج",
+   338→    maxAdults: 2,
+   339→    maxChildren: 3,
+   340→    occupancy: 83,
+   341→    image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80",
+   342→    features: ["Sea View", "Private Pool", "Butler Service", "Living Room", "Dining"],
+   343→  },
+   344→  {
+   345→    id: "RT-005",
+   346→    hotelId: "HTL-002",
+   347→    nameAr: "غرفة عائلية",
+   348→    nameEn: "Family Room",
+   349→    classification: "Family Room",
+   350→    classificationAr: "غرفة عائلية",
+   351→    basePrice: 1280,
+   352→    totalRooms: 42,
+   353→    availableRooms: 11,
+   354→    roomSize: 52,
+   355→    bedConfig: "King + Bunk",
+   356→    bedConfigAr: "كينج + أسرّة طابقية",
+   357→    maxAdults: 2,
+   358→    maxChildren: 3,
+   359→    occupancy: 74,
+   360→    image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80",
+   361→    features: ["Sea View", "Balcony", "Kitchenette", "Kids Area"],
+   362→  },
+   363→];
+   364→
+   365→export interface Booking {
+   366→  id: string;
+   367→  guestName: string;
+   368→  guestNameAr: string;
+   369→  guestAvatar: string;
+   370→  guestEmail: string;
+   371→  guestPhone: string;
+   372→  itemName: string;
+   373→  itemNameAr: string;
+   374→  startDate: string;
+   375→  endDate: string;
+   376→  guests: number;
+   377→  nights?: number;
+   378→  rooms?: number;
+   379→  roomNumber?: string;
+   380→  totalAmount: number;
+   381→  commission: number;
+   382→  netEarnings: number;
+   383→  status: "Pending" | "Confirmed" | "Active" | "Completed" | "Cancelled" | "No-show";
+   384→  paymentStatus: "Paid" | "Pending" | "Refunded";
+   385→  bookingDate: string;
+   386→  nationality?: string;
+   387→  specialRequests?: string;
+   388→  previousStays?: number;
+   389→  type: "bundle" | "hotel";
+   390→}
+   391→
+   392→export const mockBookings: Booking[] = [
+   393→  {
+   394→    id: "BK-2024-0142",
+   395→    guestName: "Ahmed Al-Rashid",
+   396→    guestNameAr: "أحمد الراشد",
+   397→    guestAvatar: "https://i.pravatar.cc/150?img=12",
+   398→    guestEmail: "ahmed.rashid@example.com",
+   399→    guestPhone: "+966 50 123 4567",
+   400→    itemName: "Spiritual Umrah - 7 Days",
+   401→    itemNameAr: "عمرة روحانية - 7 أيام",
+   402→    startDate: "2026-08-15",
+   403→    endDate: "2026-08-21",
+   404→    guests: 4,
+   405→    totalAmount: 23200,
+   406→    commission: 2320,
+   407→    netEarnings: 20880,
+   408→    status: "Confirmed",
+   409→    paymentStatus: "Paid",
+   410→    bookingDate: "2026-07-22",
+   411→    nationality: "Saudi Arabia",
+   412→    specialRequests: "Wheelchair access needed",
+   413→    type: "bundle",
+   414→  },
+   415→  {
+   416→    id: "BK-2024-0141",
+   417→    guestName: "Fatima Hassan",
+   418→    guestNameAr: "فاطمة حسن",
+   419→    guestAvatar: "https://i.pravatar.cc/150?img=44",
+   420→    guestEmail: "fatima.h@example.com",
+   421→    guestPhone: "+971 55 987 6543",
+   422→    itemName: "Dubai Magic - 5 Days",
+   423→    itemNameAr: "سحر دبي - 5 أيام",
+   424→    startDate: "2026-08-10",
+   425→    endDate: "2026-08-14",
+   426→    guests: 2,
+   427→    totalAmount: 8400,
+   428→    commission: 840,
+   429→    netEarnings: 7560,
+   430→    status: "Pending",
+   431→    paymentStatus: "Pending",
+   432→    bookingDate: "2026-07-25",
+   433→    nationality: "UAE",
+   434→    type: "bundle",
+   435→  },
+   436→  {
+   437→    id: "BK-2024-0140",
+   438→    guestName: "John Smith",
+   439→    guestNameAr: "جون سميث",
+   440→    guestAvatar: "https://i.pravatar.cc/150?img=33",
+   441→    guestEmail: "j.smith@example.com",
+   442→    guestPhone: "+1 415 555 0100",
+   443→    itemName: "Luxury Sharm El-Sheikh Beach",
+   444→    itemNameAr: "شاطئ شرم الشيخ الفاخر",
+   445→    startDate: "2026-08-05",
+   446→    endDate: "2026-08-10",
+   447→    guests: 4,
+   448→    totalAmount: 26000,
+   449→    commission: 2600,
+   450→    netEarnings: 23400,
+   451→    status: "Active",
+   452→    paymentStatus: "Paid",
+   453→    bookingDate: "2026-07-18",
+   454→    nationality: "USA",
+   455→    type: "bundle",
+   456→  },
+   457→  {
+   458→    id: "BK-2024-0139",
+   459→    guestName: "Layla Ibrahim",
+   460→    guestNameAr: "ليلى إبراهيم",
+   461→    guestAvatar: "https://i.pravatar.cc/150?img=23",
+   462→    guestEmail: "layla.i@example.com",
+   463→    guestPhone: "+20 100 234 5678",
+   464→    itemName: "Lebanon Mountain Adventure",
+   465→    itemNameAr: "مغامرات جبال لبنان",
+   466→    startDate: "2026-07-20",
+   467→    endDate: "2026-07-23",
+   468→    guests: 6,
+   469→    totalAmount: 18600,
+   470→    commission: 1860,
+   471→    netEarnings: 16740,
+   472→    status: "Completed",
+   473→    paymentStatus: "Paid",
+   474→    bookingDate: "2026-07-05",
+   475→    nationality: "Egypt",
+   476→    type: "bundle",
+   477→  },
+   478→  {
+   479→    id: "BK-2024-0138",
+   480→    guestName: "Mohammed Saleh",
+   481→    guestNameAr: "محمد صالح",
+   482→    guestAvatar: "https://i.pravatar.cc/150?img=15",
+   483→    guestEmail: "m.saleh@example.com",
+   484→    guestPhone: "+966 56 345 6789",
+   485→    itemName: "Honeymoon in Antalya",
+   486→    itemNameAr: "عرس العسل في أنطاليا",
+   487→    startDate: "2026-08-25",
+   488→    endDate: "2026-09-01",
+   489→    guests: 2,
+   490→    totalAmount: 17800,
+   491→    commission: 1780,
+   492→    netEarnings: 16020,
+   493→    status: "Confirmed",
+   494→    paymentStatus: "Paid",
+   495→    bookingDate: "2026-07-21",
+   496→    nationality: "Saudi Arabia",
+   497→    type: "bundle",
+   498→  },
+   499→];
+   500→
+   501→export const mockHotelBookings: Booking[] = [
+   502→  {
+   503→    id: "HB-2024-0234",
+   504→    guestName: "Khalid Al-Mutairi",
+   505→    guestNameAr: "خالد المطيري",
+   506→    guestAvatar: "https://i.pravatar.cc/150?img=8",
+   507→    guestEmail: "khalid.m@example.com",
+   508→    guestPhone: "+966 50 111 2222",
+   509→    itemName: "Royal Suite - Golden Oasis",
+   510→    itemNameAr: "الجناح الملكي - واحة الذهب",
+   511→    startDate: "2026-08-12",
+   512→    endDate: "2026-08-15",
+   513→    nights: 3,
+   514→    rooms: 1,
+   515→    roomNumber: "1201",
+   516→    guests: 2,
+   517→    totalAmount: 5550,
+   518→    commission: 555,
+   519→    netEarnings: 4995,
+   520→    status: "Confirmed",
+   521→    paymentStatus: "Paid",
+   522→    bookingDate: "2026-07-28",
+   523→    nationality: "Saudi Arabia",
+   524→    specialRequests: "Late check-in at 8 PM",
+   525→    previousStays: 3,
+   526→    type: "hotel",
+   527→  },
+   528→  {
+   529→    id: "HB-2024-0233",
+   530→    guestName: "Sara Al-Otaibi",
+   531→    guestNameAr: "سارة العتيبي",
+   532→    guestAvatar: "https://i.pravatar.cc/150?img=49",
+   533→    guestEmail: "sara.o@example.com",
+   534→    guestPhone: "+966 55 333 4444",
+   535→    itemName: "Deluxe Room - Golden Oasis",
+   536→    itemNameAr: "غرفة ديلوكس - واحة الذهب",
+   537→    startDate: "2026-08-01",
+   538→    endDate: "2026-08-05",
+   539→    nights: 4,
+   540→    rooms: 2,
+   541→    roomNumber: "502, 504",
+   542→    guests: 4,
+   543→    totalAmount: 7360,
+   544→    commission: 736,
+   545→    netEarnings: 6624,
+   546→    status: "Active",
+   547→    paymentStatus: "Paid",
+   548→    bookingDate: "2026-07-20",
+   549→    nationality: "Saudi Arabia",
+   550→    previousStays: 1,
+   551→    type: "hotel",
+   552→  },
+   553→  {
+   554→    id: "HB-2024-0232",
+   555→    guestName: "Yusuf Karim",
+   556→    guestNameAr: "يوسف كريم",
+   557→    guestAvatar: "https://i.pravatar.cc/150?img=68",
+   558→    guestEmail: "yusuf.k@example.com",
+   559→    guestPhone: "+971 50 555 6666",
+   560→    itemName: "Standard Room - Golden Oasis",
+   561→    itemNameAr: "غرفة قياسية - واحة الذهب",
+   562→    startDate: "2026-07-25",
+   563→    endDate: "2026-07-28",
+   564→    nights: 3,
+   565→    rooms: 1,
+   566→    roomNumber: "210",
+   567→    guests: 2,
+   568→    totalAmount: 1620,
+   569→    commission: 162,
+   570→    netEarnings: 1458,
+   571→    status: "Completed",
+   572→    paymentStatus: "Paid",
+   573→    bookingDate: "2026-07-15",
+   574→    nationality: "UAE",
+   575→    previousStays: 0,
+   576→    type: "hotel",
+   577→  },
+   578→  {
+   579→    id: "HB-2024-0231",
+   580→    guestName: "Aisha Mahmoud",
+   581→    guestNameAr: "عائشة محمود",
+   582→    guestAvatar: "https://i.pravatar.cc/150?img=25",
+   583→    guestEmail: "aisha.m@example.com",
+   584→    guestPhone: "+20 100 777 8888",
+   585→    itemName: "Family Room - Red Sea Resort",
+   586→    itemNameAr: "غرفة عائلية - منتجع البحر الأحمر",
+   587→    startDate: "2026-08-08",
+   588→    endDate: "2026-08-14",
+   589→    nights: 6,
+   590→    rooms: 1,
+   591→    roomNumber: "305",
+   592→    guests: 5,
+   593→    totalAmount: 7680,
+   594→    commission: 768,
+   595→    netEarnings: 6912,
+   596→    status: "Pending",
+   597→    paymentStatus: "Pending",
+   598→    bookingDate: "2026-07-29",
+   599→    nationality: "Egypt",
+   600→    previousStays: 0,
+   601→    type: "hotel",
+   602→  },
+   603→  {
+   604→    id: "HB-2024-0230",
+   605→    guestName: "Omar Farouk",
+   606→    guestNameAr: "عمر فاروق",
+   607→    guestAvatar: "https://i.pravatar.cc/150?img=51",
+   608→    guestEmail: "omar.f@example.com",
+   609→    guestPhone: "+966 56 999 0000",
+   610→    itemName: "Presidential Suite - Red Sea Resort",
+   611→    itemNameAr: "جناح رئاسي - منتجع البحر الأحمر",
+   612→    startDate: "2026-08-15",
+   613→    endDate: "2026-08-22",
+   614→    nights: 7,
+   615→    rooms: 1,
+   616→    roomNumber: "PH1",
+   617→    guests: 2,
+   618→    totalAmount: 22400,
+   619→    commission: 2240,
+   620→    netEarnings: 20160,
+   621→    status: "Confirmed",
+   622→    paymentStatus: "Paid",
+   623→    bookingDate: "2026-07-26",
+   624→    nationality: "Saudi Arabia",
+   625→    previousStays: 5,
+   626→    type: "hotel",
+   627→  },
+   628→];
+   629→
+   630→export interface Guest {
+   631→  id: string;
+   632→  name: string;
+   633→  nameAr: string;
+   634→  avatar: string;
+   635→  email: string;
+   636→  phone: string;
+   637→  nationality: string;
+   638→  currentBooking?: string;
+   639→  roomNumber?: string;
+   640→  totalStays: number;
+   641→  totalSpent: number;
+   642→  vipStatus: boolean;
+   643→  status: "in_house" | "upcoming" | "past";
+   644→  lastStay?: string;
+   645→  nextStay?: string;
+   646→}
+   647→
+   648→export const mockGuests: Guest[] = [
+   649→  {
+   650→    id: "G-001",
+   651→    name: "Khalid Al-Mutairi",
+   652→    nameAr: "خالد المطيري",
+   653→    avatar: "https://i.pravatar.cc/150?img=8",
+   654→    email: "khalid.m@example.com",
+   655→    phone: "+966 50 111 2222",
+   656→    nationality: "Saudi Arabia",
+   657→    currentBooking: "Royal Suite - 1201",
+   658→    roomNumber: "1201",
+   659→    totalStays: 3,
+   660→    totalSpent: 18650,
+   661→    vipStatus: true,
+   662→    status: "upcoming",
+   663→    nextStay: "2026-08-12",
+   664→  },
+   665→  {
+   666→    id: "G-002",
+   667→    name: "Sara Al-Otaibi",
+   668→    nameAr: "سارة العتيبي",
+   669→    avatar: "https://i.pravatar.cc/150?img=49",
+   670→    email: "sara.o@example.com",
+   671→    phone: "+966 55 333 4444",
+   672→    nationality: "Saudi Arabia",
+   673→    currentBooking: "Deluxe Room - 502",
+   674→    roomNumber: "502",
+   675→    totalStays: 1,
+   676→    totalSpent: 7360,
+   677→    vipStatus: false,
+   678→    status: "in_house",
+   679→  },
+   680→  {
+   681→    id: "G-003",
+   682→    name: "Omar Farouk",
+   683→    nameAr: "عمر فاروق",
+   684→    avatar: "https://i.pravatar.cc/150?img=51",
+   685→    email: "omar.f@example.com",
+   686→    phone: "+966 56 999 0000",
+   687→    nationality: "Saudi Arabia",
+   688→    totalStays: 5,
+   689→    totalSpent: 64500,
+   690→    vipStatus: true,
+   691→    status: "upcoming",
+   692→    nextStay: "2026-08-15",
+   693→  },
+   694→  {
+   695→    id: "G-004",
+   696→    name: "Yusuf Karim",
+   697→    nameAr: "يوسف كريم",
+   698→    avatar: "https://i.pravatar.cc/150?img=68",
+   699→    email: "yusuf.k@example.com",
+   700→    phone: "+971 50 555 6666",
+   701→    nationality: "UAE",
+   702→    totalStays: 1,
+   703→    totalSpent: 1620,
+   704→    vipStatus: false,
+   705→    status: "past",
+   706→    lastStay: "2026-07-28",
+   707→  },
+   708→  {
+   709→    id: "G-005",
+   710→    name: "Aisha Mahmoud",
+   711→    nameAr: "عائشة محمود",
+   712→    avatar: "https://i.pravatar.cc/150?img=25",
+   713→    email: "aisha.m@example.com",
+   714→    phone: "+20 100 777 8888",
+   715→    nationality: "Egypt",
+   716→    totalStays: 0,
+   717→    totalSpent: 0,
+   718→    vipStatus: false,
+   719→    status: "upcoming",
+   720→    nextStay: "2026-08-08",
+   721→  },
+   722→];
+   723→
+   724→export interface Review {
+   725→  id: string;
+   726→  guestName: string;
+   727→  guestNameAr: string;
+   728→  guestAvatar: string;
+   729→  itemName: string;
+   730→  itemNameAr: string;
+   731→  rating: number;
+   732→  categories: { cleanliness?: number; comfort?: number; location?: number; facilities?: number; staff?: number; value?: number; overall?: number };
+   733→  comment: string;
+   734→  commentAr: string;
+   735→  date: string;
+   736→  images?: string[];
+   737→  replied: boolean;
+   738→  reply?: string;
+   739→}
+   740→
+   741→export const mockReviews: Review[] = [
+   742→  {
+   743→    id: "R-001",
+   744→    guestName: "Ahmed Al-Rashid",
+   745→    guestNameAr: "أحمد الراشد",
+   746→    guestAvatar: "https://i.pravatar.cc/150?img=12",
+   747→    itemName: "Spiritual Umrah - 7 Days",
+   748→    itemNameAr: "عمرة روحانية - 7 أيام",
+   749→    rating: 5,
+   750→    categories: { overall: 5 },
+   751→    comment: "Outstanding organization and spiritual experience. The guide was very knowledgeable and accommodations were excellent.",
+   752→    commentAr: "تنظيم متميز وتجربة روحانية. المرشد كان مطلعًا جدًا والإقامة ممتازة.",
+   753→    date: "2026-07-20",
+   754→    replied: true,
+   755→    reply: "Thank you Ahmed! We're glad you had a meaningful experience.",
+   756→  },
+   757→  {
+   758→    id: "R-002",
+   759→    guestName: "Layla Ibrahim",
+   760→    guestNameAr: "ليلى إبراهيم",
+   761→    guestAvatar: "https://i.pravatar.cc/150?img=23",
+   762→    itemName: "Lebanon Mountain Adventure",
+   763→    itemNameAr: "مغامرات جبال لبنان",
+   764→    rating: 4,
+   765→    categories: { overall: 4 },
+   766→    comment: "Beautiful scenery and challenging hikes. Some logistics could be improved but overall a great experience.",
+   767→    commentAr: "مناظر خلابة ومسارات صعبة. بعض اللوجستيات يمكن تحسينها لكن التجربة العامة رائعة.",
+   768→    date: "2026-07-24",
+   769→    replied: false,
+   770→  },
+   771→  {
+   772→    id: "R-003",
+   773→    guestName: "John Smith",
+   774→    guestNameAr: "جون سميث",
+   775→    guestAvatar: "https://i.pravatar.cc/150?img=33",
+   776→    itemName: "Luxury Sharm El-Sheikh Beach",
+   777→    itemNameAr: "شاطئ شرم الشيخ الفاخر",
+   778→    rating: 5,
+   779→    categories: { overall: 5 },
+   780→    comment: "Perfect beach getaway! The diving experiences were unforgettable.",
+   781→    commentAr: "عطلة شاطئية مثالية! تجارب الغوص كانت لا تُنسى.",
+   782→    date: "2026-07-22",
+   783→    replied: false,
+   784→  },
+   785→  {
+   786→    id: "R-004",
+   787→    guestName: "Sara Al-Otaibi",
+   788→    guestNameAr: "سارة العتيبي",
+   789→    guestAvatar: "https://i.pravatar.cc/150?img=49",
+   790→    itemName: "Deluxe Room - Golden Oasis",
+   791→    itemNameAr: "غرفة ديلوكس - واحة الذهب",
+   792→    rating: 4,
+   793→    categories: { cleanliness: 5, comfort: 4, location: 5, facilities: 4, staff: 5, value: 4 },
+   794→    comment: "Comfortable room with great city view. Staff were very helpful.",
+   795→    commentAr: "غرفة مريحة مع إطلالة رائعة على المدينة. الموظفون متعاونون جدًا.",
+   796→    date: "2026-07-26",
+   797→    replied: false,
+   798→  },
+   799→  {
+   800→    id: "R-005",
+   801→    guestName: "Omar Farouk",
+   802→    guestNameAr: "عمر فاروق",
+   803→    guestAvatar: "https://i.pravatar.cc/150?img=51",
+   804→    itemName: "Presidential Suite - Red Sea Resort",
+   805→    itemNameAr: "جناح رئاسي - منتجع البحر الأحمر",
+   806→    rating: 5,
+   807→    categories: { cleanliness: 5, comfort: 5, location: 5, facilities: 5, staff: 5, value: 5 },
+   808→    comment: "Absolutely luxurious! The butler service was exceptional. Will return.",
+   809→    commentAr: "فخامة مطلقة! خدمة البوتر استثنائية. سنعود مرة أخرى.",
+   810→    date: "2026-07-18",
+   811→    replied: true,
+   812→    reply: "Thank you Omar! Looking forward to welcoming you back.",
+   813→  },
+   814→];
+   815→
+   816→export interface Notification {
+   817→  id: string;
+   818→  type: "booking" | "payment" | "verification" | "reviews" | "system" | "reminders";
+   819→  titleAr: string;
+   820→  titleEn: string;
+   821→  messageAr: string;
+   822→  messageEn: string;
+   823→  timestamp: string;
+   824→  read: boolean;
+   825→}
+   826→
+   827→export const mockNotifications: Notification[] = [
+   828→  {
+   829→    id: "N-001",
+   830→    type: "booking",
+   831→    titleAr: "حجز جديد",
+   832→    titleEn: "New Booking Received",
+   833→    messageAr: "قام خالد المطيري بحجز الجناح الملكي - 3 ليالٍ",
+   834→    messageEn: "Khalid Al-Mutairi booked Royal Suite for 3 nights",
+   835→    timestamp: "2026-07-29T09:14:00",
+   836→    read: false,
+   837→  },
+   838→  {
+   839→    id: "N-002",
+   840→    type: "payment",
+   841→    titleAr: "تم استلام الدفعة",
+   842→    titleEn: "Payment Received",
+   843→    messageAr: "تم استلام دفعة بقيمة 5,550 ر.س من حجز HB-2024-0234",
+   844→    messageEn: "Payment of 5,550 SAR received for booking HB-2024-0234",
+   845→    timestamp: "2026-07-29T08:42:00",
+   846→    read: false,
+   847→  },
+   848→  {
+   849→    id: "N-003",
+   850→    type: "reminders",
+   851→    titleAr: "تذكير: وصول اليوم",
+   852→    titleEn: "Reminder: Check-in Today",
+   853→    messageAr: "وصول الضيف سارة العتيبية اليوم الساعة 4 عصرًا - غرفة 502",
+   854→    messageEn: "Sara Al-Otaibi checking in today at 4 PM - Room 502",
+   855→    timestamp: "2026-07-29T07:00:00",
+   856→    read: false,
+   857→  },
+   858→  {
+   859→    id: "N-004",
+   860→    type: "reviews",
+   861→    titleAr: "تقييم جديد",
+   862→    titleEn: "New Review",
+   863→    messageAr: "ترك أحمد الراشد تقييمًا 5 نجوم على باقة العمرة",
+   864→    messageEn: "Ahmed Al-Rashid left a 5-star review on Umrah bundle",
+   865→    timestamp: "2026-07-28T19:30:00",
+   866→    read: true,
+   867→  },
+   868→  {
+   869→    id: "N-005",
+   870→    type: "verification",
+   871→    titleAr: "تم توثيق الفندق",
+   872→    titleEn: "Hotel Verified",
+   873→    messageAr: "تم توثيق فندق واحة الذهب بنجاح",
+   874→    messageEn: "Golden Oasis Hotel has been verified successfully",
+   875→    timestamp: "2026-07-27T14:15:00",
+   876→    read: true,
+   877→  },
+   878→  {
+   879→    id: "N-006",
+   880→    type: "system",
+   881→    titleAr: "تحديث المنصة",
+   882→    titleEn: "Platform Update",
+   883→    messageAr: "تم إضافة ميزة تقييم الأسعار الديناميكي الجديدة",
+   884→    messageEn: "New dynamic pricing feature has been added",
+   885→    timestamp: "2026-07-26T11:20:00",
+   886→    read: true,
+   887→  },
+   888→];
+   889→
+   890→export interface Transaction {
+   891→  id: string;
+   892→  date: string;
+   893→  bookingRef: string;
+   894→  itemName: string;
+   895→  guestName: string;
+   896→  amount: number;
+   897→  commission: number;
+   898→  netEarnings: number;
+   899→  status: "Pending" | "Cleared" | "Paid Out";
+   900→}
+   901→
+   902→export const mockTransactions: Transaction[] = [
+   903→  { id: "T-001", date: "2026-07-29", bookingRef: "HB-2024-0234", itemName: "Royal Suite - 3 nights", guestName: "Khalid Al-Mutairi", amount: 5550, commission: 555, netEarnings: 4995, status: "Pending" },
+   904→  { id: "T-002", date: "2026-07-28", bookingRef: "HB-2024-0233", itemName: "Deluxe Room - 4 nights", guestName: "Sara Al-Otaibi", amount: 7360, commission: 736, netEarnings: 6624, status: "Cleared" },
+   905→  { id: "T-003", date: "2026-07-26", bookingRef: "HB-2024-0230", itemName: "Presidential Suite - 7 nights", guestName: "Omar Farouk", amount: 22400, commission: 2240, netEarnings: 20160, status: "Cleared" },
+   906→  { id: "T-004", date: "2026-07-25", bookingRef: "BK-2024-0140", itemName: "Sharm Beach Package", guestName: "John Smith", amount: 26000, commission: 2600, netEarnings: 23400, status: "Cleared" },
+   907→  { id: "T-005", date: "2026-07-22", bookingRef: "BK-2024-0142", itemName: "Umrah Bundle", guestName: "Ahmed Al-Rashid", amount: 23200, commission: 2320, netEarnings: 20880, status: "Paid Out" },
+   908→  { id: "T-006", date: "2026-07-20", bookingRef: "BK-2024-0138", itemName: "Antalya Honeymoon", guestName: "Mohammed Saleh", amount: 17800, commission: 1780, netEarnings: 16020, status: "Cleared" },
+   909→  { id: "T-007", date: "2026-07-15", bookingRef: "HB-2024-0232", itemName: "Standard Room - 3 nights", guestName: "Yusuf Karim", amount: 1620, commission: 162, netEarnings: 1458, status: "Paid Out" },
+   910→  { id: "T-008", date: "2026-07-10", bookingRef: "BK-2024-0139", itemName: "Lebanon Adventure", guestName: "Layla Ibrahim", amount: 18600, commission: 1860, netEarnings: 16740, status: "Paid Out" },
+   911→];
+   912→
+   913→// Revenue chart data (last 8 months)
+   914→export const revenueData = [
+   915→  { month: "Dec", revenue: 142000, target: 130000 },
+   916→  { month: "Jan", revenue: 168000, target: 150000 },
+   917→  { month: "Feb", revenue: 195000, target: 170000 },
+   918→  { month: "Mar", revenue: 178000, target: 180000 },
+   919→  { month: "Apr", revenue: 224000, target: 200000 },
+   920→  { month: "May", revenue: 251000, target: 220000 },
+   921→  { month: "Jun", revenue: 289000, target: 250000 },
+   922→  { month: "Jul", revenue: 318000, target: 280000 },
+   923→];
+   924→
+   925→export const occupancyData = [
+   926→  { month: "Dec", rate: 58 },
+   927→  { month: "Jan", rate: 64 },
+   928→  { month: "Feb", rate: 72 },
+   929→  { month: "Mar", rate: 68 },
+   930→  { month: "Apr", rate: 75 },
+   931→  { month: "May", rate: 81 },
+   932→  { month: "Jun", rate: 86 },
+   933→  { month: "Jul", rate: 91 },
+   934→];
+   935→
+   936→// Provider profile
+   937→export const mockProviderProfile = {
+   938→  bundle_creator: {
+   939→    fullNameAr: "أحمد عبدالله النعيمي",
+   940→    fullNameEn: "Ahmed Abdullah Al-Naimi",
+   941→    email: "ahmed@viatrips.com",
+   942→    phone: "+966 50 123 4567",
+   943→    businessNameAr: "رحلات واحة للسياحة",
+   944→    businessNameEn: "Via Trips",
+   945→    businessDesc: "Travel agency specializing in Middle East tours and Umrah packages",
+   946→    licenseNumber: "TG-2021-4567",
+   947→    taxId: "300123456700003",
+   948→    yearsExperience: 8,
+   949→    languages: ["Arabic", "English", "French"],
+   950→    avatar: "https://i.pravatar.cc/150?img=60",
+   951→    verificationStatus: "verified" as const,
+   952→  },
+   953→  hotel_owner: {
+   954→    fullNameAr: "سعود بن فهد القحطاني",
+   955→    fullNameEn: "Saud bin Fahd Al-Qahtani",
+   956→    email: "saud@goldenoasis.com",
+   957→    phone: "+966 55 987 6543",
+   958→    businessNameAr: "مجموعة واحة الذهب للفنادق",
+   959→    businessNameEn: "Golden Oasis Hotel Group",
+   960→    businessDesc: "Luxury hotel group operating premium properties across the Middle East",
+   961→    licenseNumber: "HL-2020-1234",
+   962→    taxId: "300987654300003",
+   963→    avatar: "https://i.pravatar.cc/150?img=53",
+   964→    verificationStatus: "verified" as const,
+   965→  },
+   966→};
+   967→
+   968→// Calendar events (mock - colored date cells)
+   969→export const calendarEvents = [
+   970→  { date: "2026-08-01", status: "partial" as const, label: "3 bookings" },
+   971→  { date: "2026-08-02", status: "available" as const, label: "" },
+   972→  { date: "2026-08-05", status: "full" as const, label: "8 bookings" },
+   973→  { date: "2026-08-08", status: "partial" as const, label: "2 bookings" },
+   974→  { date: "2026-08-10", status: "full" as const, label: "Dubai Magic tour" },
+   975→  { date: "2026-08-12", status: "partial" as const, label: "5 bookings" },
+   976→  { date: "2026-08-15", status: "full" as const, label: "Umrah group arrives" },
+   977→  { date: "2026-08-18", status: "blocked" as const, label: "Maintenance" },
+   978→  { date: "2026-08-20", status: "available" as const, label: "" },
+   979→  { date: "2026-08-22", status: "partial" as const, label: "4 bookings" },
+   980→  { date: "2026-08-25", status: "full" as const, label: "Antalya honeymoon" },
+   981→  { date: "2026-08-28", status: "available" as const, label: "" },
+   982→];
+   983→
+   984→// Room inventory grid (mock per-date availability per room number)
+   985→export const roomInventory = [
+   986→  { roomNumber: "101", type: "Standard", dates: { "2026-08-01": "available", "2026-08-02": "booked", "2026-08-03": "available", "2026-08-04": "available", "2026-08-05": "booked", "2026-08-06": "available", "2026-08-07": "available" } },
+   987→  { roomNumber: "102", type: "Standard", dates: { "2026-08-01": "available", "2026-08-02": "available", "2026-08-03": "booked", "2026-08-04": "booked", "2026-08-05": "booked", "2026-08-06": "available", "2026-08-07": "maintenance" } },
+   988→  { roomNumber: "210", type: "Standard", dates: { "2026-08-01": "booked", "2026-08-02": "booked", "2026-08-03": "available", "2026-08-04": "available", "2026-08-05": "available", "2026-08-06": "booked", "2026-08-07": "available" } },
+   989→  { roomNumber: "502", type: "Deluxe", dates: { "2026-08-01": "booked", "2026-08-02": "booked", "2026-08-03": "booked", "2026-08-04": "booked", "2026-08-05": "available", "2026-08-06": "available", "2026-08-07": "available" } },
+   990→  { roomNumber: "504", type: "Deluxe", dates: { "2026-08-01": "available", "2026-08-02": "available", "2026-08-03": "available", "2026-08-04": "booked", "2026-08-05": "booked", "2026-08-06": "booked", "2026-08-07": "booked" } },
+   991→  { roomNumber: "1201", type: "Royal Suite", dates: { "2026-08-01": "available", "2026-08-02": "available", "2026-08-03": "available", "2026-08-04": "available", "2026-08-05": "available", "2026-08-06": "booked", "2026-08-07": "booked" } },
+   992→];
+   993→

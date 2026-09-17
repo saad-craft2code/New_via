@@ -1,2 +1,42 @@
-skills/
-node_modules/
+# dependencies
+node_modules
+
+# env and secrets
+.env
+.env.local
+.env.*.local
+.env.example
+
+# build output
+.next
+out
+build
+coverage
+**/dist
+**/*.tsbuildinfo
+
+# logs
+dev.log
+server.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# editor files
+.vscode/
+.idea/
+
+# generated prisma artifacts if you do not want them in version control
+# prisma/*.db
+
+# local tooling and generated lockfiles
+.zscripts/
+bun.lock
+
+# npm lockfile is okay to keep if you want a reproducible install
+# keep package-lock.json tracked by default
+
