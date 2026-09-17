@@ -5,26 +5,49 @@ import { t } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge, PageHeader, formatCurrency } from "@/components/widgets";
-import { mockHotelBookings } from "@/lib/mock-data";
-import { Search, Download, Eye, X, Check, XCircle, LogIn, LogOut, Printer, Mail, BedDouble, Plus, Clock } from "lucide-react";
+import { bookingService, adaptBooking, type UIBooking } from "@/services/booking.service";
+import { useApi } from "@/hooks/use-api";
+import { Search, Download, Eye, X, Check, XCircle, LogIn, LogOut, Printer, Mail, BedDouble, Plus, Clock, AlertCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
 
 export function HOBookings() {
   const lang = useAppStore((s) => s.lang);
   const [filter, setFilter] = useState<"All" | "Pending" | "Confirmed" | "Active" | "Completed" | "Cancelled" | "No-show">("All");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
+  const [acting, setActing] = useState<string | null>(null);
 
-  const filtered = mockHotelBookings.filter((b) => {
+  const { data, loading, error, refetch } = useApi<UIBooking[]>(
+    () => bookingService.list().then((rows) => rows.map(adaptBooking)),
+    [],
+  );
+  const bookings = data ?? [];
+
+  const filtered = bookings.filter((b) => {
     if (filter !== "All" && b.status !== filter) return false;
     if (search && !b.guestName.toLowerCase().includes(search.toLowerCase()) && !b.id.toLowerCase().includes(search.toLowerCase()) && !b.roomNumber?.includes(search)) return false;
     return true;
   });
 
-  const selectedBooking = mockHotelBookings.find((b) => b.id === selected);
+  const selectedBooking = bookings.find((b) => b.id === selected);
+
+  const updateStatus = async (id: string, status: UIBooking["status"]) => {
+    setActing(id);
+    try {
+      await bookingService.update(id, { status });
+      toast.success(lang === "ar" ? "تم تحديث الحجز" : "Booking updated");
+      await refetch();
+    } catch (e: any) {
+      toast.error(e?.message ?? (lang === "ar" ? "فشل التحديث" : "Update failed"));
+    } finally {
+      setActing(null);
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -85,7 +108,31 @@ export function HOBookings() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((b) => (
+                {loading ? (
+                  [1, 2, 3, 4].map((i) => (
+                    <tr key={i} className="border-b border-border/40">
+                      <td className="p-3"><Skeleton className="h-4 w-24" /></td>
+                      <td className="p-3"><Skeleton className="h-8 w-32" /></td>
+                      <td className="p-3 hidden md:table-cell"><Skeleton className="h-4 w-28" /></td>
+                      <td className="p-3 hidden sm:table-cell"><Skeleton className="h-4 w-12" /></td>
+                      <td className="p-3 hidden lg:table-cell"><Skeleton className="h-4 w-24" /></td>
+                      <td className="p-3 hidden sm:table-cell"><Skeleton className="h-4 w-8" /></td>
+                      <td className="p-3"><Skeleton className="h-4 w-16" /></td>
+                      <td className="p-3"><Skeleton className="h-5 w-16 rounded-full" /></td>
+                      <td className="p-3"><Skeleton className="h-8 w-8 rounded-full" /></td>
+                    </tr>
+                  ))
+                ) : error ? (
+                  <tr>
+                    <td colSpan={9} className="p-6 text-center">
+                      <div className="flex flex-col items-center gap-3">
+                        <AlertCircle className="h-8 w-8 text-destructive" />
+                        <p className="text-sm text-muted-foreground">{error}</p>
+                        <Button size="sm" variant="outline" onClick={refetch}>{t("retry", lang)}</Button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : filtered.map((b) => (
                   <tr key={b.id} className="border-b border-border/40 hover:bg-muted/30 cursor-pointer" onClick={() => setSelected(b.id)}>
                     <td className="p-3 text-sm font-mono">{b.id}</td>
                     <td className="p-3">
@@ -98,12 +145,12 @@ export function HOBookings() {
                       </div>
                     </td>
                     <td className="p-3 text-sm hidden md:table-cell">{lang === "ar" ? b.itemNameAr : b.itemName}</td>
-                    <td className="p-3 text-sm text-muted-foreground hidden sm:table-cell">{b.roomNumber}</td>
+                    <td className="p-3 text-sm text-muted-foreground hidden sm:table-cell">{b.roomNumber ?? "—"}</td>
                     <td className="p-3 text-sm hidden lg:table-cell">
                       <div>{new Date(b.startDate).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")}</div>
                       <div className="text-xs text-muted-foreground">→ {new Date(b.endDate).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")}</div>
                     </td>
-                    <td className="p-3 text-sm hidden sm:table-cell">{b.nights}</td>
+                    <td className="p-3 text-sm hidden sm:table-cell">{b.nights ?? "—"}</td>
                     <td className="p-3 text-sm font-semibold">{formatCurrency(b.totalAmount, lang)}</td>
                     <td className="p-3"><StatusBadge status={b.status} lang={lang} /></td>
                     <td className="p-3" onClick={(e) => e.stopPropagation()}>
@@ -239,33 +286,50 @@ export function HOBookings() {
                 {/* Action buttons */}
                 <div className="grid grid-cols-2 gap-2 sticky bottom-0 bg-background/80 backdrop-blur-md p-3 -mx-4 -mb-4 border-t border-border">
                   {selectedBooking.status === "Pending" && (
-                    <Button className="bg-[oklch(0.55_0.12_175)] hover:bg-[oklch(0.5_0.12_175)] text-white gap-1">
-                      <Check className="h-4 w-4" />
+                    <Button
+                      className="bg-[oklch(0.55_0.12_175)] hover:bg-[oklch(0.5_0.12_175)] text-white gap-1"
+                      disabled={acting === selectedBooking.id}
+                      onClick={() => updateStatus(selectedBooking.id, "Confirmed")}
+                    >
+                      {acting === selectedBooking.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                       {t("confirm_booking", lang)}
                     </Button>
                   )}
                   {selectedBooking.status === "Confirmed" && (
-                    <Button className="bg-[oklch(0.55_0.12_175)] hover:bg-[oklch(0.5_0.12_175)] text-white gap-1">
-                      <LogIn className="h-4 w-4" />
+                    <Button
+                      className="bg-[oklch(0.55_0.12_175)] hover:bg-[oklch(0.5_0.12_175)] text-white gap-1"
+                      disabled={acting === selectedBooking.id}
+                      onClick={() => updateStatus(selectedBooking.id, "Active")}
+                    >
+                      {acting === selectedBooking.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
                       {lang === "ar" ? "تسجيل وصول" : "Check-in"}
                     </Button>
                   )}
                   {selectedBooking.status === "Active" && (
-                    <Button className="bg-[oklch(0.55_0.13_30)] hover:bg-[oklch(0.5_0.13_30)] text-white gap-1">
-                      <LogOut className="h-4 w-4" />
+                    <Button
+                      className="bg-[oklch(0.55_0.13_30)] hover:bg-[oklch(0.5_0.13_30)] text-white gap-1"
+                      disabled={acting === selectedBooking.id}
+                      onClick={() => updateStatus(selectedBooking.id, "Completed")}
+                    >
+                      {acting === selectedBooking.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
                       {lang === "ar" ? "تسجيل مغادرة" : "Check-out"}
                     </Button>
                   )}
-                  <Button variant="outline" className="gap-1">
+                  <Button variant="outline" className="gap-1" onClick={() => toast(lang === "ar" ? "ميزة قادمة" : "Coming soon")}>
                     <BedDouble className="h-4 w-4" />
                     {lang === "ar" ? "تغيير الغرفة" : "Assign Room"}
                   </Button>
-                  <Button variant="outline" className="gap-1">
+                  <Button variant="outline" className="gap-1" onClick={() => toast(lang === "ar" ? "ميزة قادمة" : "Coming soon")}>
                     <Printer className="h-4 w-4" />
                     {lang === "ar" ? "بطاقة التسجيل" : "Reg. Card"}
                   </Button>
-                  <Button variant="outline" className="gap-1 text-destructive hover:text-destructive">
-                    <XCircle className="h-4 w-4" />
+                  <Button
+                    variant="outline"
+                    className="gap-1 text-destructive hover:text-destructive"
+                    disabled={acting === selectedBooking.id || selectedBooking.status === "Cancelled" || selectedBooking.status === "Completed"}
+                    onClick={() => updateStatus(selectedBooking.id, "Cancelled")}
+                  >
+                    {acting === selectedBooking.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
                     {t("cancel_booking", lang)}
                   </Button>
                 </div>

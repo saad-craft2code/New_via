@@ -5,12 +5,15 @@ import { t } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { PageHeader } from "@/components/widgets";
-import { mockNotifications } from "@/lib/mock-data";
-import { Bell, CreditCard, ShieldCheck, Star, Settings, Clock, Check } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader, EmptyState } from "@/components/widgets";
+import { notificationService, adaptNotification, type UINotification } from "@/services/notification.service";
+import { useApi } from "@/hooks/use-api";
+import { Bell, CreditCard, ShieldCheck, Star, Settings, Clock, Check, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 const typeIcons = {
   booking: { icon: Bell, color: "bg-[oklch(0.55_0.12_175)] text-white" },
@@ -24,9 +27,13 @@ const typeIcons = {
 export function BCNotifications() {
   const lang = useAppStore((s) => s.lang);
   const [filter, setFilter] = useState<string>("all");
-  const [readState, setReadState] = useState<Record<string, boolean>>(
-    mockNotifications.reduce((acc, n) => ({ ...acc, [n.id]: n.read }), {})
+  const [updating, setUpdating] = useState<string | null>(null);
+  const { data, loading, error, refetch } = useApi<UINotification[]>(
+    () => notificationService.list().then((rows) => rows.map(adaptNotification)),
+    [],
   );
+  const notifications = data ?? [];
+  const [readState, setReadState] = useState<Record<string, boolean>>({});
   const [prefs, setPrefs] = useState({
     email: true,
     sms: false,
@@ -39,24 +46,57 @@ export function BCNotifications() {
     reminders: true,
   });
 
-  const filtered = filter === "all"
-    ? mockNotifications
-    : mockNotifications.filter((n) => n.type === filter);
+  // Sync read state with fetched data
+  const effectiveRead = (id: string) =>
+    id in readState ? readState[id] : notifications.find((n) => n.id === id)?.read ?? false;
 
-  const markAllRead = () => {
-    const newState: Record<string, boolean> = {};
-    mockNotifications.forEach((n) => (newState[n.id] = true));
-    setReadState(newState);
+  const filtered = filter === "all"
+    ? notifications
+    : notifications.filter((n) => n.type === filter);
+
+  const markAllRead = async () => {
+    const unread = notifications.filter((n) => !effectiveRead(n.id));
+    if (unread.length === 0) {
+      toast(lang === "ar" ? "كل الإشعارات مقروءة" : "All caught up");
+      return;
+    }
+    // Optimistically update local state
+    setReadState((p) => {
+      const next = { ...p };
+      unread.forEach((n) => (next[n.id] = true));
+      return next;
+    });
+    // Persist in background
+    try {
+      await Promise.all(unread.map((n) => notificationService.markRead(n.id, true)));
+      toast.success(lang === "ar" ? "تم تعليم الكل كمقروء" : "Marked all as read");
+      await refetch();
+    } catch {
+      toast.error(lang === "ar" ? "تعذّر التحديث" : "Failed to update");
+    }
   };
 
-  const toggle = (id: string) => setReadState((p) => ({ ...p, [id]: !p[id] }));
+  const toggle = async (id: string) => {
+    const next = !effectiveRead(id);
+    setReadState((p) => ({ ...p, [id]: next }));
+    setUpdating(id);
+    try {
+      await notificationService.markRead(id, next);
+      await refetch();
+    } catch {
+      toast.error(lang === "ar" ? "تعذّر التحديث" : "Failed to update");
+      setReadState((p) => ({ ...p, [id]: !next }));
+    } finally {
+      setUpdating(null);
+    }
+  };
 
   return (
     <div className="space-y-5">
       <PageHeader
         title={t("nav_notifications", lang)}
         actions={
-          <Button variant="outline" size="sm" onClick={markAllRead} className="gap-1.5">
+          <Button variant="outline" size="sm" onClick={markAllRead} className="gap-1.5" disabled={loading || updating !== null}>
             <Check className="h-4 w-4" />
             {t("mark_all_read", lang)}
           </Button>
@@ -91,37 +131,65 @@ export function BCNotifications() {
             ))}
           </div>
 
-          {filtered.map((n, i) => {
-            const ti = typeIcons[n.type];
-            const isRead = readState[n.id];
-            return (
-              <motion.div
-                key={n.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2, delay: i * 0.03 }}
-                onClick={() => toggle(n.id)}
-                className={cn(
-                  "flex items-start gap-3 p-3.5 rounded-lg border cursor-pointer transition-all",
-                  !isRead ? "border-primary/30 bg-primary/5" : "border-border bg-card hover:bg-muted/30"
-                )}
-              >
-                <div className={cn("h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0", ti.color)}>
-                  <ti.icon className="h-4.5 w-4.5" style={{ width: "1.125rem", height: "1.125rem" }} />
+          {loading ? (
+            [1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex items-start gap-3 p-3.5 rounded-lg border border-border">
+                <Skeleton className="h-9 w-9 rounded-lg" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-2 w-20" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-semibold">{lang === "ar" ? n.titleAr : n.titleEn}</p>
-                    {!isRead && <span className="h-2 w-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />}
+              </div>
+            ))
+          ) : error ? (
+            <Card>
+              <CardContent className="p-6 flex flex-col items-center text-center">
+                <AlertCircle className="h-8 w-8 text-destructive mb-3" />
+                <p className="text-sm text-muted-foreground mb-3">{error}</p>
+                <Button size="sm" variant="outline" onClick={refetch}>{t("retry", lang)}</Button>
+              </CardContent>
+            </Card>
+          ) : filtered.length === 0 ? (
+            <Card>
+              <CardContent className="p-2">
+                <EmptyState icon={Bell} title={lang === "ar" ? "لا إشعارات" : "No notifications"} desc={lang === "ar" ? "ستظهر الإشعارات هنا عند وصولها" : "Notifications will appear here when they arrive"} />
+              </CardContent>
+            </Card>
+          ) : (
+            filtered.map((n, i) => {
+              const ti = typeIcons[n.type] ?? typeIcons.system;
+              const isRead = effectiveRead(n.id);
+              return (
+                <motion.div
+                  key={n.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: i * 0.03 }}
+                  onClick={() => toggle(n.id)}
+                  className={cn(
+                    "flex items-start gap-3 p-3.5 rounded-lg border cursor-pointer transition-all",
+                    !isRead ? "border-primary/30 bg-primary/5" : "border-border bg-card hover:bg-muted/30",
+                    updating === n.id && "opacity-60"
+                  )}
+                >
+                  <div className={cn("h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0", ti.color)}>
+                    <ti.icon className="h-4.5 w-4.5" style={{ width: "1.125rem", height: "1.125rem" }} />
                   </div>
-                  <p className="text-sm text-muted-foreground mt-0.5">{lang === "ar" ? n.messageAr : n.messageEn}</p>
-                  <p className="text-[10px] text-muted-foreground/70 mt-1.5">
-                    {new Date(n.timestamp).toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
-                  </p>
-                </div>
-              </motion.div>
-            );
-          })}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-semibold">{lang === "ar" ? n.titleAr : n.titleEn}</p>
+                      {!isRead && <span className="h-2 w-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-0.5">{lang === "ar" ? n.messageAr : n.messageEn}</p>
+                    <p className="text-[10px] text-muted-foreground/70 mt-1.5">
+                      {new Date(n.timestamp).toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
+                    </p>
+                  </div>
+                </motion.div>
+              );
+            })
+          )}
         </div>
 
         {/* Preferences */}

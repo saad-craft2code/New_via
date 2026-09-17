@@ -6,26 +6,49 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge, PageHeader, formatCurrency } from "@/components/widgets";
-import { mockBookings } from "@/lib/mock-data";
-import { Search, Filter, Download, Eye, MessageCircle, Send, X, Check, XCircle, FileDown, Phone, Mail, MapPin, Calendar, Users, Clock } from "lucide-react";
+import { bookingService, adaptBooking, type UIBooking } from "@/services/booking.service";
+import { useApi } from "@/hooks/use-api";
+import { Search, Filter, Download, Eye, MessageCircle, Send, X, Check, XCircle, FileDown, Phone, Mail, MapPin, Calendar, Users, Clock, AlertCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
 
 export function BCBookings() {
   const lang = useAppStore((s) => s.lang);
   const [filter, setFilter] = useState<"All" | "Pending" | "Confirmed" | "Active" | "Completed" | "Cancelled">("All");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
+  const [acting, setActing] = useState<string | null>(null);
 
-  const filtered = mockBookings.filter((b) => {
+  const { data, loading, error, refetch } = useApi<UIBooking[]>(
+    () => bookingService.list().then((rows) => rows.map(adaptBooking)),
+    [],
+  );
+
+  const bookings = data ?? [];
+  const filtered = bookings.filter((b) => {
     if (filter !== "All" && b.status !== filter) return false;
     if (search && !b.guestName.toLowerCase().includes(search.toLowerCase()) && !b.id.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
-  const selectedBooking = mockBookings.find((b) => b.id === selected);
+  const selectedBooking = bookings.find((b) => b.id === selected);
+
+  const updateStatus = async (id: string, status: UIBooking["status"]) => {
+    setActing(id);
+    try {
+      await bookingService.update(id, { status });
+      toast.success(lang === "ar" ? "تم تحديث الحجز" : "Booking updated");
+      await refetch();
+    } catch (e: any) {
+      toast.error(e?.message ?? (lang === "ar" ? "فشل التحديث" : "Update failed"));
+    } finally {
+      setActing(null);
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -87,7 +110,30 @@ export function BCBookings() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((b) => (
+                {loading ? (
+                  [1, 2, 3, 4].map((i) => (
+                    <tr key={i} className="border-b border-border/40">
+                      <td className="p-3"><Skeleton className="h-4 w-24" /></td>
+                      <td className="p-3"><Skeleton className="h-8 w-32" /></td>
+                      <td className="p-3 hidden md:table-cell"><Skeleton className="h-4 w-28" /></td>
+                      <td className="p-3 hidden lg:table-cell"><Skeleton className="h-4 w-20" /></td>
+                      <td className="p-3 hidden sm:table-cell"><Skeleton className="h-4 w-8" /></td>
+                      <td className="p-3"><Skeleton className="h-4 w-16" /></td>
+                      <td className="p-3"><Skeleton className="h-5 w-16 rounded-full" /></td>
+                      <td className="p-3"><Skeleton className="h-8 w-8 rounded-full" /></td>
+                    </tr>
+                  ))
+                ) : error ? (
+                  <tr>
+                    <td colSpan={8} className="p-6 text-center">
+                      <div className="flex flex-col items-center gap-3">
+                        <AlertCircle className="h-8 w-8 text-destructive" />
+                        <p className="text-sm text-muted-foreground">{error}</p>
+                        <Button size="sm" variant="outline" onClick={refetch}>{t("retry", lang)}</Button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : filtered.map((b) => (
                   <tr key={b.id} className="border-b border-border/40 hover:bg-muted/30 cursor-pointer" onClick={() => setSelected(b.id)}>
                     <td className="p-3 text-sm font-mono">{b.id}</td>
                     <td className="p-3">
@@ -266,28 +312,42 @@ export function BCBookings() {
                 {/* Action buttons */}
                 <div className="grid grid-cols-2 gap-2 sticky bottom-0 bg-background/80 backdrop-blur-md p-3 -mx-4 -mb-4 border-t border-border">
                   {selectedBooking.status === "Pending" && (
-                    <Button className="bg-[oklch(0.55_0.12_175)] hover:bg-[oklch(0.5_0.12_175)] text-white gap-1">
-                      <Check className="h-4 w-4" />
+                    <Button
+                      className="bg-[oklch(0.55_0.12_175)] hover:bg-[oklch(0.5_0.12_175)] text-white gap-1"
+                      disabled={acting === selectedBooking.id}
+                      onClick={() => updateStatus(selectedBooking.id, "Confirmed")}
+                    >
+                      {acting === selectedBooking.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                       {t("confirm_booking", lang)}
                     </Button>
                   )}
-                  <Button variant="outline" className="gap-1">
+                  <Button variant="outline" className="gap-1" onClick={() => toast(lang === "ar" ? "ميزة قادمة" : "Coming soon")}>
                     <MessageCircle className="h-4 w-4" />
                     {t("contact_guest", lang)}
                   </Button>
-                  <Button variant="outline" className="gap-1">
+                  <Button variant="outline" className="gap-1" onClick={() => toast(lang === "ar" ? "ميزة قادمة" : "Coming soon")}>
                     <Send className="h-4 w-4" />
                     {t("send_itinerary", lang)}
                   </Button>
                   {selectedBooking.status !== "Cancelled" && selectedBooking.status !== "Completed" && (
-                    <Button variant="outline" className="gap-1 text-destructive hover:text-destructive">
-                      <XCircle className="h-4 w-4" />
+                    <Button
+                      variant="outline"
+                      className="gap-1 text-destructive hover:text-destructive"
+                      disabled={acting === selectedBooking.id}
+                      onClick={() => updateStatus(selectedBooking.id, "Cancelled")}
+                    >
+                      {acting === selectedBooking.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
                       {t("cancel_booking", lang)}
                     </Button>
                   )}
                   {selectedBooking.status === "Active" && (
-                    <Button variant="outline" className="gap-1 text-[oklch(0.5_0.15_145)]">
-                      <Check className="h-4 w-4" />
+                    <Button
+                      variant="outline"
+                      className="gap-1 text-[oklch(0.5_0.15_145)]"
+                      disabled={acting === selectedBooking.id}
+                      onClick={() => updateStatus(selectedBooking.id, "Completed")}
+                    >
+                      {acting === selectedBooking.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                       {t("mark_completed", lang)}
                     </Button>
                   )}

@@ -8,14 +8,78 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PageHeader, StatusBadge } from "@/components/widgets";
-import { mockProviderProfile } from "@/lib/mock-data";
-import { ShieldCheck, FileText, UploadCloud, Camera, Building2, User, Mail, Phone, BadgeCheck, Globe, Briefcase, Save, Plus } from "lucide-react";
-import { useState } from "react";
+import { userService } from "@/services/user.service";
+import { ShieldCheck, FileText, UploadCloud, Camera, Building2, User, Mail, Phone, BadgeCheck, Globe, Briefcase, Save, Plus, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export function BCProfile() {
   const lang = useAppStore((s) => s.lang);
-  const profile = mockProviderProfile.bundle_creator;
+  const user = useAppStore((s) => s.user);
+  const setUser = useAppStore((s) => s.setUser);
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Form state — pre-filled from the logged-in user, falls back to mock defaults
+  const [name, setName] = useState(user?.name ?? "Ahmed Abdullah Al-Naimi");
+  const [phone, setPhone] = useState(user?.phone ?? "+966 50 123 4567");
+  const [companyName, setCompanyName] = useState(user?.companyName ?? "Via Trips");
+  const [businessDesc, setBusinessDesc] = useState(
+    lang === "ar"
+      ? "وكالة سفر متخصصة في جولات الشرق الأوسط وباقات العمرة"
+      : "Travel agency specializing in Middle East tours and Umrah packages"
+  );
+  const [licenseNumber, setLicenseNumber] = useState(user?.tourGuideLicense ?? "TG-2021-4567");
+  const [taxId, setTaxId] = useState("300123456700003");
+  const [languages, setLanguages] = useState<string[]>(user?.languagesSpoken ?? ["Arabic", "English", "French"]);
+  const avatar = user?.avatarUrl ?? "https://i.pravatar.cc/150?img=60";
+
+  // Sync local form state when user changes (e.g. after login)
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setPhone(user.phone ?? "");
+      setCompanyName(user.companyName ?? "");
+      setLicenseNumber(user.tourGuideLicense ?? "");
+      setLanguages(user.languagesSpoken ?? []);
+    }
+  }, [user]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const updated = await userService.updateProfile({
+        name,
+        phone,
+        companyName,
+        tourGuideLicense: licenseNumber,
+        languagesSpoken: languages,
+      });
+      setUser(updated);
+      toast.success(lang === "ar" ? "تم حفظ الملف الشخصي" : "Profile saved");
+      setEditing(false);
+    } catch (e: any) {
+      toast.error(e?.message ?? (lang === "ar" ? "فشل الحفظ" : "Save failed"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const profile = {
+    fullNameEn: name,
+    fullNameAr: name,
+    email: user?.email ?? "ahmed@viatrips.com",
+    phone,
+    yearsExperience: user?.yearsExperience ?? 8,
+    languages,
+    businessNameEn: companyName,
+    businessNameAr: companyName,
+    businessDesc,
+    licenseNumber,
+    taxId,
+    avatar,
+    verificationStatus: user?.kycStatus === "approved" ? "verified" as const : "pending" as const,
+  };
 
   return (
     <div className="space-y-5">
@@ -24,11 +88,22 @@ export function BCProfile() {
         actions={
           <Button
             variant={editing ? "default" : "outline"}
-            onClick={() => setEditing(!editing)}
+            onClick={() => {
+              if (editing) {
+                handleSave();
+              } else {
+                setEditing(true);
+              }
+            }}
+            disabled={saving}
             className={editing ? "bg-primary text-primary-foreground gap-2" : "gap-2"}
           >
-            <Save className="h-4 w-4" />
-            {editing ? t("save_changes", lang) : (lang === "ar" ? "تعديل" : "Edit")}
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            {saving
+              ? (lang === "ar" ? "جارٍ الحفظ..." : "Saving...")
+              : editing
+                ? t("save_changes", lang)
+                : (lang === "ar" ? "تعديل" : "Edit")}
           </Button>
         }
       />
@@ -74,35 +149,35 @@ export function BCProfile() {
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>{t("full_name_ar", lang)}</Label>
-                <Input defaultValue={profile.fullNameAr} dir="rtl" disabled={!editing} />
+                <Input value={profile.fullNameAr} dir="rtl" disabled={!editing} onChange={(e) => setName(e.target.value)} />
               </div>
               <div className="space-y-1.5">
                 <Label>{t("full_name_en", lang)}</Label>
-                <Input defaultValue={profile.fullNameEn} dir="ltr" disabled={!editing} />
+                <Input value={profile.fullNameEn} dir="ltr" disabled={!editing} onChange={(e) => setName(e.target.value)} />
               </div>
             </div>
             <div className="space-y-1.5">
               <Label>{t("email", lang)}</Label>
               <div className="relative">
                 <Mail className="absolute top-1/2 -translate-y-1/2 start-3 h-4 w-4 text-muted-foreground" />
-                <Input defaultValue={profile.email} dir="ltr" disabled={!editing} className="ps-9" />
+                <Input value={profile.email} dir="ltr" disabled={!editing} className="ps-9" onChange={(e) => { /* email not editable via this form */ }} />
               </div>
             </div>
             <div className="space-y-1.5">
               <Label>{t("phone", lang)}</Label>
               <div className="relative">
                 <Phone className="absolute top-1/2 -translate-y-1/2 start-3 h-4 w-4 text-muted-foreground" />
-                <Input defaultValue={profile.phone} dir="ltr" disabled={!editing} className="ps-9" />
+                <Input value={profile.phone} dir="ltr" disabled={!editing} className="ps-9" onChange={(e) => setPhone(e.target.value)} />
               </div>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>{t("years_experience", lang)}</Label>
-                <Input defaultValue={profile.yearsExperience} type="number" dir="ltr" disabled={!editing} />
+                <Input value={profile.yearsExperience} type="number" dir="ltr" disabled={!editing} />
               </div>
               <div className="space-y-1.5">
                 <Label>{t("languages_spoken", lang)}</Label>
-                <Input defaultValue={profile.languages.join(", ")} dir="ltr" disabled={!editing} />
+                <Input value={profile.languages.join(", ")} dir="ltr" disabled={!editing} onChange={(e) => setLanguages(e.target.value.split(",").map((s) => s.trim()).filter(Boolean))} />
               </div>
             </div>
           </CardContent>
@@ -120,28 +195,28 @@ export function BCProfile() {
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>{lang === "ar" ? "اسم النشاط (عربي)" : "Business Name (Arabic)"}</Label>
-                <Input defaultValue={profile.businessNameAr} dir="rtl" disabled={!editing} />
+                <Input value={profile.businessNameAr} dir="rtl" disabled={!editing} onChange={(e) => setCompanyName(e.target.value)} />
               </div>
               <div className="space-y-1.5">
                 <Label>{lang === "ar" ? "اسم النشاط (إنجليزي)" : "Business Name (English)"}</Label>
-                <Input defaultValue={profile.businessNameEn} dir="ltr" disabled={!editing} />
+                <Input value={profile.businessNameEn} dir="ltr" disabled={!editing} onChange={(e) => setCompanyName(e.target.value)} />
               </div>
             </div>
             <div className="space-y-1.5">
               <Label>{lang === "ar" ? "وصف النشاط" : "Business Description"}</Label>
-              <Textarea defaultValue={profile.businessDesc} rows={3} disabled={!editing} dir={lang === "ar" ? "rtl" : "ltr"} />
+              <Textarea value={profile.businessDesc} rows={3} disabled={!editing} dir={lang === "ar" ? "rtl" : "ltr"} onChange={(e) => setBusinessDesc(e.target.value)} />
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>{t("business_license", lang)}</Label>
                 <div className="relative">
                   <BadgeCheck className="absolute top-1/2 -translate-y-1/2 start-3 h-4 w-4 text-muted-foreground" />
-                  <Input defaultValue={profile.licenseNumber} dir="ltr" disabled={!editing} className="ps-9" />
+                  <Input value={profile.licenseNumber} dir="ltr" disabled={!editing} className="ps-9" onChange={(e) => setLicenseNumber(e.target.value)} />
                 </div>
               </div>
               <div className="space-y-1.5">
                 <Label>{lang === "ar" ? "السجل الضريبي" : "Tax ID"}</Label>
-                <Input defaultValue={profile.taxId} dir="ltr" disabled={!editing} />
+                <Input value={profile.taxId} dir="ltr" disabled={!editing} onChange={(e) => setTaxId(e.target.value)} />
               </div>
             </div>
           </CardContent>

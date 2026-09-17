@@ -4,13 +4,16 @@ import { useAppStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { StarRating, PageHeader } from "@/components/widgets";
-import { mockReviews } from "@/lib/mock-data";
-import { Reply, Flag, Star, MessageCircle } from "lucide-react";
+import { StarRating, PageHeader, EmptyState } from "@/components/widgets";
+import { reviewService, adaptReview, type UIReview } from "@/services/review.service";
+import { useApi } from "@/hooks/use-api";
+import { Reply, Flag, Star, MessageCircle, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 export function BCReviews() {
   const lang = useAppStore((s) => s.lang);
@@ -18,10 +21,16 @@ export function BCReviews() {
   const [replyText, setReplyText] = useState("");
   const [replies, setReplies] = useState<Record<string, string>>({});
 
+  const { data, loading, error, refetch } = useApi<UIReview[]>(
+    () => reviewService.list().then((rows) => rows.map((r) => adaptReview(r))),
+    [],
+  );
+  const reviews = data ?? [];
+
   // Simple rating breakdown
-  const ratingCounts = [5, 4, 3, 2, 1].map(r => ({ rating: r, count: mockReviews.filter(rv => Math.round(rv.rating) === r).length }));
-  const totalReviews = mockReviews.length;
-  const avgRating = mockReviews.reduce((s, r) => s + r.rating, 0) / totalReviews;
+  const ratingCounts = [5, 4, 3, 2, 1].map(r => ({ rating: r, count: reviews.filter(rv => Math.round(rv.rating) === r).length }));
+  const totalReviews = reviews.length;
+  const avgRating = totalReviews > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / totalReviews : 0;
 
   return (
     <div className="space-y-5">
@@ -73,7 +82,34 @@ export function BCReviews() {
 
       {/* Reviews list */}
       <div className="space-y-3">
-        {mockReviews.map((r, i) => (
+        {loading ? (
+          [1, 2, 3].map((i) => (
+            <Card key={i} className="border-border/70">
+              <CardContent className="p-4 flex items-start gap-3">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-3 w-1/4" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : error ? (
+          <Card>
+            <CardContent className="p-6 flex flex-col items-center text-center">
+              <AlertCircle className="h-8 w-8 text-destructive mb-3" />
+              <p className="text-sm text-muted-foreground mb-3">{error}</p>
+              <Button size="sm" variant="outline" onClick={refetch}>{t("retry", lang)}</Button>
+            </CardContent>
+          </Card>
+        ) : reviews.length === 0 ? (
+          <Card>
+            <CardContent className="p-2">
+              <EmptyState icon={Star} title={lang === "ar" ? "لا تقييمات بعد" : "No reviews yet"} desc={lang === "ar" ? "ستظهر تقييمات الضيوف هنا عند وصولها" : "Guest reviews will appear here when submitted"} />
+            </CardContent>
+          </Card>
+        ) : reviews.map((r, i) => (
           <motion.div
             key={r.id}
             initial={{ opacity: 0, y: 10 }}

@@ -1,7 +1,7 @@
 // /api/v1/users/me — GET (profile) PATCH (update profile)
 import { NextRequest } from "next/server";
-import { db, ok, err, getAuthUserId } from "../../_lib";
-import { toSharedUser } from "../auth/login/route";
+import { db, ok, err, getAuthUserId } from "../../../_lib";
+import { toSharedUser } from "../../auth/login/route";
 
 export async function GET(req: NextRequest) {
   const userId = await getAuthUserId(req);
