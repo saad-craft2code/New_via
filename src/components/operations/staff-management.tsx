@@ -171,7 +171,7 @@ export function StaffManagement() {
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-base truncate">{lang === "ar" ? s.nameAr ?? s.name : s.name}</p>
+                        <p className="font-semibold text-base leading-snug break-words" dir="auto">{lang === "ar" ? s.nameAr ?? s.name : s.name}</p>
                         <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                           <Mail className="h-3 w-3" />
                           <span className="truncate" dir="ltr">{s.email}</span>

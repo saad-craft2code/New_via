@@ -112,7 +112,7 @@ export function GuestsPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
-                          <p className="font-semibold text-base truncate">{lang === "ar" ? g.nameAr ?? g.name : g.name}</p>
+                          <p className="font-semibold text-base leading-snug break-words" dir="auto">{lang === "ar" ? g.nameAr ?? g.name : g.name}</p>
                           {g.vipStatus !== "regular" && (
                             <Badge className={cn("text-[10px] capitalize", vipColors[g.vipStatus])}>{g.vipStatus}</Badge>
                           )}

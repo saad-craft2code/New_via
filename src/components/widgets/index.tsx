@@ -51,8 +51,8 @@ export function StatCard({
               </div>
             )}
           </div>
-          <p className="text-2xl font-bold mt-3 tracking-tight">{value}</p>
-          <p className="text-xs text-muted-foreground mt-1">{label}</p>
+          <p className="text-2xl font-bold mt-3 tabular-nums" dir="auto">{value}</p>
+          <p className="text-xs text-muted-foreground mt-1 leading-relaxed break-words" dir="auto">{label}</p>
         </CardContent>
       </Card>
     </motion.div>
@@ -89,7 +89,7 @@ export function StatusBadge({ status, lang }: { status: string; lang: "ar" | "en
     return <Badge variant="outline">{status}</Badge>;
   }
   return (
-    <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium", entry.class)}>
+    <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium leading-relaxed break-words", entry.class)}>
       {lang === "ar" ? entry.ar : entry.en}
     </span>
   );
@@ -131,8 +131,8 @@ export function EmptyState({ icon: Icon, title, desc }: { icon: LucideIcon; titl
       <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center mb-3">
         <Icon className="h-7 w-7 text-muted-foreground" />
       </div>
-      <p className="text-base font-semibold">{title}</p>
-      {desc && <p className="text-sm text-muted-foreground mt-1 max-w-sm">{desc}</p>}
+      <p className="text-base font-semibold leading-relaxed break-words" dir="auto">{title}</p>
+      {desc && <p className="text-sm text-muted-foreground mt-1 max-w-sm leading-relaxed break-words" dir="auto">{desc}</p>}
     </div>
   );
 }
@@ -231,11 +231,11 @@ export function BarChart({ data, height = 200, color = "oklch(0.55 0.12 175)" }:
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: React.ReactNode }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
+      <div className="min-w-0">
+        <h1 className="text-2xl font-bold leading-snug break-words" dir="auto">{title}</h1>
+        {subtitle && <p className="text-sm text-muted-foreground mt-1 leading-relaxed break-words" dir="auto">{subtitle}</p>}
       </div>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
+      {actions && <div className="flex items-center gap-2 flex-shrink-0">{actions}</div>}
     </div>
   );
 }

@@ -433,3 +433,54 @@ html[dir="ltr"] {
   background-size: 200% 100%;
   animation: via-shimmer 1.5s ease-in-out infinite;
 }
+
+/* ─── Arabic text overflow fix ───────────────────────────── */
+/* Prevent Arabic text from being clipped by tracking-tight / line-clamp / truncate */
+html[dir="rtl"] {
+  /* Reset tight letter-spacing that breaks Arabic ligatures */
+  letter-spacing: 0 !important;
+}
+
+html[dir="rtl"] .tracking-tight,
+html[dir="rtl"] .tracking-tighter,
+html[dir="rtl"] .tracking-wide {
+  letter-spacing: 0 !important;
+}
+
+/* Allow Arabic headings and labels to wrap naturally */
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4,
+html[dir="rtl"] h5,
+html[dir="rtl"] h6,
+html[dir="rtl"] p,
+html[dir="rtl"] span,
+html[dir="rtl"] .text-xs,
+html[dir="rtl"] .text-sm,
+html[dir="rtl"] .text-base,
+html[dir="rtl"] .font-semibold,
+html[dir="rtl"] .font-bold {
+  line-height: 1.5;
+  word-spacing: 0.05em;
+}
+
+/* Table cells in RTL should wrap Arabic text */
+html[dir="rtl"] td,
+html[dir="rtl"] th {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Badges should not truncate Arabic */
+html[dir="rtl"] [class*="inline-flex"] {
+  white-space: normal;
+  line-height: 1.4;
+}
+
+/* Card titles and subtitles */
+html[dir="rtl"] .card-title,
+html[dir="rtl"] [class*="font-semibold"] {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}

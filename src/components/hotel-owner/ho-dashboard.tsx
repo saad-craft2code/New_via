@@ -4,23 +4,50 @@ import { useAppStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { StatCard, StatusBadge, StarRating, AreaChart, BarChart, formatCurrency, PageHeader } from "@/components/widgets";
-import { mockHotels, mockRoomTypes, mockHotelBookings, revenueData, occupancyData, mockProviderProfile } from "@/lib/mock-data";
-import { Hotel, BedDouble, TrendingUp, LogIn, LogOut, Plus, Calendar, ChevronLeft, ChevronRight, ClipboardList, Clock, Bell, Star } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatCard, StatusBadge, formatCurrency, PageHeader } from "@/components/widgets";
+import { operationsService, type OperationsDashboard as OpsData } from "@/services/operations.service";
+import { hotelService } from "@/services/hotel.service";
+import { bookingService, adaptBooking, type UIBooking } from "@/services/booking.service";
+import { useApi } from "@/hooks/use-api";
+import { useAppStore as useStore } from "@/lib/store";
+import { Hotel, BedDouble, TrendingUp, LogIn, LogOut, Plus, Calendar, ChevronLeft, ChevronRight, Clock, Bell, Wrench, Package, LayoutGrid, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function HODashboard() {
   const lang = useAppStore((s) => s.lang);
   const setView = useAppStore((s) => s.setHoView);
-  const profile = mockProviderProfile.hotel_owner;
+  const user = useAppStore((s) => s.user);
   const isRtl = lang === "ar";
 
-  const totalRooms = mockRoomTypes.reduce((s, r) => s + r.totalRooms, 0);
-  const availableRooms = mockRoomTypes.reduce((s, r) => s + r.availableRooms, 0);
-  const avgOccupancy = Math.round(mockHotels.reduce((s, h) => s + h.occupancyRate, 0) / mockHotels.length);
-  const monthlyRevenue = revenueData[revenueData.length - 1].revenue;
-  const pendingBookings = mockHotelBookings.filter((b) => b.status === "Pending").length;
-  const todayCheckins = mockHotelBookings.filter((b) => b.startDate === "2026-08-01").length;
+  const { data: opsData, loading: opsLoading } = useApi<OpsData>(() => operationsService.dashboard(), []);
+  const { data: bookings } = useApi<UIBooking[]>(() => bookingService.list().then((r) => r.map(adaptBooking)), []);
+
+  const k = opsData?.kpi;
+  const todayActivity = opsData?.todayActivity;
+
+  const firstName = (user?.name ?? "").split(" ")[0] || (lang === "ar" ? "المستخدم" : "User");
+  const todayCheckins = k?.arrivalsToday ?? 0;
+  const todayCheckouts = k?.departuresToday ?? 0;
+  const occupancy = k?.occupancyRate ?? 0;
+  const openMaintenance = k?.openMaintenance ?? 0;
+  const lowStock = k?.lowStockItems ?? 0;
+
+  const recentBookings = (bookings ?? []).slice(0, 5);
+  const pendingBookings = (bookings ?? []).filter((b) => b.status === "Pending").length;
+
+  if (opsLoading) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title={lang === "ar" ? "لوحة التحكم" : "Dashboard"} />
+        <Skeleton className="h-32 w-full rounded-2xl" />
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => <Skeleton key={i} className="h-28 rounded-lg" />)}
+        </div>
+        <Skeleton className="h-96 w-full rounded-lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -32,20 +59,20 @@ export function HODashboard() {
         <div className="absolute inset-0 oasis-mesh opacity-30" />
         <div className="absolute top-0 right-0 h-40 w-40 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl" />
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <p className="text-white/80 text-sm">
-              {t("welcome_back", lang)}, {lang === "ar" ? profile.fullNameAr.split(" ")[0] : profile.fullNameEn.split(" ")[0]} 👋
+          <div className="min-w-0">
+            <p className="text-white/80 text-sm leading-relaxed">
+              {t("welcome_back", lang)}, {firstName} 👋
             </p>
-            <h2 className="text-3xl font-bold mt-1 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80">
-              {lang === "ar" ? `${todayCheckins} وصولات و ${mockHotelBookings.filter(b => b.endDate === "2026-08-01").length} مغادرات اليوم` : `${todayCheckins} check-ins and ${mockHotelBookings.filter(b => b.endDate === "2026-08-01").length} check-outs today`}
+            <h2 className="text-2xl md:text-3xl font-bold mt-1 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80 leading-snug break-words">
+              {lang === "ar" ? `${todayCheckins} وصولات و ${todayCheckouts} مغادرات اليوم` : `${todayCheckins} check-ins and ${todayCheckouts} check-outs today`}
             </h2>
-            <p className="text-white/70 text-sm mt-1.5">
-              {lang === "ar" ? "إشغال فنادقك بمعدل" : "Your hotels are running at"} {avgOccupancy}% {lang === "ar" ? "الإشغال" : "occupancy"}
+            <p className="text-white/70 text-sm mt-1.5 leading-relaxed">
+              {lang === "ar" ? "إشغال فنادقك بمعدل" : "Your hotels are running at"} {occupancy}% {lang === "ar" ? "الإشغال" : "occupancy"}
             </p>
           </div>
           <Button
             onClick={() => setView("hotel_wizard")}
-            className="bg-white text-primary hover:bg-white/90 gap-2"
+            className="bg-white text-primary hover:bg-white/90 gap-2 flex-shrink-0"
             size="lg"
           >
             <Plus className="h-4 w-4" />
@@ -54,25 +81,41 @@ export function HODashboard() {
         </div>
       </motion.div>
 
-      {/* Stats grid */}
+      {/* Stats grid - from live API */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
-        <StatCard icon={Hotel} label={t("total_hotels", lang)} value={mockHotels.length} color="primary" delay={0} />
-        <StatCard icon={BedDouble} label={t("total_rooms", lang)} value={totalRooms} color="accent" delay={0.05} />
-        <StatCard icon={TrendingUp} label={t("occupancy_rate", lang)} value={`${avgOccupancy}%`} color="clay" trend="+5%" trendUp delay={0.1} />
+        <StatCard icon={Hotel} label={t("total_hotels", lang)} value={k?.totalHotels ?? 0} color="primary" delay={0} />
+        <StatCard icon={BedDouble} label={t("total_rooms", lang)} value={k?.totalRooms ?? 0} color="accent" delay={0.05} />
+        <StatCard icon={TrendingUp} label={t("occupancy_rate", lang)} value={`${occupancy}%`} color="clay" delay={0.1} />
         <StatCard icon={LogIn} label={t("today_checkins", lang)} value={todayCheckins} color="sand" delay={0.15} />
-        <StatCard icon={LogOut} label={t("today_checkouts", lang)} value={mockHotelBookings.filter(b => b.endDate === "2026-08-01").length} color="primary" delay={0.2} />
+        <StatCard icon={LogOut} label={t("today_checkouts", lang)} value={todayCheckouts} color="primary" delay={0.2} />
         <StatCard icon={Clock} label={t("pending_bookings", lang)} value={pendingBookings} color="accent" delay={0.25} />
       </div>
 
       {/* Quick actions */}
       <div className="flex flex-wrap gap-2">
+        <Button onClick={() => setView("operations_dashboard")} variant="default" className="gap-2">
+          <LayoutGrid className="h-4 w-4" />
+          {lang === "ar" ? "لوحة العمليات" : "Ops Dashboard"}
+        </Button>
+        <Button onClick={() => setView("front_desk")} variant="outline" className="gap-2">
+          <LogIn className="h-4 w-4" />
+          {lang === "ar" ? "الاستقبال" : "Front Desk"}
+        </Button>
+        <Button onClick={() => setView("room_status")} variant="outline" className="gap-2">
+          <BedDouble className="h-4 w-4" />
+          {lang === "ar" ? "حالة الغرف" : "Room Status"}
+        </Button>
+        <Button onClick={() => setView("maintenance")} variant="outline" className="gap-2">
+          <Wrench className="h-4 w-4" />
+          {lang === "ar" ? "الصيانة" : "Maintenance"}
+        </Button>
+        <Button onClick={() => setView("inventory")} variant="outline" className="gap-2">
+          <Package className="h-4 w-4" />
+          {lang === "ar" ? "المخزون" : "Inventory"}
+        </Button>
         <Button onClick={() => setView("hotel_wizard")} variant="outline" className="gap-2">
           <Plus className="h-4 w-4" />
           {t("add_new_hotel", lang)}
-        </Button>
-        <Button onClick={() => setView("rooms")} variant="outline" className="gap-2">
-          <BedDouble className="h-4 w-4" />
-          {t("add_room_type", lang)}
         </Button>
         <Button onClick={() => setView("calendar")} variant="outline" className="gap-2">
           <Calendar className="h-4 w-4" />
@@ -80,30 +123,112 @@ export function HODashboard() {
         </Button>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-4">
-        {/* Revenue chart */}
-        <Card className="lg:col-span-2 border-border/70">
-          <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-base">{t("revenue_chart", lang)}</CardTitle>
-            <span className="text-xs text-muted-foreground">{lang === "ar" ? "آخر 8 أشهر" : "Last 8 months"}</span>
+      {/* Today's Activity — from live API */}
+      <div className="grid lg:grid-cols-2 gap-4">
+        <Card className="border-border/70">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <LogIn className="h-4 w-4 text-emerald-600" />
+              {lang === "ar" ? "وصولات اليوم" : "Today's Arrivals"}
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <AreaChart data={revenueData.map((d) => ({ label: d.month, value: d.revenue }))} height={240} />
+          <CardContent className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin">
+            {(todayActivity?.arrivals ?? []).length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-4">{lang === "ar" ? "لا وصولات اليوم" : "No arrivals today"}</p>
+            ) : (
+              todayActivity?.arrivals.map((a) => (
+                <div key={a.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/40">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium leading-snug break-words" dir="auto">{a.guestName}</p>
+                    <p className="text-xs text-muted-foreground">{a.hotelName} • {a.roomNumber ?? "—"}</p>
+                  </div>
+                  <span className="text-xs font-medium flex-shrink-0 ms-2">{a.numGuests} {lang === "ar" ? "ضيف" : "pax"}</span>
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
 
-        {/* Occupancy chart */}
         <Card className="border-border/70">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">{t("occupancy_chart", lang)}</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <LogOut className="h-4 w-4 text-orange-600" />
+              {lang === "ar" ? "مغادرات اليوم" : "Today's Departures"}
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <BarChart data={occupancyData.map((d) => ({ label: d.month, value: d.rate }))} height={240} color="oklch(0.55 0.13 30)" />
+          <CardContent className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin">
+            {(todayActivity?.departures ?? []).length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-4">{lang === "ar" ? "لا مغادرات اليوم" : "No departures today"}</p>
+            ) : (
+              todayActivity?.departures.map((d) => (
+                <div key={d.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/40">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium leading-snug break-words" dir="auto">{d.guestName}</p>
+                    <p className="text-xs text-muted-foreground">{d.hotelName} • {d.roomNumber ?? "—"}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground flex-shrink-0 ms-2">
+                    {new Date(d.expectedCheckOut).toLocaleTimeString(lang === "ar" ? "ar-EG" : "en-US", { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Open maintenance */}
+        <Card className="border-border/70">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Wrench className="h-4 w-4 text-red-600" />
+              {lang === "ar" ? "صيانة مفتوحة" : "Open Maintenance"}
+              <span className="text-xs text-muted-foreground">({openMaintenance})</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin">
+            {(todayActivity?.maintenance ?? []).length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-4">{lang === "ar" ? "لا طلبات صيانة" : "No maintenance issues"}</p>
+            ) : (
+              todayActivity?.maintenance.map((m) => (
+                <div key={m.id} className="flex items-start justify-between p-2 rounded-lg bg-muted/40">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium leading-snug break-words" dir="auto">{m.title}</p>
+                    <p className="text-xs text-muted-foreground">{m.location ?? "—"} • {m.assignedTo ?? (lang === "ar" ? "غير مسند" : "Unassigned")}</p>
+                  </div>
+                  <span className="text-xs capitalize flex-shrink-0 ms-2">{m.priority}</span>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Low stock */}
+        <Card className="border-border/70">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Package className="h-4 w-4 text-amber-600" />
+              {lang === "ar" ? "تنبيهات المخزون" : "Low Stock Alerts"}
+              <span className="text-xs text-muted-foreground">({lowStock})</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin">
+            {(todayActivity?.lowStock ?? []).length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-4">{lang === "ar" ? "المخزون بحالة جيدة" : "All stock healthy"}</p>
+            ) : (
+              todayActivity?.lowStock.map((s) => (
+                <div key={s.id} className="flex items-center justify-between p-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium leading-snug break-words" dir="auto">{s.name}</p>
+                    <p className="text-xs text-muted-foreground">{s.quantity} / {s.minStock} {s.unit}</p>
+                  </div>
+                  <span className="text-xs font-bold text-amber-600 flex-shrink-0 ms-2">{lang === "ar" ? "منخفض" : "LOW"}</span>
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Upcoming bookings */}
+      {/* Recent bookings — from live API */}
       <Card className="border-border/70">
         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-base">{t("upcoming_bookings", lang)}</CardTitle>
@@ -120,119 +245,65 @@ export function HODashboard() {
                   <th className="text-start font-medium p-3">{t("booking_id", lang)}</th>
                   <th className="text-start font-medium p-3">{t("guest_name", lang)}</th>
                   <th className="text-start font-medium p-3 hidden md:table-cell">{t("room_type", lang)}</th>
-                  <th className="text-start font-medium p-3 hidden sm:table-cell">{lang === "ar" ? "غرفة #" : "Room #"}</th>
                   <th className="text-start font-medium p-3 hidden lg:table-cell">{t("dates", lang)}</th>
                   <th className="text-start font-medium p-3">{t("status", lang)}</th>
                 </tr>
               </thead>
               <tbody>
-                {mockHotelBookings.slice(0, 5).map((b) => (
-                  <tr key={b.id} className="border-b border-border/40 hover:bg-muted/30 cursor-pointer" onClick={() => setView("bookings")}>
-                    <td className="p-3 text-sm font-mono">{b.id}</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <img src={b.guestAvatar} alt="" className="h-7 w-7 rounded-full object-cover" />
-                        <span className="text-sm font-medium">{lang === "ar" ? b.guestNameAr : b.guestName}</span>
-                      </div>
+                {recentBookings.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="p-6 text-center text-sm text-muted-foreground">
+                      {lang === "ar" ? "لا حجوزات" : "No bookings"}
                     </td>
-                    <td className="p-3 text-sm hidden md:table-cell">{lang === "ar" ? b.itemNameAr : b.itemName}</td>
-                    <td className="p-3 text-sm text-muted-foreground hidden sm:table-cell">{b.roomNumber}</td>
-                    <td className="p-3 text-sm hidden lg:table-cell">
-                      {new Date(b.startDate).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")}
-                    </td>
-                    <td className="p-3"><StatusBadge status={b.status} lang={lang} /></td>
                   </tr>
-                ))}
+                ) : (
+                  recentBookings.map((b) => (
+                    <tr key={b.id} className="border-b border-border/40 hover:bg-muted/30 cursor-pointer" onClick={() => setView("bookings")}>
+                      <td className="p-3 text-sm font-mono">{b.id}</td>
+                      <td className="p-3">
+                        <div className="flex items-center gap-2">
+                          <img src={b.guestAvatar} alt="" className="h-7 w-7 rounded-full object-cover flex-shrink-0" />
+                          <span className="text-sm font-medium leading-snug break-words" dir="auto">{lang === "ar" ? b.guestNameAr : b.guestName}</span>
+                        </div>
+                      </td>
+                      <td className="p-3 text-sm hidden md:table-cell leading-snug break-words" dir="auto">{b.itemName}</td>
+                      <td className="p-3 text-sm hidden lg:table-cell">{new Date(b.startDate).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")}</td>
+                      <td className="p-3"><StatusBadge status={b.status} lang={lang} /></td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </CardContent>
       </Card>
 
-      {/* Pending actions */}
-      <Card className="border-border/70">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">{t("pending_actions", lang)}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {[
-            { icon: ClipboardList, labelAr: "حجوزات بانتظار التأكيد", labelEn: "Bookings awaiting confirmation", count: 1, color: "text-yellow-600" },
-            { icon: LogIn, labelAr: "وصولات اليوم بانتظار الإجراء", labelEn: "Today's check-ins pending action", count: 1, color: "text-[oklch(0.42_0.08_175)]" },
-            { icon: StarRating as any, rating: 5, labelAr: "تقييمات بلا رد", labelEn: "Unreplied reviews", count: 3, color: "text-[oklch(0.5_0.13_30)]", isCustom: true },
-            { icon: Bell, labelAr: "إشعارات غير مقروءة", labelEn: "Unread notifications", count: 3, color: "text-destructive" },
-          ].map((a, i) => (
-            <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer">
-              <div className="flex items-center gap-3">
-                {a.isCustom ? <StarRating rating={5} /> : <a.icon className={`h-5 w-5 ${a.color}`} />}
-                <span className="text-sm font-medium">{lang === "ar" ? a.labelAr : a.labelEn}</span>
-              </div>
-              <span className="text-sm font-bold text-muted-foreground">{a.count}</span>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      {/* Enhanced Hotel Performance Insights */}
-      <div className="grid md:grid-cols-2 gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card className="border-border/70 overflow-hidden">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">{lang === "ar" ? "أداء الفنادق" : "Hotels Performance"}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {mockHotels.slice(0, 3).map((h) => (
-                <div key={h.id} className="p-3 rounded-lg border border-border/40 hover:border-primary/30 hover:bg-muted/30 transition-all cursor-pointer">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <p className="text-sm font-semibold">{lang === "ar" ? h.nameAr : h.name}</p>
-                      <p className="text-xs text-muted-foreground">{h.occupancyRate}% {lang === "ar" ? "مشغول" : "occupied"}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-primary">{formatCurrency(h.monthlyRevenue, lang)}</p>
-                      <div className="flex items-center gap-0.5 justify-end mt-0.5">
-                        <Star className="h-3 w-3 fill-[oklch(0.75_0.14_80)] text-[oklch(0.75_0.14_80)]" />
-                        <span className="text-xs font-medium">{h.rating?.toFixed(1) || "4.5"}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-1.5">
-                    <div className="bg-gradient-to-r from-primary to-primary/60 h-1.5 rounded-full" style={{ width: `${h.occupancyRate}%` }} />
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card className="border-border/70">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">{lang === "ar" ? "نصائح تحسين الإشغال" : "Occupancy Tips"}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
-                <p className="text-xs font-semibold text-primary mb-1">{lang === "ar" ? "📸 تحديث الصور" : "📸 Update Photos"}</p>
-                <p className="text-xs text-muted-foreground">{lang === "ar" ? "صور عالية الجودة تزيد الحجوزات بـ 40%" : "High-quality photos increase bookings by 40%"}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
-                <p className="text-xs font-semibold text-accent mb-1">{lang === "ar" ? "🎯 أسعار تنافسية" : "🎯 Competitive Pricing"}</p>
-                <p className="text-xs text-muted-foreground">{lang === "ar" ? "راجع الأسعار مقابل الفنادق المنافسة" : "Match competitive rates in your area"}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                <p className="text-xs font-semibold text-green-600 mb-1">{lang === "ar" ? "⭐ شجع التقييمات" : "⭐ Encourage Reviews"}</p>
-                <p className="text-xs text-muted-foreground">{lang === "ar" ? "فنادق بتقييمات عالية تحصل على حجوزات أكثر" : "Hotels with high ratings get more bookings"}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+      {/* KPI summary cards */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <Card className="border-border/70">
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground leading-relaxed">{lang === "ar" ? "متوسط السعر اليومي" : "Avg Daily Rate (ADR)"}</p>
+            <p className="text-xl font-bold mt-1 tabular-nums">{formatCurrency(k?.adr ?? 0, lang)}</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border/70">
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground leading-relaxed">{lang === "ar" ? "الإيراد لكل غرفة" : "RevPAR"}</p>
+            <p className="text-xl font-bold mt-1 tabular-nums">{formatCurrency(k?.revpar ?? 0, lang)}</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border/70">
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground leading-relaxed">{lang === "ar" ? "نزلاء حاليون" : "Active Check-ins"}</p>
+            <p className="text-xl font-bold mt-1 tabular-nums">{k?.activeCheckIns ?? 0}</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border/70">
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground leading-relaxed">{lang === "ar" ? "قيمة المخزون" : "Inventory Value"}</p>
+            <p className="text-xl font-bold mt-1 tabular-nums">{formatCurrency(k?.inventoryValue ?? 0, lang)}</p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
