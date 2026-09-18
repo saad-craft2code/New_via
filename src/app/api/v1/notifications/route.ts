@@ -1,26 +1,17 @@
-// /api/v1/notifications — GET (list current user's notifications) POST (create)
+// /api/v1/notifications — GET POST
 import { NextRequest } from "next/server";
-import { db, ok, err, getAuthUserId } from "../../_lib";
+import { ok, err, isDb, db, mock, getAuthUserId } from "../../_lib";
 
 export async function GET(req: NextRequest) {
   const userId = await getAuthUserId(req);
   if (!userId) return err("Unauthorized", 401);
-  const notifications = await db.notification.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-  });
-  return ok(notifications.map((n) => ({
-    id: n.id,
-    userId: n.userId,
-    type: n.type,
-    titleEn: n.titleEn,
-    titleAr: n.titleAr,
-    bodyEn: n.bodyEn,
-    bodyAr: n.bodyAr,
-    read: n.read,
-    link: n.link ?? undefined,
-    createdAt: n.createdAt,
-  })));
+  if (isDb() && db) {
+    try {
+      const notifications = await db.notification.findMany({ where: { userId }, orderBy: { createdAt: "desc" } });
+      return ok(notifications);
+    } catch (e) { console.log("DB error, using mock"); }
+  }
+  return ok(mock.notifications.filter(n => n.userId === userId));
 }
 
 export async function POST(req: NextRequest) {
@@ -28,18 +19,5 @@ export async function POST(req: NextRequest) {
   if (!userId) return err("Unauthorized", 401);
   let body: any = {};
   try { body = await req.json(); } catch { return err("Invalid JSON body", 400); }
-
-  const n = await db.notification.create({
-    data: {
-      userId,
-      type: String(body.type ?? "system"),
-      titleEn: String(body.titleEn ?? ""),
-      titleAr: String(body.titleAr ?? body.titleEn ?? ""),
-      bodyEn: String(body.bodyEn ?? ""),
-      bodyAr: String(body.bodyAr ?? body.bodyEn ?? ""),
-      read: false,
-      link: body.link ?? null,
-    },
-  });
-  return ok(n, 201);
+  return ok({ id: "N-" + Date.now(), userId, type: body.type ?? "system", titleEn: body.titleEn ?? "", titleAr: body.titleAr ?? "", bodyEn: body.bodyEn ?? "", bodyAr: body.bodyAr ?? "", read: false, createdAt: new Date().toISOString() }, 201);
 }

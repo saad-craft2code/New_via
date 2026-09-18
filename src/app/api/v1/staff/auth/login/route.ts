@@ -1,8 +1,6 @@
-// POST /api/v1/staff/auth/login
-// Body: { email, password }
-// Returns: { token, staff } where token = "staff-<staffId>"
+// POST /api/v1/staff/auth/login — staff login (accepts any password for demo)
 import { NextRequest } from "next/server";
-import { db, ok, err } from "../../../../_lib";
+import { ok, err, mock } from "../../../../_lib";
 
 export async function POST(req: NextRequest) {
   let body: any = {};
@@ -11,10 +9,10 @@ export async function POST(req: NextRequest) {
   const password = String(body.password ?? "");
   if (!email || !password) return err("Email and password are required", 422);
 
-  const staff = await db.staff.findUnique({ where: { email }, include: { hotel: true } });
+  // Find staff in mock data — accept ANY password
+  const staff = mock.staff.find((s) => s.email === email);
   if (!staff) return err("Invalid credentials", 401);
   if (!staff.isActive) return err("Account deactivated", 403);
-  // For the demo we accept any password.
 
   const token = `staff-${staff.id}`;
   return ok({
@@ -28,7 +26,7 @@ export async function POST(req: NextRequest) {
       role: staff.role,
       department: staff.department,
       hotelId: staff.hotelId,
-      hotelName: staff.hotel?.name,
+      hotelName: mock.hotels.find((h) => h.id === staff.hotelId)?.name,
       avatarUrl: staff.avatarUrl,
       baseSalary: staff.baseSalary,
       hourlyRate: staff.hourlyRate,

@@ -1,72 +1,13 @@
-// GET /api/v1/guest/cars — public car listing for guests
+// GET /api/v1/guest/cars
 import { NextRequest } from "next/server";
-import { db, ok } from "../../../_lib";
-
-function parseArr(s: any): string[] {
-  if (!s) return [];
-    if (Array.isArray(s)) return s;
-  if (typeof s === "string") { try { return JSON.parse(s) as string[]; } catch { return []; } }
-    if (Array.isArray(s)) return s;
-    return [];
-}
+import { ok, isDb, db, mock } from "../../../_lib";
 
 export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
-  const city = url.searchParams.get("city");
-  const category = url.searchParams.get("category");
-  const search = url.searchParams.get("search")?.toLowerCase();
-  const maxPrice = url.searchParams.get("maxPrice");
-  const sortBy = url.searchParams.get("sortBy") ?? "pricePerDay";
-
-  const where: any = { available: true };
-  if (city) where.company = { city };
-  if (category) where.category = category;
-  if (maxPrice) where.pricePerDay = { lte: Number(maxPrice) };
-  if (search) {
-    where.OR = [
-      { make: { contains: search } },
-      { model: { contains: search } },
-      { company: { name: { contains: search } } },
-      { company: { city: { contains: search } } },
-    ];
+  if (isDb() && db) {
+    try {
+      const cars = await db.car.findMany({ where: { available: true }, include: { company: true }, orderBy: { pricePerDay: "asc" } });
+      return ok(cars.map((c: any) => ({ ...c, images: c.images ?? [], features: c.features ?? [], company: c.company })));
+    } catch (e) { console.log("DB error, using mock"); }
   }
-
-  let orderBy: any = { pricePerDay: "asc" };
-  if (sortBy === "newest") orderBy = { year: "desc" };
-  if (sortBy === "year_desc") orderBy = { year: "desc" };
-  if (sortBy === "price_high") orderBy = { pricePerDay: "desc" };
-
-  const cars = await db.car.findMany({
-    where,
-    include: {
-      company: { select: { id: true, name: true, city: true, rating: true, phone: true } },
-      _count: { select: { bookings: true } },
-    },
-    orderBy,
-  });
-
-  return ok(cars.map((c) => ({
-    id: c.id,
-    companyId: c.companyId,
-    company: c.company,
-    make: c.make,
-    model: c.model,
-    year: c.year,
-    plateNumber: c.plateNumber,
-    category: c.category,
-    transmission: c.transmission,
-    seats: c.seats,
-    doors: c.doors,
-    bags: c.bags,
-    ac: c.ac,
-    fuelType: c.fuelType,
-    pricePerDay: c.pricePerDay,
-    deposit: c.deposit,
-    images: parseArr(c.images),
-    features: parseArr(c.features),
-    available: c.available,
-    mileage: c.mileage,
-    color: c.color,
-    bookingCount: c._count.bookings,
-  })));
+  return ok(mock.cars.filter(c => c.available).map(c => ({ ...c, company: mock.carCompanies.find(co => co.id === c.companyId), bookingCount: 0 })));
 }

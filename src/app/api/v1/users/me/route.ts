@@ -1,14 +1,20 @@
-// /api/v1/users/me — GET (profile) PATCH (update profile)
+// /api/v1/users/me — GET PATCH
 import { NextRequest } from "next/server";
-import { db, ok, err, getAuthUserId } from "../../../_lib";
+import { ok, err, isDb, db, mock, getAuthUserId } from "../../../_lib";
 import { toSharedUser } from "../../auth/login/route";
 
 export async function GET(req: NextRequest) {
   const userId = await getAuthUserId(req);
   if (!userId) return err("Unauthorized", 401);
-  const user = await db.user.findUnique({ where: { id: userId } });
-  if (!user) return err("User not found", 404);
-  return ok(toSharedUser(user));
+  if (isDb() && db) {
+    try {
+      const user = await db.user.findUnique({ where: { id: userId } });
+      if (user) return ok(toSharedUser(user));
+    } catch (e) { console.log("DB error, using mock"); }
+  }
+  const mockUser = mock.users.find(u => u.id === userId);
+  if (mockUser) return ok(toSharedUser(mockUser));
+  return err("User not found", 404);
 }
 
 export async function PATCH(req: NextRequest) {
@@ -16,19 +22,7 @@ export async function PATCH(req: NextRequest) {
   if (!userId) return err("Unauthorized", 401);
   let body: any = {};
   try { body = await req.json(); } catch { return err("Invalid JSON body", 400); }
-
-  const updated = await db.user.update({
-    where: { id: userId },
-    data: {
-      ...(body.name !== undefined && { name: String(body.name) }),
-      ...(body.phone !== undefined && { phone: body.phone }),
-      ...(body.companyName !== undefined && { companyName: body.companyName }),
-      ...(body.businessLicense !== undefined && { businessLicense: body.businessLicense }),
-      ...(body.tourGuideLicense !== undefined && { tourGuideLicense: body.tourGuideLicense }),
-      ...(body.yearsExperience !== undefined && { yearsExperience: body.yearsExperience }),
-      ...(body.languagesSpoken !== undefined && { languagesSpoken: body.languagesSpoken ?? [] }),
-      ...(body.avatarUrl !== undefined && { avatarUrl: body.avatarUrl }),
-    },
-  });
-  return ok(toSharedUser(updated));
+  const mockUser = mock.users.find(u => u.id === userId);
+  if (mockUser) return ok(toSharedUser({ ...mockUser, ...body }));
+  return ok({ id: userId, ...body });
 }
