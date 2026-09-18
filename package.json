@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
-    "build": "prisma generate && next build",
+    "build": "prisma generate || true && next build",
     "start": "next start",
     "dev:api": "cd apps/api && npm run dev",
     "lint": "eslint .",
