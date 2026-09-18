@@ -329,7 +329,18 @@ export function AppShell() {
             )}
           </Button>
 
-          <h1 className="text-lg font-semibold hidden sm:block">{pageTitle}</h1>
+          {/* Logo next to search */}
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-neutral-950 via-zinc-800 to-zinc-600 flex items-center justify-center shadow-sm flex-shrink-0">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6" />
+                <circle cx="12" cy="10" r="1.5" fill="currentColor" stroke="none" />
+              </svg>
+            </div>
+            <span className="font-bold text-sm hidden sm:block leading-snug">{t("brand", lang)}</span>
+          </div>
+
+          <h1 className="text-lg font-semibold hidden lg:block">{pageTitle}</h1>
 
           {/* Search */}
           <div className="flex-1 max-w-md mx-auto hidden md:block">
