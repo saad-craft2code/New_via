@@ -30,7 +30,13 @@ export type BCView =
   | "cameras"
   | "car_companies"
   | "cars"
-  | "car_bookings";
+  | "car_bookings"
+  | "operations_dashboard"
+  | "front_desk"
+  | "room_status"
+  | "maintenance"
+  | "guests"
+  | "inventory";
 
 export type HOView =
   | "dashboard"
@@ -54,7 +60,12 @@ export type HOView =
   | "cameras"
   | "car_companies"
   | "cars"
-  | "car_bookings";
+  | "car_bookings"
+  | "operations_dashboard"
+  | "front_desk"
+  | "room_status"
+  | "maintenance"
+  | "inventory";
 
 export type AuthScreen =
   | "landing"

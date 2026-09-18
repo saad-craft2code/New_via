@@ -308,6 +308,13 @@ export const translations = {
   nav_analytics: { ar: "التحليلات", en: "Analytics" },
   nav_guest_view: { ar: "عرض الضيف", en: "Guest View" },
 
+  // New operations nav
+  nav_operations_dashboard: { ar: "لوحة العمليات", en: "Ops Dashboard" },
+  nav_front_desk: { ar: "الاستقبال", en: "Front Desk" },
+  nav_room_status: { ar: "حالة الغرف", en: "Room Status" },
+  nav_maintenance: { ar: "الصيانة", en: "Maintenance" },
+  nav_inventory: { ar: "المخزون", en: "Inventory" },
+
   // Operations nav
   nav_operations: { ar: "العمليات", en: "Operations" },
   nav_staff: { ar: "الموظفون", en: "Staff" },

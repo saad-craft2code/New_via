@@ -65,7 +65,13 @@ import { CamerasManagement } from "@/components/operations/cameras-management";
 import { CarCompaniesAdmin } from "@/components/cars/car-companies-admin";
 import { CarsAdmin } from "@/components/cars/cars-admin";
 import { CarBookingsAdmin } from "@/components/cars/car-bookings-admin";
-import { BarChart3, Compass, Camera, Car as CarIcon, Building2 } from "lucide-react";
+import { OperationsDashboard } from "@/components/operations/operations-dashboard";
+import { FrontDesk } from "@/components/operations/front-desk";
+import { RoomStatusBoard } from "@/components/operations/room-status-board";
+import { MaintenancePage } from "@/components/operations/maintenance-page";
+import { GuestsPage } from "@/components/operations/guests-page";
+import { InventoryPage } from "@/components/operations/inventory-page";
+import { BarChart3, Compass, Camera, Car as CarIcon, Building2, LayoutGrid, LogIn, Wrench, Package } from "lucide-react";
 
 interface NavItem {
   key: string;
@@ -84,6 +90,12 @@ const bcNavItems: NavItem[] = [
   { key: "analytics", labelKey: "nav_analytics", icon: BarChart3, view: "analytics" },
   { key: "reviews", labelKey: "nav_reviews", icon: Star, view: "reviews" },
   { key: "notifications", labelKey: "nav_notifications", icon: Bell, view: "notifications" },
+  { key: "operations_dashboard", labelKey: "nav_operations_dashboard", icon: LayoutGrid, view: "operations_dashboard" },
+  { key: "front_desk", labelKey: "nav_front_desk", icon: LogIn, view: "front_desk" },
+  { key: "room_status", labelKey: "nav_room_status", icon: BedDouble, view: "room_status" },
+  { key: "maintenance", labelKey: "nav_maintenance", icon: Wrench, view: "maintenance" },
+  { key: "guests", labelKey: "nav_guests", icon: Users, view: "guests" },
+  { key: "inventory", labelKey: "nav_inventory", icon: Package, view: "inventory" },
   { key: "operations_staff", labelKey: "nav_staff", icon: Users, view: "staff" },
   { key: "operations_tasks", labelKey: "nav_tasks", icon: ClipboardList, view: "tasks" },
   { key: "operations_salaries", labelKey: "nav_salaries", icon: Wallet, view: "salaries" },
@@ -103,11 +115,16 @@ const hoNavItems: NavItem[] = [
   { key: "hotels", labelKey: "nav_hotels", icon: Hotel, view: "hotels", roleSpecific: true },
   { key: "bookings", labelKey: "nav_bookings", icon: ClipboardList, view: "bookings" },
   { key: "rooms", labelKey: "nav_rooms", icon: BedDouble, view: "rooms", roleSpecific: true },
-  { key: "guests", labelKey: "nav_guests", icon: Users, view: "guests", roleSpecific: true },
+  { key: "guests", labelKey: "nav_guests", icon: Users, view: "guests" },
   { key: "earnings", labelKey: "nav_earnings", icon: Wallet, view: "earnings" },
   { key: "analytics", labelKey: "nav_analytics", icon: BarChart3, view: "analytics" },
   { key: "reviews", labelKey: "nav_reviews", icon: Star, view: "reviews" },
   { key: "notifications", labelKey: "nav_notifications", icon: Bell, view: "notifications" },
+  { key: "operations_dashboard", labelKey: "nav_operations_dashboard", icon: LayoutGrid, view: "operations_dashboard" },
+  { key: "front_desk", labelKey: "nav_front_desk", icon: LogIn, view: "front_desk" },
+  { key: "room_status", labelKey: "nav_room_status", icon: BedDouble, view: "room_status" },
+  { key: "maintenance", labelKey: "nav_maintenance", icon: Wrench, view: "maintenance" },
+  { key: "inventory", labelKey: "nav_inventory", icon: Package, view: "inventory" },
   { key: "operations_staff", labelKey: "nav_staff", icon: Users, view: "staff" },
   { key: "operations_tasks", labelKey: "nav_tasks", icon: ClipboardList, view: "tasks" },
   { key: "operations_salaries", labelKey: "nav_salaries", icon: Wallet, view: "salaries" },
@@ -181,6 +198,12 @@ export function AppShell() {
         case "car_companies": return <CarCompaniesAdmin />;
         case "cars": return <CarsAdmin />;
         case "car_bookings": return <CarBookingsAdmin />;
+        case "operations_dashboard": return <OperationsDashboard />;
+        case "front_desk": return <FrontDesk />;
+        case "room_status": return <RoomStatusBoard />;
+        case "maintenance": return <MaintenancePage />;
+        case "guests": return <GuestsPage />;
+        case "inventory": return <InventoryPage />;
       }
     } else {
       switch (hoView) {
@@ -190,7 +213,7 @@ export function AppShell() {
         case "rooms": return <HORooms />;
         case "calendar": return <HOCalendar />;
         case "bookings": return <HOBookings />;
-        case "guests": return <HOGuests />;
+        case "guests": return <GuestsPage />;
         case "earnings": return <HOEarnings />;
         case "reviews": return <HOReviews />;
         case "notifications": return <HONotifications />;
@@ -206,6 +229,11 @@ export function AppShell() {
         case "car_companies": return <CarCompaniesAdmin />;
         case "cars": return <CarsAdmin />;
         case "car_bookings": return <CarBookingsAdmin />;
+        case "operations_dashboard": return <OperationsDashboard />;
+        case "front_desk": return <FrontDesk />;
+        case "room_status": return <RoomStatusBoard />;
+        case "maintenance": return <MaintenancePage />;
+        case "inventory": return <InventoryPage />;
       }
     }
     return null;

@@ -82,6 +82,10 @@ model Hotel {
   staff    Staff[]
   cameras  Camera[]
   tasks    StaffTask[]
+  maintenanceRequests MaintenanceRequest[]
+  guestProfiles GuestProfile[]
+  checkIns CheckIn[]
+  inventoryItems InventoryItem[]
 
   @@map("hotels")
 }
@@ -103,6 +107,9 @@ model Room {
   updatedAt      DateTime @updatedAt
 
   bookings Booking[]
+  maintenanceRequests MaintenanceRequest[]
+  checkIns CheckIn[]
+  statusLogs RoomStatusLog[]
 
   @@map("rooms")
 }
@@ -243,6 +250,7 @@ model Staff {
   tasks     StaffTask[]
   shifts    StaffShift[]
   salaries  SalaryPayment[]
+  maintenanceAssigned MaintenanceRequest[]
 
   @@map("staff")
 }
@@ -395,4 +403,144 @@ model CarBooking {
   updatedAt   DateTime @updatedAt
 
   @@map("car_bookings")
+}
+
+// ───────────────────────────────────────────────────────────
+// Front Desk & Room Operations
+// ───────────────────────────────────────────────────────────
+
+model MaintenanceRequest {
+  id           String   @id @default(cuid())
+  hotelId      String
+  hotel        Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  roomId       String?
+  room         Room?    @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  reportedBy   String   // userId or "guest" or "staff:<id>"
+  assignedTo   String?  // staffId
+  staff       Staff?    @relation(fields: [assignedTo], references: [id], onDelete: SetNull)
+  title        String
+  description  String?
+  location     String?
+  priority     String   @default("normal") // low | normal | high | urgent
+  status       String   @default("open") // open | in_progress | resolved | closed
+  category     String   @default("other") // electrical | plumbing | hvac | furniture | appliance | structural | other
+  photoUrl     String?
+  reportedAt   DateTime @default(now())
+  startedAt    DateTime?
+  resolvedAt   DateTime?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("maintenance_requests")
+}
+
+model GuestProfile {
+  id              String   @id @default(cuid())
+  hotelId         String?
+  hotel           Hotel?   @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+  name            String
+  nameAr          String?
+  email           String?
+  phone           String?
+  nationality     String?
+  idType          String?  // passport | national_id | driving_license
+  idNumber        String?
+  dob             DateTime?
+  gender          String?  // male | female | other
+  address         String?
+  city            String?
+  country         String?
+  preferences      String   @default("[]") // JSON-encoded preferences like ["non-smoking", "high floor"]
+  dietaryNeeds    String?  // vegetarian | vegan | halal | kosher | none
+  vipStatus       String   @default("regular") // regular | silver | gold | platinum
+  totalStays      Int      @default(0)
+  totalSpent      Float    @default(0)
+  lastStayAt      DateTime?
+  blacklisted     Boolean  @default(false)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  checkIns CheckIn[]
+
+  @@map("guest_profiles")
+}
+
+model CheckIn {
+  id              String   @id @default(cuid())
+  hotelId         String
+  hotel           Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  guestId         String?
+  guest           GuestProfile? @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  bookingId       String?
+  roomId          String?
+  room            Room?    @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  guestName       String
+  guestEmail      String?
+  guestPhone      String?
+  numGuests       Int      @default(1)
+  checkInAt       DateTime @default(now())
+  expectedCheckOut DateTime
+  actualCheckOut  DateTime?
+  status          String   @default("checked_in") // checked_in | checked_out | no_show | cancelled
+  roomNumber      String?
+  keyCardCount    Int      @default(1)
+  depositCollected Float   @default(0)
+  specialRequests String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("check_ins")
+}
+
+model InventoryItem {
+  id           String   @id @default(cuid())
+  hotelId      String
+  hotel        Hotel     @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  name         String
+  nameAr       String?
+  category     String    // linens | toiletries | cleaning | food | beverage | office | other
+  unit         String    @default("piece") // piece | box | kg | liter | roll | set
+  quantity     Int       @default(0)
+  minStock     Int       @default(10)
+  maxStock     Int       @default(100)
+  unitCost     Float     @default(0)
+  supplier     String?
+  location     String?   // storage room name
+  barcode      String?
+  lastRestockedAt DateTime?
+  lastRestockQty Int?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  transactions InventoryTransaction[]
+
+  @@map("inventory_items")
+}
+
+model InventoryTransaction {
+  id        String   @id @default(cuid())
+  itemId    String
+  item      InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  type      String   // in | out | adjust | waste
+  quantity  Int
+  reason    String?
+  staffId   String?
+  createdAt DateTime @default(now())
+
+  @@map("inventory_transactions")
+}
+
+model RoomStatusLog {
+  id        String   @id @default(cuid())
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  status    String   // clean | dirty | inspected | occupied | out_of_order
+  notes     String?
+  changedBy String?
+  createdAt DateTime @default(now())
+
+  @@map("room_status_logs")
 }

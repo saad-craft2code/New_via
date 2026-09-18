@@ -14,6 +14,12 @@ async function main() {
   console.log("🌱 Seeding Via Trips DB (minimal)...");
 
   // ── Wipe (order matters for FK constraints)
+  await db.roomStatusLog.deleteMany();
+  await db.inventoryTransaction.deleteMany();
+  await db.inventoryItem.deleteMany();
+  await db.checkIn.deleteMany();
+  await db.guestProfile.deleteMany();
+  await db.maintenanceRequest.deleteMany();
   await db.carBooking.deleteMany();
   await db.car.deleteMany();
   await db.carCompany.deleteMany();
@@ -389,6 +395,125 @@ async function main() {
   });
 
   // ───────────────────────────────────────────────────────────
+  // Front Desk & Operations: Maintenance, Guests, CheckIns, Inventory
+  // ───────────────────────────────────────────────────────────
+  console.log("🏨 Seeding front desk & operations (minimal)...");
+
+  // 1 Maintenance Request
+  await db.maintenanceRequest.create({
+    data: {
+      hotelId: hotel.id,
+      roomId: "ROOM-001",
+      reportedBy: hotelOwner.id,
+      assignedTo: maintenance.id,
+      title: "AC not cooling properly",
+      description: "Guest in Room 001 reported AC blowing warm air. Needs urgent servicing.",
+      location: "Room 001",
+      priority: "high",
+      status: "in_progress",
+      category: "hvac",
+      startedAt: new Date(Date.now() - 3600000),
+    },
+  });
+
+  // 1 Guest Profile
+  const guest = await db.guestProfile.create({
+    data: {
+      hotelId: hotel.id,
+      name: "John Smith",
+      nameAr: "جون سميث",
+      email: "john.smith@example.com",
+      phone: "+1 415 555 0100",
+      nationality: "USA",
+      idType: "passport",
+      idNumber: "US12345678",
+      gender: "male",
+      city: "San Francisco",
+      country: "USA",
+      preferences: json(["non-smoking", "high floor", "quiet"]),
+      dietaryNeeds: "none",
+      vipStatus: "gold",
+      totalStays: 3,
+      totalSpent: 9800,
+      lastStayAt: new Date("2026-06-15"),
+    },
+  });
+
+  // 1 CheckIn
+  await db.checkIn.create({
+    data: {
+      hotelId: hotel.id,
+      guestId: guest.id,
+      roomId: "ROOM-002",
+      guestName: "John Smith",
+      guestEmail: "john.smith@example.com",
+      guestPhone: "+1 415 555 0100",
+      numGuests: 2,
+      checkInAt: new Date(),
+      expectedCheckOut: new Date(Date.now() + 3 * 86400000),
+      status: "checked_in",
+      roomNumber: "502",
+      keyCardCount: 2,
+      depositCollected: 500,
+      specialRequests: "Late check-out preferred",
+    },
+  });
+
+  // 2 Inventory Items
+  await db.inventoryItem.create({
+    data: {
+      hotelId: hotel.id,
+      name: "Bath Towels",
+      nameAr: "مناشف الحمام",
+      category: "linens",
+      unit: "piece",
+      quantity: 80,
+      minStock: 30,
+      maxStock: 150,
+      unitCost: 25,
+      supplier: "Hotel Supplies Co.",
+      location: "Linen Room A",
+      lastRestockedAt: new Date(Date.now() - 7 * 86400000),
+      lastRestockQty: 50,
+    },
+  });
+  await db.inventoryItem.create({
+    data: {
+      hotelId: hotel.id,
+      name: "Shampoo Bottles",
+      nameAr: "زجاجات الشامبو",
+      category: "toiletries",
+      unit: "piece",
+      quantity: 15,
+      minStock: 40,
+      maxStock: 200,
+      unitCost: 3,
+      supplier: "Toiletries Direct",
+      location: "Storage Room B",
+      lastRestockedAt: new Date(Date.now() - 14 * 86400000),
+      lastRestockQty: 100,
+    },
+  });
+
+  // 1 Room Status Log
+  await db.roomStatusLog.create({
+    data: {
+      roomId: "ROOM-001",
+      status: "dirty",
+      notes: "Guest checked out, needs cleaning",
+      changedBy: hotelOwner.id,
+    },
+  });
+  await db.roomStatusLog.create({
+    data: {
+      roomId: "ROOM-002",
+      status: "occupied",
+      notes: "John Smith checked in",
+      changedBy: hotelOwner.id,
+    },
+  });
+
+  // ───────────────────────────────────────────────────────────
   // Car Rental: 1 Company + 2 Cars + 1 Booking
   // ───────────────────────────────────────────────────────────
   console.log("🚗 Seeding car rental (minimal)...");
@@ -490,22 +615,27 @@ async function main() {
   });
 
   console.log("✅ Seed complete (minimal)");
-  console.log(`   Users:           ${await db.user.count()}`);
-  console.log(`   Hotels:          ${await db.hotel.count()}`);
-  console.log(`   Rooms:           ${await db.room.count()}`);
-  console.log(`   Bundles:         ${await db.bundle.count()}`);
-  console.log(`   Bundle Days:     ${await db.bundleDay.count()}`);
-  console.log(`   Bundle Items:    ${await db.bundleItem.count()}`);
-  console.log(`   Bookings:        ${await db.booking.count()}`);
-  console.log(`   Notifications:   ${await db.notification.count()}`);
-  console.log(`   Reviews:         ${await db.review.count()}`);
-  console.log(`   Staff:           ${await db.staff.count()}`);
-  console.log(`   Staff Tasks:     ${await db.staffTask.count()}`);
-  console.log(`   Salary Payments: ${await db.salaryPayment.count()}`);
-  console.log(`   Cameras:         ${await db.camera.count()}`);
-  console.log(`   Car Companies:   ${await db.carCompany.count()}`);
-  console.log(`   Cars:            ${await db.car.count()}`);
-  console.log(`   Car Bookings:    ${await db.carBooking.count()}`);
+  console.log(`   Users:               ${await db.user.count()}`);
+  console.log(`   Hotels:              ${await db.hotel.count()}`);
+  console.log(`   Rooms:               ${await db.room.count()}`);
+  console.log(`   Bundles:             ${await db.bundle.count()}`);
+  console.log(`   Bundle Days:         ${await db.bundleDay.count()}`);
+  console.log(`   Bundle Items:        ${await db.bundleItem.count()}`);
+  console.log(`   Bookings:            ${await db.booking.count()}`);
+  console.log(`   Notifications:       ${await db.notification.count()}`);
+  console.log(`   Reviews:             ${await db.review.count()}`);
+  console.log(`   Staff:               ${await db.staff.count()}`);
+  console.log(`   Staff Tasks:         ${await db.staffTask.count()}`);
+  console.log(`   Salary Payments:     ${await db.salaryPayment.count()}`);
+  console.log(`   Cameras:             ${await db.camera.count()}`);
+  console.log(`   Maintenance Reqs:    ${await db.maintenanceRequest.count()}`);
+  console.log(`   Guest Profiles:      ${await db.guestProfile.count()}`);
+  console.log(`   Check-Ins:           ${await db.checkIn.count()}`);
+  console.log(`   Inventory Items:     ${await db.inventoryItem.count()}`);
+  console.log(`   Room Status Logs:    ${await db.roomStatusLog.count()}`);
+  console.log(`   Car Companies:       ${await db.carCompany.count()}`);
+  console.log(`   Cars:                ${await db.car.count()}`);
+  console.log(`   Car Bookings:        ${await db.carBooking.count()}`);
   console.log("");
   console.log("  Demo logins (any password works — auth is mocked):");
   console.log("    Hotel Owner:      hotel@via.example");
