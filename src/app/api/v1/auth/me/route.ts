@@ -1,6 +1,6 @@
 // GET /api/v1/auth/me
 import { NextRequest } from "next/server";
-import { ok, err, isDb, db, mock, getAuthUserId } from "../../../../_lib";
+import { ok, err, isDb, db, mock, getAuthUserId } from "../../../_lib";
 import { toSharedUser } from "../_shared";
 
 export async function GET(req: NextRequest) {

@@ -1,20 +1,20 @@
-import { PrismaClient } from '@prisma/client'
+// Database client — gracefully handles missing DATABASE_URL
+// Returns null when no database is configured (app uses mock data instead)
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-}
+let dbClient: any = null;
 
-function createPrismaClient(): PrismaClient | null {
+try {
   const url = process.env.DATABASE_URL;
-  if (!url || url.includes("file:") || url.includes("PASSWORD") || url.includes("your-neon-host") || url.includes("user:password")) {
-    return null;
+  if (url && !url.includes("file:") && !url.includes("PASSWORD") && !url.includes("dummy") && !url.includes("your-neon-host") && !url.includes("user:password")) {
+    // Dynamic import so this doesn't crash the build if @prisma/client isn't fully generated
+    const { PrismaClient } = require("@prisma/client");
+    dbClient = new PrismaClient();
+    if (process.env.NODE_ENV !== 'production') {
+      (globalThis as any).prisma = dbClient;
+    }
   }
-  try {
-    return new PrismaClient()
-  } catch (e) {
-    return null;
-  }
+} catch (e) {
+  console.log("⚠️ PrismaClient not available — using mock data");
 }
 
-export const db = globalForPrisma.prisma ?? createPrismaClient()
-if (db && process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+export const db = dbClient;
