@@ -146,12 +146,8 @@ export function StaffLogin() {
                 </p>
                 <div className="grid grid-cols-2 gap-1.5">
                   {[
-                    "cleaner1@via.example",
-                    "cleaner2@via.example",
-                    "maintenance1@via.example",
-                    "frontdesk1@via.example",
-                    "security1@via.example",
-                    "kitchen1@via.example",
+                    "cleaner@via.example",
+                    "maintenance@via.example",
                   ].map((em) => (
                     <button
                       key={em}
