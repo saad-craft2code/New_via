@@ -1,7 +1,7 @@
 // /api/v1/users/me — GET PATCH
 import { NextRequest } from "next/server";
 import { ok, err, isDb, db, mock, getAuthUserId } from "../../../_lib";
-import { toSharedUser } from "../../auth/login/route";
+import { toSharedUser } from "../../auth/_shared";
 
 export async function GET(req: NextRequest) {
   const userId = await getAuthUserId(req);
