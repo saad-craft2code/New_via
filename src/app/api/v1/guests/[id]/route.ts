@@ -2,9 +2,12 @@
 import { NextRequest } from "next/server";
 import { db, ok, err, getAuthUserId } from "../../../_lib";
 
-function parseArr(s: string | null | undefined): string[] {
+function parseArr(s: any): string[] {
   if (!s) return [];
-  try { return JSON.parse(s) as string[]; } catch { return []; }
+    if (Array.isArray(s)) return s;
+  if (typeof s === "string") { try { return JSON.parse(s) as string[]; } catch { return []; } }
+    if (Array.isArray(s)) return s;
+    return [];
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -26,7 +29,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (body.address !== undefined) data.address = body.address;
   if (body.city !== undefined) data.city = body.city;
   if (body.country !== undefined) data.country = body.country;
-  if (body.preferences !== undefined) data.preferences = JSON.stringify(body.preferences);
+  if (body.preferences !== undefined) data.preferences = body.preferences ?? [];
   if (body.dietaryNeeds !== undefined) data.dietaryNeeds = body.dietaryNeeds;
   if (body.vipStatus !== undefined) data.vipStatus = String(body.vipStatus);
   if (body.blacklisted !== undefined) data.blacklisted = Boolean(body.blacklisted);

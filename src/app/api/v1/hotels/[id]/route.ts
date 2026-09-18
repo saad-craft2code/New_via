@@ -2,9 +2,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db, ok, err, getAuthUserId } from "../../../_lib";
 
-function parseArr(s: string | null | undefined): string[] {
+function parseArr(s: any): string[] {
   if (!s) return [];
-  try { return JSON.parse(s) as string[]; } catch { return []; }
+    if (Array.isArray(s)) return s;
+  if (typeof s === "string") { try { return JSON.parse(s) as string[]; } catch { return []; } }
+    if (Array.isArray(s)) return s;
+    return [];
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -67,8 +70,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.city !== undefined && { city: body.city }),
       ...(body.latitude !== undefined && { latitude: body.latitude }),
       ...(body.longitude !== undefined && { longitude: body.longitude }),
-      ...(body.amenities !== undefined && { amenities: JSON.stringify(body.amenities) }),
-      ...(body.images !== undefined && { images: JSON.stringify(body.images) }),
+      ...(body.amenities !== undefined && { amenities: body.amenities ?? [] }),
+      ...(body.images !== undefined && { images: body.images ?? [] }),
       ...(body.policies !== undefined && { policies: JSON.stringify(body.policies) }),
     },
   });

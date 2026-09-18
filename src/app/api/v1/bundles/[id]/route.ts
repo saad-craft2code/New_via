@@ -2,9 +2,12 @@
 import { NextRequest } from "next/server";
 import { db, ok, err, getAuthUserId } from "../../../_lib";
 
-function parseArr(s: string | null | undefined): string[] {
+function parseArr(s: any): string[] {
   if (!s) return [];
-  try { return JSON.parse(s) as string[]; } catch { return []; }
+    if (Array.isArray(s)) return s;
+  if (typeof s === "string") { try { return JSON.parse(s) as string[]; } catch { return []; } }
+    if (Array.isArray(s)) return s;
+    return [];
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -73,13 +76,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.title !== undefined && { title: String(body.title) }),
       ...(body.description !== undefined && { description: String(body.description) }),
       ...(body.durationDays !== undefined && { durationDays: Number(body.durationDays) }),
-      ...(body.destinations !== undefined && { destinations: JSON.stringify(body.destinations) }),
-      ...(body.images !== undefined && { images: JSON.stringify(body.images) }),
+      ...(body.destinations !== undefined && { destinations: body.destinations ?? [] }),
+      ...(body.images !== undefined && { images: body.images ?? [] }),
       ...(body.guideName !== undefined && { guideName: body.guideName }),
       ...(body.price !== undefined && { price: Number(body.price) }),
       ...(body.difficulty !== undefined && { difficulty: String(body.difficulty) }),
       ...(body.groupSize !== undefined && { groupSize: body.groupSize }),
-      ...(body.includedServices !== undefined && { includedServices: JSON.stringify(body.includedServices) }),
+      ...(body.includedServices !== undefined && { includedServices: body.includedServices ?? [] }),
       ...(body.status !== undefined && { status: String(body.status) }),
     },
   });

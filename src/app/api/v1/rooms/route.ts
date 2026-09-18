@@ -2,9 +2,12 @@
 import { NextRequest } from "next/server";
 import { db, ok, err, getAuthUserId } from "../../_lib";
 
-function parseArr(s: string | null | undefined): string[] {
+function parseArr(s: any): string[] {
   if (!s) return [];
-  try { return JSON.parse(s) as string[]; } catch { return []; }
+    if (Array.isArray(s)) return s;
+  if (typeof s === "string") { try { return JSON.parse(s) as string[]; } catch { return []; } }
+    if (Array.isArray(s)) return s;
+    return [];
 }
 
 export async function GET(req: NextRequest) {
@@ -51,8 +54,8 @@ export async function POST(req: NextRequest) {
       maxGuests: Number(body.maxGuests ?? 2),
       pricePerNight: Number(body.pricePerNight ?? 100),
       size: body.size ?? null,
-      amenities: JSON.stringify(body.amenities ?? []),
-      images: JSON.stringify(body.images ?? []),
+      amenities: body.amenities ?? [],
+      images: body.images ?? [],
       totalUnits: Number(body.totalUnits ?? 1),
       availableUnits: Number(body.availableUnits ?? 1),
     },

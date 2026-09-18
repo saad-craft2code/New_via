@@ -2,9 +2,12 @@
 import { NextRequest } from "next/server";
 import { db, ok, err, getAuthUserId } from "../../../_lib";
 
-function parseArr(s: string | null | undefined): string[] {
+function parseArr(s: any): string[] {
   if (!s) return [];
-  try { return JSON.parse(s) as string[]; } catch { return []; }
+    if (Array.isArray(s)) return s;
+  if (typeof s === "string") { try { return JSON.parse(s) as string[]; } catch { return []; } }
+    if (Array.isArray(s)) return s;
+    return [];
 }
 
 async function ensureOwned(roomId: string, userId: string) {
@@ -31,8 +34,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.maxGuests !== undefined && { maxGuests: Number(body.maxGuests) }),
       ...(body.pricePerNight !== undefined && { pricePerNight: Number(body.pricePerNight) }),
       ...(body.size !== undefined && { size: body.size }),
-      ...(body.amenities !== undefined && { amenities: JSON.stringify(body.amenities) }),
-      ...(body.images !== undefined && { images: JSON.stringify(body.images) }),
+      ...(body.amenities !== undefined && { amenities: body.amenities ?? [] }),
+      ...(body.images !== undefined && { images: body.images ?? [] }),
       ...(body.totalUnits !== undefined && { totalUnits: Number(body.totalUnits) }),
       ...(body.availableUnits !== undefined && { availableUnits: Number(body.availableUnits) }),
     },

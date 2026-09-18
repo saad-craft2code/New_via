@@ -2,9 +2,12 @@
 import { NextRequest } from "next/server";
 import { db, ok, err } from "../../../../_lib";
 
-function parseArr(s: string | null | undefined): string[] {
+function parseArr(s: any): string[] {
   if (!s) return [];
-  try { return JSON.parse(s) as string[]; } catch { return []; }
+    if (Array.isArray(s)) return s;
+  if (typeof s === "string") { try { return JSON.parse(s) as string[]; } catch { return []; } }
+    if (Array.isArray(s)) return s;
+    return [];
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

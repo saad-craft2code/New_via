@@ -4,9 +4,12 @@ import { NextRequest } from "next/server";
 import { db, ok, err, getAuthUserId } from "../../_lib";
 import { toSharedUser } from "../../v1/auth/login/route";
 
-function parseArr(s: string | null | undefined): string[] {
+function parseArr(s: any): string[] {
   if (!s) return [];
-  try { return JSON.parse(s) as string[]; } catch { return []; }
+    if (Array.isArray(s)) return s;
+  if (typeof s === "string") { try { return JSON.parse(s) as string[]; } catch { return []; } }
+    if (Array.isArray(s)) return s;
+    return [];
 }
 
 export async function GET(req: NextRequest) {
@@ -69,8 +72,8 @@ export async function POST(req: NextRequest) {
       city: body.city ?? null,
       latitude: body.latitude ?? null,
       longitude: body.longitude ?? null,
-      amenities: JSON.stringify(body.amenities ?? []),
-      images: JSON.stringify(body.images ?? []),
+      amenities: body.amenities ?? [],
+      images: body.images ?? [],
       policies: body.policies ? JSON.stringify(body.policies) : null,
     },
   });

@@ -1,15 +1,13 @@
-// Prisma schema for Via Trips Provider Panel (SQLite)
-// Converted from apps/api/prisma/schema.prisma (postgres) — SQLite-safe:
-//   - enums → plain String fields with default literals
-//   - String[] → Json (array<string>) 
-//   - Decimal → Float
+// Prisma schema for Via Trips Provider Panel (Neon PostgreSQL)
+// Works with Neon serverless Postgres on Vercel.
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -24,7 +22,7 @@ model User {
   businessLicense    String?
   tourGuideLicense   String?
   yearsExperience    Int?
-  languagesSpoken    String   @default("[]") // JSON-encoded array<string>
+  languagesSpoken    String[] @default([]) // JSON-encoded array<string>
   avatarUrl          String?
   firebaseUid        String?  @unique
   kycStatus          String   @default("NotSubmitted") // NotSubmitted | Pending | Approved | Rejected
@@ -71,8 +69,8 @@ model Hotel {
   city        String?
   latitude    Float?
   longitude   Float?
-  amenities   String   @default("[]") // JSON-encoded array<string>
-  images      String   @default("[]") // JSON-encoded array<string>
+  amenities   String[] @default([]) // JSON-encoded array<string>
+  images      String[] @default([]) // JSON-encoded array<string>
   policies    String?  // JSON-encoded policies object
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -99,8 +97,8 @@ model Room {
   maxGuests      Int
   pricePerNight  Float
   size           Float?
-  amenities      String   @default("[]") // JSON-encoded array<string>
-  images         String   @default("[]") // JSON-encoded array<string>
+  amenities      String[] @default([]) // JSON-encoded array<string>
+  images         String[] @default([]) // JSON-encoded array<string>
   totalUnits     Int      @default(1)
   availableUnits Int      @default(1)
   createdAt      DateTime @default(now())
@@ -121,13 +119,13 @@ model Bundle {
   title            String
   description      String
   durationDays     Int
-  destinations     String   @default("[]") // JSON-encoded array<string>
-  images           String   @default("[]") // JSON-encoded array<string>
+  destinations     String[] @default([]) // JSON-encoded array<string>
+  images           String[] @default([]) // JSON-encoded array<string>
   guideName        String?
   price            Float
   difficulty       String   @default("easy")
   groupSize        Int?
-  includedServices String   @default("[]") // JSON-encoded array<string>
+  includedServices String[] @default([]) // JSON-encoded array<string>
   status           String   @default("Draft") // Draft | Published | Archived | SoldOut
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -164,7 +162,7 @@ model BundleItem {
   endTime          String?
   location         String?
   cost             Float?
-  includedServices String   @default("[]") // JSON-encoded array<string>
+  includedServices String[] @default([]) // JSON-encoded array<string>
   metadata         String?  // JSON-encoded metadata object
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -366,8 +364,8 @@ model Car {
   fuelType    String   @default("petrol") // petrol | diesel | hybrid | electric
   pricePerDay Float
   deposit     Float    @default(500)
-  images      String   @default("[]")
-  features    String   @default("[]") // JSON-encoded
+  images      String[] @default([])
+  features    String[] @default([]) // JSON-encoded
   available   Boolean  @default(true)
   mileage     Int?
   color       String?
@@ -451,7 +449,7 @@ model GuestProfile {
   address         String?
   city            String?
   country         String?
-  preferences      String   @default("[]") // JSON-encoded preferences like ["non-smoking", "high floor"]
+  preferences      String[] @default([]) // JSON-encoded preferences like ["non-smoking", "high floor"]
   dietaryNeeds    String?  // vegetarian | vegan | halal | kosher | none
   vipStatus       String   @default("regular") // regular | silver | gold | platinum
   totalStays      Int      @default(0)

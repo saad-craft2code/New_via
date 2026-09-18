@@ -2,9 +2,12 @@
 import { NextRequest } from "next/server";
 import { db, ok, err, getAuthUserId } from "../../_lib";
 
-function parseArr(s: string | null | undefined): string[] {
+function parseArr(s: any): string[] {
   if (!s) return [];
-  try { return JSON.parse(s) as string[]; } catch { return []; }
+    if (Array.isArray(s)) return s;
+  if (typeof s === "string") { try { return JSON.parse(s) as string[]; } catch { return []; } }
+    if (Array.isArray(s)) return s;
+    return [];
 }
 
 export async function GET(req: NextRequest) {
@@ -83,7 +86,7 @@ export async function POST(req: NextRequest) {
       address: body.address ?? null,
       city: body.city ?? null,
       country: body.country ?? null,
-      preferences: JSON.stringify(body.preferences ?? []),
+      preferences: body.preferences ?? [],
       dietaryNeeds: body.dietaryNeeds ?? null,
       vipStatus: String(body.vipStatus ?? "regular"),
       notes: body.notes ?? null,

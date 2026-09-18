@@ -2,9 +2,12 @@
 import { NextRequest } from "next/server";
 import { db, ok, err, getAuthUserId } from "../../../_lib";
 
-function parseArr(s: string | null | undefined): string[] {
+function parseArr(s: any): string[] {
   if (!s) return [];
-  try { return JSON.parse(s) as string[]; } catch { return []; }
+    if (Array.isArray(s)) return s;
+  if (typeof s === "string") { try { return JSON.parse(s) as string[]; } catch { return []; } }
+    if (Array.isArray(s)) return s;
+    return [];
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -34,8 +37,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.fuelType !== undefined && { fuelType: String(body.fuelType) }),
       ...(body.pricePerDay !== undefined && { pricePerDay: Number(body.pricePerDay) }),
       ...(body.deposit !== undefined && { deposit: Number(body.deposit) }),
-      ...(body.images !== undefined && { images: JSON.stringify(body.images) }),
-      ...(body.features !== undefined && { features: JSON.stringify(body.features) }),
+      ...(body.images !== undefined && { images: body.images ?? [] }),
+      ...(body.features !== undefined && { features: body.features ?? [] }),
       ...(body.available !== undefined && { available: Boolean(body.available) }),
       ...(body.mileage !== undefined && { mileage: body.mileage }),
       ...(body.color !== undefined && { color: body.color }),
