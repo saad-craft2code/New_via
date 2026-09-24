@@ -79,7 +79,7 @@ export default function HotelsPage() {
               <div className="mb-6">
                 <label className="text-sm font-bold text-slate-700 mb-3 block tf-font-display">{t(lang, "filter_stars")}</label>
                 <div className="flex flex-wrap gap-2">
-                  {[0, 3, 4, 5, 7].map((s) => <button key={s} onClick={() => setMinStars(s)} className={cn("px-3 py-1.5 rounded-lg text-xs font-bold transition-all", minStars === s ? "tf-bg-blue text-black" : "bg-[#F1F5F9] text-[#475569] hover:bg-[#E2E8F0]")}>{s === 0 ? (lang === "ar" ? "الكل" : "All") : `${s}+★`}</button>)}
+                  {[0, 3, 4, 5, 7].map((s) => <button key={s} onClick={() => setMinStars(s)} className={cn("px-3 py-1.5 rounded-lg text-xs font-bold transition-all", minStars === s ? "tf-bg-blue text-white" : "bg-[#F1F5F9] text-[#475569] hover:bg-[#E2E8F0]")}>{s === 0 ? (lang === "ar" ? "الكل" : "All") : `${s}+★`}</button>)}
                 </div>
               </div>
 
@@ -95,7 +95,7 @@ export default function HotelsPage() {
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {allAmenities.map((am) => {
                     const isSelected = selectedAmenities.includes(am.en);
-                    return <button key={am.en} onClick={() => toggleAmenity(am.en)} className={cn("w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all", isSelected ? "tf-bg-blue text-black font-bold" : "bg-[#F8FAFC] text-[#475569] hover:bg-[#F1F5F9]")}>
+                    return <button key={am.en} onClick={() => toggleAmenity(am.en)} className={cn("w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all", isSelected ? "tf-bg-blue text-white font-bold" : "bg-[#F8FAFC] text-[#475569] hover:bg-[#F1F5F9]")}>
                       <div className={cn("h-4 w-4 rounded border flex items-center justify-center flex-shrink-0", isSelected ? "bg-black border-black" : "border-[#CBD5E1]")}>{isSelected && <Check className="h-3 w-3 text-[#2563EB]" />}</div>
                       {lang === "ar" ? am.ar : am.en}
                     </button>;
@@ -114,7 +114,7 @@ export default function HotelsPage() {
                   <div className="sm:w-80 h-52 sm:h-auto flex-shrink-0 overflow-hidden relative">
                     <img src={hotel.coverImage} alt={hotel.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     <div className="absolute top-3 left-3 bg-white/95 backdrop-blur px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-lg"><Star className="h-3.5 w-3.5 tf-star" /><span className="font-bold text-sm text-[#0F172A]">{hotel.rating}</span></div>
-                    <div className="absolute top-3 right-3 tf-bg-blue text-black px-2.5 py-1 rounded-lg text-xs font-bold">{hotel.starRating} ★</div>
+                    <div className="absolute top-3 right-3 tf-bg-blue text-white px-2.5 py-1 rounded-lg text-xs font-bold">{hotel.starRating} ★</div>
                   </div>
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div>
