@@ -6,7 +6,7 @@
     "node": "24.x"
   },
   "scripts": {
-    "dev": "cd tripful && npx next dev -p 3000",
+    "dev": "next dev -p 3000 2>&1 | tee dev.log",
     "build": "next build",
     "start": "next start",
     "dev:api": "cd apps/api && npm run dev",
