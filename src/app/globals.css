@@ -109,6 +109,13 @@
 
 :root {
   --radius: 0.75rem;
+  --tf-gold: #C9A961;
+  --tf-gold-light: #D4AF37;
+  --tf-gold-dark: #A0843A;
+  --tf-black: #0A0A0A;
+  --tf-dark: #141414;
+  --tf-charcoal: #1E1E1E;
+  --tf-cream: #F8F5F0;
   --background: oklch(0.99 0.005 35);
   --foreground: oklch(0.15 0.01 240);
   --card: oklch(1 0 0);
@@ -435,11 +442,7 @@ html[dir="ltr"] {
 }
 
 /* ─── Tripful Booking Site Styles ─────────────────── */
-@theme {
-  --color-teal: #0D9488;
-  --color-teal-dark: #0F766E;
-  --color-teal-light: #14B8A6;
-}
+
 
 .text-teal-600 { color: #0D9488; }
 .text-teal-700 { color: #0F766E; }
@@ -469,3 +472,70 @@ h3 { font-size: 1.5rem; font-weight: 700; line-height: 1.3; }
   h1 { font-size: 3.5rem; }
   h2 { font-size: 2.5rem; }
 }
+
+/* ─── Tripful Luxury Theme (Black + Gold) ──────────── */
+
+
+
+.tf-font-display { font-family: 'Playfair Display', 'IBM Plex Sans Arabic', serif !important; }
+.tf-font-body { font-family: 'Inter', 'IBM Plex Sans Arabic', sans-serif !important; }
+.tf-font-arabic { font-family: 'IBM Plex Sans Arabic', sans-serif !important; }
+
+html[dir="rtl"] .tf-font-display { font-family: 'IBM Plex Sans Arabic', serif !important; }
+html[dir="rtl"] .tf-font-body { font-family: 'IBM Plex Sans Arabic', sans-serif !important; }
+
+.tf-gold { color: #C9A961; }
+.tf-bg-gold { background-color: #C9A961; }
+.tf-bg-dark { background-color: #0A0A0A; }
+.tf-bg-charcoal { background-color: #1E1E1E; }
+.tf-bg-cream { background-color: #F8F5F0; }
+.tf-border-gold { border-color: #C9A961; }
+
+.tf-hero-gradient {
+  background: linear-gradient(135deg, #0A0A0A 0%, #141414 50%, #1E1E1E 100%);
+}
+
+.tf-card-luxury {
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tf-card-luxury:hover {
+  border-color: #C9A961;
+  box-shadow: 0 20px 60px -15px rgba(201, 169, 97, 0.3);
+  transform: translateY(-4px);
+}
+
+.tf-btn-gold {
+  background: linear-gradient(135deg, #C9A961 0%, #D4AF37 50%, #C9A961 100%);
+  color: #0A0A0A;
+  font-weight: 700;
+  transition: all 0.3s;
+}
+.tf-btn-gold:hover {
+  background: linear-gradient(135deg, #D4AF37 0%, #E0B73E 50%, #D4AF37 100%);
+  box-shadow: 0 8px 25px -8px rgba(201, 169, 97, 0.5);
+}
+
+.tf-btn-dark {
+  background: #0A0A0A;
+  color: #C9A961;
+  border: 1px solid #C9A961;
+  transition: all 0.3s;
+}
+.tf-btn-dark:hover {
+  background: #1E1E1E;
+  border-color: #D4AF37;
+}
+
+html[dir="rtl"] h1, html[dir="rtl"] h2, html[dir="rtl"] h3, html[dir="rtl"] h4 {
+  font-family: 'IBM Plex Sans Arabic', serif !important;
+  letter-spacing: 0 !important;
+  line-height: 1.4;
+}
+
+.tf-section { padding: 80px 0; }
+@media (min-width: 768px) { .tf-section { padding: 120px 0; } }
+
+.tf-container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+@media (min-width: 768px) { .tf-container { padding: 0 48px; } }
