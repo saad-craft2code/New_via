@@ -8,7 +8,7 @@ export function Footer() {
   const { lang } = useLang();
   return (
     <footer className="bg-[#0F172A] text-white">
-      <div className="tf-container py-16">
+      <div className="tf-container pt-20 pb-12">
         <div className="grid md:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="md:col-span-1">

@@ -150,7 +150,7 @@ export default function Home() {
                 <label className="text-xs font-bold text-[#475569] mb-1.5 block uppercase tracking-wider">{t(lang, "search_placeholder")}</label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94A3B8]" />
-                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={lang === "ar" ? "دبي، مكة، طرابلس..." : "Dubai, Makkah, Tripoli..."} className="tf-input pl-9" />
+                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={lang === "ar" ? "دبي، مكة، طرابلس..." : "Dubai, Makkah, Tripoli..."} className="tf-input" style={{ paddingLeft: "44px" }} />
                 </div>
               </div>
               <div className="md:col-span-3">
