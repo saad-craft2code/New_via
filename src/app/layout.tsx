@@ -1,50 +1,22 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Toaster } from "react-hot-toast";
-import { SessionGate } from "@/components/provider/session-gate";
+import { LangProvider } from "@/components/tripful-lang-provider";
 
 export const metadata: Metadata = {
-  title: "Via Trips — Provider Panel",
-  description:
-    "Service Provider Dashboard for Via Trips — manage hotels, bundles, bookings, and earnings.",
-  keywords: ["Via Trips", "Provider Panel", "Hotel Owner", "Bundle Creator", "Travel Dashboard"],
-  authors: [{ name: "Via Trips" }],
-  icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
-  },
+  title: "Tripful — Book Hotels & Travel Bundles",
+  description: "Find and book luxury hotels and curated travel bundles. Best prices, instant confirmation.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ar" dir="rtl" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Local fonts — IBM Plex Sans Arabic for Arabic UI, Plus Jakarta Sans for Latin */}
-        <link rel="preload" href="/fonts/IBM-Plex-Sans-Arabic-Regular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/IBM-Plex-Sans-Arabic-Bold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/IBM-Plex-Sans-Arabic-SemiBold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-sans antialiased bg-background text-foreground">
-        <SessionGate>{children}</SessionGate>
-        <Toaster
-          position="top-center"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: "var(--popover, #fff)",
-              color: "var(--popover-foreground, #111)",
-              border: "1px solid var(--border, #e5e7eb)",
-              borderRadius: "12px",
-              fontSize: "14px",
-              padding: "12px 16px",
-            },
-            success: { iconTheme: { primary: "oklch(0.2 0.02 240)", secondary: "#fff" } },
-            error: { iconTheme: { primary: "oklch(0.55 0.22 25)", secondary: "#fff" } },
-          }}
-        />
+      <body className="bg-white text-[#0F172A] antialiased">
+        <LangProvider>{children}</LangProvider>
       </body>
     </html>
   );
