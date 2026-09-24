@@ -123,6 +123,26 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Two options: Hotels or Tour Guides */}
+          <div className="max-w-2xl mx-auto mb-8">
+            <div className="grid grid-cols-2 gap-4">
+              <a href="/hotels" className="tf-card group p-6 text-center no-underline">
+                <div className="inline-flex h-14 w-14 rounded-2xl bg-[#EFF6FF] items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <Building2 className="h-7 w-7 text-[#1A4D8F]" />
+                </div>
+                <h3 className="text-lg font-bold tf-font-display text-[#0F172A] mb-1">{t(lang, "hotels")}</h3>
+                <p className="text-sm text-[#64748B]">{lang === "ar" ? "ابحث عن إقامتك المثالية" : "Find your perfect stay"}</p>
+              </a>
+              <a href="/bundles" className="tf-card group p-6 text-center no-underline">
+                <div className="inline-flex h-14 w-14 rounded-2xl bg-[#EFF6FF] items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <Plane className="h-7 w-7 text-[#1A4D8F]" />
+                </div>
+                <h3 className="text-lg font-bold tf-font-display text-[#0F172A] mb-1">{lang === "ar" ? "باقات ومرشدون" : "Bundles & Guides"}</h3>
+                <p className="text-sm text-[#64748B]">{lang === "ar" ? "اكتشف باقات السفر والجولات الموجهة" : "Discover travel bundles & guided tours"}</p>
+              </a>
+            </div>
+          </div>
+
           {/* Traditional Search Bar */}
           <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border border-[#E2E8F0] p-5">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
@@ -337,6 +357,22 @@ export default function Home() {
                 </a>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Big Branding Spacer ──────────────────── */}
+      <section className="bg-[#F8FAFC] py-24 border-t border-[#E2E8F0]">
+        <div className="tf-container text-center">
+          <div className="inline-flex h-20 w-20 rounded-3xl bg-[#1A4D8F] items-center justify-center mb-6 shadow-xl">
+            <svg viewBox="0 0 24 24" className="h-10 w-10 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+          </div>
+          <h2 className="text-5xl md:text-7xl font-extrabold text-[#0F172A] tf-font-display mb-3">Tripful</h2>
+          <p className="text-lg text-[#64748B] max-w-xl mx-auto">{lang === "ar" ? "منصة حجوزات الفنادق والسفر الأولى في الشرق الأوسط — بياناتك متصلة مباشرة مع لوحة تحكم مقدمي الخدمة" : "The Middle East's premier hotel & travel booking platform — synced directly with the Via Trips provider panel"}</p>
+          <div className="flex items-center justify-center gap-6 mt-8 text-sm text-[#64748B]">
+            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-[#2563EB]" /> {lang === "ar" ? "تأكيد فوري" : "Instant Confirmation"}</span>
+            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-[#2563EB]" /> {lang === "ar" ? "أفضل الأسعار" : "Best Prices"}</span>
+            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-[#2563EB]" /> {lang === "ar" ? "دعم ٢٤/٧" : "24/7 Support"}</span>
           </div>
         </div>
       </section>

@@ -137,7 +137,7 @@ html[dir="rtl"] .tf-font-display, html[dir="rtl"] .tf-font-body { font-family: '
   font-weight: 600;
 }
 .tf-badge-blue { background: #EFF6FF; color: #1A4D8F; }
-.tf-badge-amber { background: #FEF3C7; color: #92400E; }
+.tf-badge-blue { background: #DBEAFE; color: #1A4D8F; }
 .tf-badge-green { background: #D1FAE5; color: #065F46; }
 .tf-badge-gray { background: #F1F5F9; color: #475569; }
 

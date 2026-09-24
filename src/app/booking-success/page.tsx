@@ -28,8 +28,8 @@ export default function BookingSuccessPage() {
       <Navbar lang={lang} setLang={setLang} />
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="max-w-lg w-full text-center">
-          <div className="h-20 w-20 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="h-12 w-12 text-teal-600" />
+          <div className="h-20 w-20 rounded-full bg-#DBEAFE flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="h-12 w-12 text-#1A4D8F" />
           </div>
           <h1 className="text-4xl font-extrabold text-slate-900 mb-3">{t(lang, "booking_confirmed")}</h1>
           <p className="text-slate-500 mb-8">{t(lang, "booking_confirmed_desc")}</p>
@@ -41,11 +41,11 @@ export default function BookingSuccessPage() {
               <div className="flex justify-between"><span className="text-slate-500">{lang === "ar" ? "النوع" : "Type"}</span><span className="font-bold">{type === "hotel" ? t(lang, "hotels") : t(lang, "bundles")}</span></div>
               {checkIn && <div className="flex justify-between"><span className="text-slate-500">{t(lang, "check_in")}</span><span className="font-bold">{checkIn}</span></div>}
               <div className="flex justify-between"><span className="text-slate-500">{t(lang, "guests")}</span><span className="font-bold">{guests}</span></div>
-              <div className="flex justify-between pt-3 border-t border-slate-100"><span className="font-bold">{lang === "ar" ? "الإجمالي" : "Total"}</span><span className="font-bold text-teal-600 text-lg">{formatPrice(total, lang)}</span></div>
+              <div className="flex justify-between pt-3 border-t border-slate-100"><span className="font-bold">{lang === "ar" ? "الإجمالي" : "Total"}</span><span className="font-bold text-#1A4D8F text-lg">{formatPrice(total, lang)}</span></div>
             </div>
           </div>
 
-          <a href="/" className="inline-flex items-center gap-2 mt-8 bg-teal-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-teal-700 transition-colors">
+          <a href="/" className="inline-flex items-center gap-2 mt-8 bg-[#1A4D8F] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#2563EB] transition-colors">
             <Home className="h-4 w-4" /> {t(lang, "back_home")}
           </a>
         </div>
