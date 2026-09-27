@@ -26,7 +26,7 @@ export async function PATCH(req: NextRequest) {
       ...(body.businessLicense !== undefined && { businessLicense: body.businessLicense }),
       ...(body.tourGuideLicense !== undefined && { tourGuideLicense: body.tourGuideLicense }),
       ...(body.yearsExperience !== undefined && { yearsExperience: body.yearsExperience }),
-      ...(body.languagesSpoken !== undefined && { languagesSpoken: JSON.stringify(body.languagesSpoken) }),
+      ...(body.languagesSpoken !== undefined && { languagesSpoken: body.languagesSpoken ?? [] }),
       ...(body.avatarUrl !== undefined && { avatarUrl: body.avatarUrl }),
     },
   });

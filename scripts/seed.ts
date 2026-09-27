@@ -1,4 +1,4 @@
-// Seed the local SQLite Prisma DB with mock data from src/lib/mock-data.ts.
+// Seed the Neon PostgreSQL DB with mock data from src/lib/mock-data.ts.
 // Run with: bun run /home/z/my-project/scripts/seed.ts
 //
 // Idempotent: deletes all rows first, then re-inserts.
@@ -24,6 +24,12 @@ async function main() {
   console.log("🌱 Seeding Via Trips DB...");
 
   // ── Wipe (order matters for FK constraints)
+  await db.roomStatusLog.deleteMany();
+  await db.inventoryTransaction.deleteMany();
+  await db.inventoryItem.deleteMany();
+  await db.checkIn.deleteMany();
+  await db.guestProfile.deleteMany();
+  await db.maintenanceRequest.deleteMany();
   await db.carBooking.deleteMany();
   await db.car.deleteMany();
   await db.carCompany.deleteMany();
@@ -55,7 +61,7 @@ async function main() {
       companyName: "Golden Oasis Hotel Group",
       businessLicense: "HL-2020-1234",
       yearsExperience: 12,
-      languagesSpoken: json(["Arabic", "English"]),
+      languagesSpoken: ["Arabic", "English"],
       avatarUrl: "https://i.pravatar.cc/150?img=53",
       kycStatus: "Approved",
       kycSubmittedAt: new Date("2024-08-12"),
@@ -74,7 +80,7 @@ async function main() {
       companyName: "Via Trips",
       tourGuideLicense: "TG-2021-4567",
       yearsExperience: 8,
-      languagesSpoken: json(["Arabic", "English", "French"]),
+      languagesSpoken: ["Arabic", "English", "French"],
       avatarUrl: "https://i.pravatar.cc/150?img=60",
       kycStatus: "Approved",
       kycSubmittedAt: new Date("2024-09-01"),
@@ -89,7 +95,7 @@ async function main() {
       passwordHash: "$2a$10$demo.hashplaceholderonlynotsecure.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
       name: "Via Admin",
       role: "Admin",
-      languagesSpoken: json(["Arabic", "English"]),
+      languagesSpoken: ["Arabic", "English"],
       kycStatus: "Approved",
     },
   });
@@ -105,8 +111,8 @@ async function main() {
         starRating: h.starRating,
         location: h.city,
         city: h.city,
-        amenities: json(["Free WiFi", "Pool", "Spa", "Gym", "Restaurant", "Parking", "Concierge"]),
-        images: json([h.coverImage]),
+        amenities: ["Free WiFi", "Pool", "Spa", "Gym", "Restaurant", "Parking", "Concierge"],
+        images: [h.coverImage],
         policies: json({ checkIn: "14:00", checkOut: "12:00", smoking: false, pets: false }),
       },
     });
@@ -123,8 +129,8 @@ async function main() {
           maxGuests: r.maxAdults + r.maxChildren,
           pricePerNight: r.basePrice,
           size: r.roomSize,
-          amenities: json(r.features),
-          images: json([r.image]),
+          amenities: r.features,
+          images: [r.image],
           totalUnits: r.totalRooms,
           availableUnits: r.availableRooms,
         },
@@ -146,8 +152,8 @@ async function main() {
             maxGuests: g.type === "Suite" ? 4 : 2,
             pricePerNight: g.price,
             size: g.size,
-            amenities: json(["Free WiFi", "AC", "TV", "Mini-bar"]),
-            images: json([h.coverImage]),
+            amenities: ["Free WiFi", "AC", "TV", "Mini-bar"],
+            images: [h.coverImage],
             totalUnits: g.units,
             availableUnits: g.avail,
           },
@@ -171,13 +177,13 @@ async function main() {
         title: b.titleEn,
         description: b.descriptionEn,
         durationDays: b.days,
-        destinations: json(b.destinations),
-        images: json([b.coverImage]),
+        destinations: b.destinations,
+        images: [b.coverImage],
         guideName: "Local Expert Guide",
         price: b.startingPrice,
         difficulty: b.difficulty.toLowerCase(),
         groupSize: b.groupSizeMax,
-        includedServices: json(["Hotel", "Breakfast", "Transfers", "Tours"]),
+        includedServices: ["Hotel", "Breakfast", "Transfers", "Tours"],
         status: statusMap[b.status] ?? "Draft",
       },
     });
@@ -202,7 +208,7 @@ async function main() {
           endTime: "13:00",
           location: b.destinations[0] ?? "Destination",
           cost: 0,
-          includedServices: json(["Guide", "Transport"]),
+          includedServices: ["Guide", "Transport"],
         },
       });
       await db.bundleItem.create({
@@ -212,7 +218,7 @@ async function main() {
           title: "Lunch",
           startTime: "13:00",
           endTime: "14:30",
-          includedServices: json(["Local cuisine"]),
+          includedServices: ["Local cuisine"],
         },
       });
       await db.bundleItem.create({
@@ -221,7 +227,7 @@ async function main() {
           type: "hotel",
           title: "Overnight stay",
           description: "4-star hotel included",
-          includedServices: json(["Breakfast included"]),
+          includedServices: ["Breakfast included"],
         },
       });
     }
@@ -433,7 +439,7 @@ async function main() {
       role: "BundleCreator",
       phone: "+966 55 222 0001",
       companyName: "Saud Car Rentals",
-      languagesSpoken: json(["Arabic", "English"]),
+      languagesSpoken: ["Arabic", "English"],
       kycStatus: "Approved",
       kycSubmittedAt: new Date("2024-07-01"),
       kycReviewedAt: new Date("2024-07-03"),
@@ -497,8 +503,8 @@ async function main() {
           fuelType: tpl.fuelType,
           pricePerDay: tpl.pricePerDay,
           deposit: Math.round(tpl.pricePerDay * 2),
-          images: json([`https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80`]),
-          features: json(["Bluetooth", "USB Charging", "Air Conditioning", "Power Steering", "ABS", "Airbags"]),
+          images: [`https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80`],
+          features: ["Bluetooth", "USB Charging", "Air Conditioning", "Power Steering", "ABS", "Airbags"],
           available: i !== 3, // last one unavailable
           mileage: 5000 + i * 1000 + allCompanies.indexOf(comp) * 2000,
           color: tpl.color,

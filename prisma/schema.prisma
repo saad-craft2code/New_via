@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -24,7 +24,7 @@ model User {
   businessLicense    String?
   tourGuideLicense   String?
   yearsExperience    Int?
-  languagesSpoken    String   @default("[]") // JSON-encoded array<string>
+  languagesSpoken    String[] @default([]) // JSON-encoded array<string>
   avatarUrl          String?
   firebaseUid        String?  @unique
   kycStatus          String   @default("NotSubmitted") // NotSubmitted | Pending | Approved | Rejected
@@ -71,8 +71,8 @@ model Hotel {
   city        String?
   latitude    Float?
   longitude   Float?
-  amenities   String   @default("[]") // JSON-encoded array<string>
-  images      String   @default("[]") // JSON-encoded array<string>
+  amenities   String[] @default([]) // JSON-encoded array<string>
+  images      String[] @default([]) // JSON-encoded array<string>
   policies    String?  // JSON-encoded policies object
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -83,6 +83,10 @@ model Hotel {
   cameras  Camera[]
   tasks    StaffTask[]
 
+  maintenanceRequests MaintenanceRequest[]
+  guestProfiles GuestProfile[]
+  checkIns CheckIn[]
+  inventoryItems InventoryItem[]
   @@map("hotels")
 }
 
@@ -95,8 +99,8 @@ model Room {
   maxGuests      Int
   pricePerNight  Float
   size           Float?
-  amenities      String   @default("[]") // JSON-encoded array<string>
-  images         String   @default("[]") // JSON-encoded array<string>
+  amenities      String[] @default([]) // JSON-encoded array<string>
+  images         String[] @default([]) // JSON-encoded array<string>
   totalUnits     Int      @default(1)
   availableUnits Int      @default(1)
   createdAt      DateTime @default(now())
@@ -104,6 +108,9 @@ model Room {
 
   bookings Booking[]
 
+  maintenanceRequests MaintenanceRequest[]
+  checkIns CheckIn[]
+  statusLogs RoomStatusLog[]
   @@map("rooms")
 }
 
@@ -114,13 +121,13 @@ model Bundle {
   title            String
   description      String
   durationDays     Int
-  destinations     String   @default("[]") // JSON-encoded array<string>
-  images           String   @default("[]") // JSON-encoded array<string>
+  destinations     String[] @default([]) // JSON-encoded array<string>
+  images           String[] @default([]) // JSON-encoded array<string>
   guideName        String?
   price            Float
   difficulty       String   @default("easy")
   groupSize        Int?
-  includedServices String   @default("[]") // JSON-encoded array<string>
+  includedServices String[] @default([]) // JSON-encoded array<string>
   status           String   @default("Draft") // Draft | Published | Archived | SoldOut
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -157,7 +164,7 @@ model BundleItem {
   endTime          String?
   location         String?
   cost             Float?
-  includedServices String   @default("[]") // JSON-encoded array<string>
+  includedServices String[] @default([]) // JSON-encoded array<string>
   metadata         String?  // JSON-encoded metadata object
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -244,6 +251,7 @@ model Staff {
   shifts    StaffShift[]
   salaries  SalaryPayment[]
 
+  maintenanceAssigned MaintenanceRequest[]
   @@map("staff")
 }
 
@@ -358,8 +366,8 @@ model Car {
   fuelType    String   @default("petrol") // petrol | diesel | hybrid | electric
   pricePerDay Float
   deposit     Float    @default(500)
-  images      String   @default("[]")
-  features    String   @default("[]") // JSON-encoded
+  images      String[] @default([])
+  features    String[] @default([]) // JSON-encoded
   available   Boolean  @default(true)
   mileage     Int?
   color       String?
@@ -395,4 +403,132 @@ model CarBooking {
   updatedAt   DateTime @updatedAt
 
   @@map("car_bookings")
+}
+
+model MaintenanceRequest {
+  id           String   @id @default(cuid())
+  hotelId      String
+  hotel        Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  roomId       String?
+  room         Room?    @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  reportedBy   String
+  assignedTo   String?
+  staff        Staff?   @relation(fields: [assignedTo], references: [id], onDelete: SetNull)
+  title        String
+  description  String?
+  location     String?
+  priority     String   @default("normal")
+  status       String   @default("open")
+  category     String   @default("other")
+  photoUrl     String?
+  reportedAt   DateTime @default(now())
+  startedAt    DateTime?
+  resolvedAt   DateTime?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@map("maintenance_requests")
+}
+
+model GuestProfile {
+  id              String   @id @default(cuid())
+  hotelId         String?
+  hotel           Hotel?   @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+  name            String
+  nameAr          String?
+  email           String?
+  phone           String?
+  nationality     String?
+  idType          String?
+  idNumber        String?
+  dob             DateTime?
+  gender          String?
+  address         String?
+  city            String?
+  country         String?
+  preferences     String[] @default([])
+  dietaryNeeds    String?
+  vipStatus       String   @default("regular")
+  totalStays      Int      @default(0)
+  totalSpent      Float    @default(0)
+  lastStayAt      DateTime?
+  blacklisted     Boolean  @default(false)
+  notes           String?
+  createdAt        DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  checkIns        CheckIn[]
+  @@map("guest_profiles")
+}
+
+model CheckIn {
+  id              String   @id @default(cuid())
+  hotelId         String
+  hotel           Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  guestId         String?
+  guest           GuestProfile? @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  bookingId       String?
+  roomId          String?
+  room            Room?    @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  guestName       String
+  guestEmail      String?
+  guestPhone      String?
+  numGuests       Int      @default(1)
+  checkInAt       DateTime @default(now())
+  expectedCheckOut DateTime
+  actualCheckOut  DateTime?
+  status          String   @default("checked_in")
+  roomNumber      String?
+  keyCardCount    Int      @default(1)
+  depositCollected Float   @default(0)
+  specialRequests String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  @@map("check_ins")
+}
+
+model InventoryItem {
+  id           String   @id @default(cuid())
+  hotelId      String
+  hotel        Hotel     @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  name         String
+  nameAr       String?
+  category     String
+  unit         String    @default("piece")
+  quantity     Int       @default(0)
+  minStock     Int       @default(10)
+  maxStock     Int       @default(100)
+  unitCost     Float     @default(0)
+  supplier     String?
+  location     String?
+  barcode      String?
+  lastRestockedAt DateTime?
+  lastRestockQty Int?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  transactions InventoryTransaction[]
+  @@map("inventory_items")
+}
+
+model InventoryTransaction {
+  id        String   @id @default(cuid())
+  itemId    String
+  item      InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  type      String
+  quantity  Int
+  reason    String?
+  staffId   String?
+  createdAt DateTime @default(now())
+  @@map("inventory_transactions")
+}
+
+model RoomStatusLog {
+  id        String   @id @default(cuid())
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  status    String
+  notes     String?
+  changedBy String?
+  createdAt DateTime @default(now())
+  @@map("room_status_logs")
 }

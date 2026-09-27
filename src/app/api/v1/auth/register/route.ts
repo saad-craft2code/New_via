@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       businessLicense: body.businessLicense ?? null,
       tourGuideLicense: body.tourGuideLicense ?? null,
       yearsExperience: body.yearsExperience ?? null,
-      languagesSpoken: JSON.stringify(body.languagesSpoken ?? []),
+      languagesSpoken: body.languagesSpoken ?? [],
       kycStatus: "NotSubmitted",
     },
   });
