@@ -99,7 +99,8 @@ export function BCBundleWizard() {
   const descValid = form.description.trim().length >= 10;
   const priceValid = Number(form.price) > 0;
   const daysValid = form.days.length > 0 && form.days.every((d) => d.title.trim().length >= 2 && d.items.length > 0);
-  const canSubmit = titleValid && descValid && priceValid && daysValid && !saving;
+  // Per user request: do not block submission on missing fields — proceed with defaults.
+  const canSubmit = !saving;
 
   const addDay = () => {
     set("days", [
@@ -156,30 +157,31 @@ export function BCBundleWizard() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTouched({ title: true, description: true, price: true, days: true });
-    if (!canSubmit) {
-      toast.error(lang === "ar" ? "أكمل البيانات المطلوبة" : "Complete required fields");
-      return;
-    }
+    if (!canSubmit) return;
     setSaving(true);
     try {
+      // Use sensible defaults for missing fields instead of blocking
+      const safeTitle = form.title.trim() || (lang === "ar" ? "باقة جديدة" : "New Bundle");
+      const safeDesc = form.description.trim() || (lang === "ar" ? "وصف سيُضاف لاحقًا" : "Description to be added");
+      const safeDays = form.days.length > 0 ? form.days : [{ dayNumber: 1, title: lang === "ar" ? "اليوم 1" : "Day 1", description: "", items: [] }];
       await bundleService.create({
-        title: form.title,
-        description: form.description,
-        durationDays: Number(form.durationDays),
+        title: safeTitle,
+        description: safeDesc,
+        durationDays: Number(form.durationDays) || 1,
         destinations: form.destinations.split(",").map((s) => s.trim()).filter(Boolean),
         images: form.images.split(",").map((s) => s.trim()).filter(Boolean),
         guideName: form.guideName || undefined,
-        price: Number(form.price),
+        price: Number(form.price) || 0,
         difficulty: form.difficulty,
         groupSize: form.groupSize ? Number(form.groupSize) : undefined,
         includedServices: form.includedServices.split(",").map((s) => s.trim()).filter(Boolean),
-        days: form.days.map((d) => ({
+        days: safeDays.map((d) => ({
           dayNumber: d.dayNumber,
-          title: d.title,
+          title: d.title.trim() || `${lang === "ar" ? "اليوم" : "Day"} ${d.dayNumber}`,
           description: d.description || undefined,
           items: d.items.map((it) => ({
             type: it.type,
-            title: it.title,
+            title: it.title.trim() || (lang === "ar" ? "عنصر" : "Item"),
             description: it.description || undefined,
             startTime: it.startTime || undefined,
             endTime: it.endTime || undefined,
@@ -189,9 +191,10 @@ export function BCBundleWizard() {
       });
       toast.success(t("bundle_saved", lang));
       setView("bundles");
-    } catch (e) {
+    } catch (e: unknown) {
       const msg = e instanceof ApiError ? e.message : t("api_save_failed", lang);
       toast.error(msg);
+      console.warn("Bundle create failed:", e);
     } finally {
       setSaving(false);
     }
@@ -223,7 +226,6 @@ export function BCBundleWizard() {
                 value={form.title}
                 onChange={(e) => set("title", e.target.value)}
                 onBlur={() => setTouched((p) => ({ ...p, title: true }))}
-                required
               />
               {touched.title && !titleValid && (
                 <p className="text-xs text-destructive">{t("required_field", lang)}</p>
@@ -237,7 +239,6 @@ export function BCBundleWizard() {
                 onChange={(e) => set("description", e.target.value)}
                 onBlur={() => setTouched((p) => ({ ...p, description: true }))}
                 rows={3}
-                required
               />
               {touched.description && !descValid && (
                 <p className="text-xs text-destructive">
@@ -268,7 +269,6 @@ export function BCBundleWizard() {
                   onChange={(e) => set("price", e.target.value)}
                   onBlur={() => setTouched((p) => ({ ...p, price: true }))}
                   dir="ltr"
-                  required
                 />
                 {touched.price && !priceValid && (
                   <p className="text-xs text-destructive">{t("required_field", lang)}</p>

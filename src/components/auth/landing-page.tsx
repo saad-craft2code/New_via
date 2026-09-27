@@ -22,7 +22,6 @@ import {
   TrendingUp,
   Star,
   Quote,
-  Compass,
   Briefcase,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -153,15 +152,6 @@ export function LandingPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setAuthScreen("guest_browse")}
-              className="hidden sm:inline-flex gap-1.5"
-            >
-              <Compass className="h-4 w-4" />
-              {lang === "ar" ? "تصفّح كضيف" : "Browse as Guest"}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
               onClick={() => setAuthScreen("staff_login")}
               className="hidden sm:inline-flex gap-1.5"
             >
@@ -224,15 +214,6 @@ export function LandingPage() {
                   className="h-12 px-7"
                 >
                   {t("cta_login", lang)}
-                </Button>
-                <Button
-                  size="lg"
-                  variant="ghost"
-                  onClick={() => setAuthScreen("guest_browse")}
-                  className="h-12 px-7 gap-2 text-muted-foreground"
-                >
-                  <Compass className="h-4 w-4" />
-                  {lang === "ar" ? "تصفّح كضيف" : "Browse as Guest"}
                 </Button>
               </div>
               <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-base text-muted-foreground">

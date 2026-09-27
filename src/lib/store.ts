@@ -23,7 +23,6 @@ export type BCView =
   | "settings"
   | "kyc"
   | "analytics"
-  | "guest_view"
   | "staff"
   | "tasks"
   | "salaries"
@@ -47,7 +46,6 @@ export type HOView =
   | "settings"
   | "kyc"
   | "analytics"
-  | "guest_view"
   | "staff"
   | "tasks"
   | "salaries"
@@ -62,7 +60,6 @@ export type AuthScreen =
   | "register"
   | "verification"
   | "login"
-  | "guest_browse"
   | "staff_login"
   | "staff_portal";
 

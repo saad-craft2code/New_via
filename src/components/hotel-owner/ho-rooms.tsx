@@ -101,15 +101,15 @@ export function HORooms() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newRoom.roomType.trim() || !newRoom.pricePerNight) return;
+    // Per user request: don't block on missing fields — use defaults
     setSaving(true);
     try {
       await roomService.create(hotelId, {
-        roomType: newRoom.roomType,
-        bedType: newRoom.bedType,
-        maxGuests: Number(newRoom.maxGuests),
-        pricePerNight: Number(newRoom.pricePerNight),
-        totalUnits: Number(newRoom.totalUnits),
+        roomType: newRoom.roomType.trim() || (lang === "ar" ? "غرفة قياسية" : "Standard Room"),
+        bedType: newRoom.bedType || "Double",
+        maxGuests: Number(newRoom.maxGuests) || 2,
+        pricePerNight: Number(newRoom.pricePerNight) || 100,
+        totalUnits: Number(newRoom.totalUnits) || 1,
         amenities: newRoom.amenities,
         images: [],
       });
@@ -117,9 +117,10 @@ export function HORooms() {
       setNewRoom(initialNew);
       setShowForm(false);
       refetch();
-    } catch (e) {
+    } catch (e: unknown) {
       const msg = e instanceof ApiError ? e.message : t("api_save_failed", lang);
       toast.error(msg);
+      console.warn("Room create failed:", e);
     } finally {
       setSaving(false);
     }
@@ -180,7 +181,6 @@ export function HORooms() {
                     id="roomType"
                     value={newRoom.roomType}
                     onChange={(e) => setNewRoom((p) => ({ ...p, roomType: e.target.value }))}
-                    required
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -221,7 +221,6 @@ export function HORooms() {
                     value={newRoom.pricePerNight}
                     onChange={(e) => setNewRoom((p) => ({ ...p, pricePerNight: e.target.value }))}
                     dir="ltr"
-                    required
                   />
                 </div>
                 <div className="space-y-1.5">

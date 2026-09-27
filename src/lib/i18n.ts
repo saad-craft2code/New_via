@@ -306,7 +306,6 @@ export const translations = {
   nav_notifications: { ar: "الإشعارات", en: "Notifications" },
   nav_settings: { ar: "الإعدادات", en: "Settings" },
   nav_analytics: { ar: "التحليلات", en: "Analytics" },
-  nav_guest_view: { ar: "عرض الضيف", en: "Guest View" },
 
   // Operations nav
   nav_operations: { ar: "العمليات", en: "Operations" },

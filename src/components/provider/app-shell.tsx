@@ -57,7 +57,6 @@ import { HOProfile } from "@/components/hotel-owner/ho-profile";
 import { HOSettings } from "@/components/hotel-owner/ho-settings";
 import { HOKyc } from "@/components/hotel-owner/ho-kyc";
 import { AnalyticsDashboard } from "@/components/analytics/analytics-dashboard";
-import { GuestBrowse } from "@/components/guest/guest-browse";
 import { StaffManagement } from "@/components/operations/staff-management";
 import { TaskManagement } from "@/components/operations/task-management";
 import { SalariesManagement } from "@/components/operations/salaries-management";
@@ -65,7 +64,7 @@ import { CamerasManagement } from "@/components/operations/cameras-management";
 import { CarCompaniesAdmin } from "@/components/cars/car-companies-admin";
 import { CarsAdmin } from "@/components/cars/cars-admin";
 import { CarBookingsAdmin } from "@/components/cars/car-bookings-admin";
-import { BarChart3, Compass, Camera, Car as CarIcon, Building2 } from "lucide-react";
+import { BarChart3, Camera, Car as CarIcon, Building2 } from "lucide-react";
 
 interface NavItem {
   key: string;
@@ -94,7 +93,6 @@ const bcNavItems: NavItem[] = [
   { key: "kyc", labelKey: "nav_kyc", icon: ShieldCheck, view: "kyc" },
   { key: "profile", labelKey: "nav_profile", icon: User, view: "profile" },
   { key: "settings", labelKey: "nav_settings", icon: Settings, view: "settings" },
-  { key: "guest_view", labelKey: "nav_guest_view", icon: Compass, view: "guest_view" },
 ];
 
 const hoNavItems: NavItem[] = [
@@ -118,7 +116,6 @@ const hoNavItems: NavItem[] = [
   { key: "kyc", labelKey: "nav_kyc", icon: ShieldCheck, view: "kyc" },
   { key: "profile", labelKey: "nav_profile", icon: User, view: "profile" },
   { key: "settings", labelKey: "nav_settings", icon: Settings, view: "settings" },
-  { key: "guest_view", labelKey: "nav_guest_view", icon: Compass, view: "guest_view" },
 ];
 
 export function AppShell() {
@@ -173,7 +170,6 @@ export function AppShell() {
         case "settings": return <BCSettings />;
         case "kyc": return <HOKyc />;
         case "analytics": return <AnalyticsDashboard />;
-        case "guest_view": return <GuestBrowse />;
         case "staff": return <StaffManagement />;
         case "tasks": return <TaskManagement />;
         case "salaries": return <SalariesManagement />;
@@ -198,7 +194,6 @@ export function AppShell() {
         case "settings": return <HOSettings />;
         case "kyc": return <HOKyc />;
         case "analytics": return <AnalyticsDashboard />;
-        case "guest_view": return <GuestBrowse />;
         case "staff": return <StaffManagement />;
         case "tasks": return <TaskManagement />;
         case "salaries": return <SalariesManagement />;

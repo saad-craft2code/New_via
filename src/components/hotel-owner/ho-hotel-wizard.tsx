@@ -77,7 +77,8 @@ export function HOHotelWizard() {
   const nameValid = form.name.trim().length >= 2;
   const descValid = form.description.trim().length >= 10;
   const locationValid = form.location.trim().length >= 3;
-  const canSubmit = nameValid && descValid && locationValid && !saving;
+  // Per user request: do not block submission on missing fields — proceed with defaults.
+  const canSubmit = !saving;
 
   const toggleAmenity = (a: HotelAmenity) => {
     setForm((p) => ({
@@ -101,24 +102,31 @@ export function HOHotelWizard() {
     if (!canSubmit) return;
     setSaving(true);
     try {
+      // Use sensible defaults for missing fields instead of blocking the user
+      const safeName = form.name.trim() || (lang === "ar" ? "فندق جديد" : "New Hotel");
+      const safeDesc = form.description.trim() || (lang === "ar" ? "وصف سيُضاف لاحقًا" : "Description to be added");
+      const safeLocation = form.location.trim() || (lang === "ar" ? "الموقع غير محدد" : "Location TBD");
+      const safeCity = form.city.trim() || (lang === "ar" ? "غير محدد" : "Unspecified");
       await hotelService.create({
-        name: form.name,
-        description: form.description,
-        starRating: form.starRating as 1 | 2 | 3 | 4 | 5,
-        location: form.location,
-        city: form.city || undefined,
+        name: safeName,
+        description: safeDesc,
+        starRating: (form.starRating || 3) as 1 | 2 | 3 | 4 | 5,
+        location: safeLocation,
+        city: safeCity,
         amenities: form.amenities,
         images: form.images,
         policies: {
-          checkIn: form.checkIn,
-          checkOut: form.checkOut,
+          checkIn: form.checkIn || "14:00",
+          checkOut: form.checkOut || "12:00",
         },
       });
       toast.success(t("hotel_saved", lang));
       setView("hotels");
-    } catch (e) {
+    } catch (e: unknown) {
+      // Gracefully handle API errors — show toast but don't break the form
       const msg = e instanceof ApiError ? e.message : t("api_save_failed", lang);
       toast.error(msg);
+      console.warn("Hotel create failed:", e);
     } finally {
       setSaving(false);
     }
@@ -152,7 +160,6 @@ export function HOHotelWizard() {
                 value={form.name}
                 onChange={(e) => set("name", e.target.value)}
                 onBlur={() => markTouched("name")}
-                required
               />
               {touched.name && !nameValid && (
                 <p className="text-xs text-destructive">{t("required_field", lang)}</p>
@@ -167,7 +174,6 @@ export function HOHotelWizard() {
                 onChange={(e) => set("description", e.target.value)}
                 onBlur={() => markTouched("description")}
                 rows={4}
-                required
               />
               {touched.description && !descValid && (
                 <p className="text-xs text-destructive">
@@ -184,7 +190,6 @@ export function HOHotelWizard() {
                   value={form.location}
                   onChange={(e) => set("location", e.target.value)}
                   onBlur={() => markTouched("location")}
-                  required
                 />
                 {touched.location && !locationValid && (
                   <p className="text-xs text-destructive">{t("required_field", lang)}</p>

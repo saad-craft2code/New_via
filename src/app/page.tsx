@@ -8,7 +8,6 @@ import { RegisterForm } from "@/components/auth/register-form";
 import { VerificationScreen } from "@/components/auth/verification-screen";
 import { LoginForm } from "@/components/auth/login-form";
 import { AppShell } from "@/components/provider/app-shell";
-import { GuestBrowse } from "@/components/guest/guest-browse";
 import { StaffLogin } from "@/components/staff/staff-login";
 import { StaffPortal } from "@/components/staff/staff-portal";
 
@@ -55,8 +54,6 @@ export default function Home() {
       return <VerificationScreen />;
     case "login":
       return <LoginForm />;
-    case "guest_browse":
-      return <GuestBrowse />;
     case "staff_login":
       return <StaffLogin />;
     case "staff_portal":

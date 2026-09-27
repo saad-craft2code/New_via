@@ -144,116 +144,13 @@ export const mockBundles = [
 ];
 
 // ─── Bookings ───────────────────────────────────────────
-export const mockBookings = [
-  {
-    id: "BK-001",
-    userId: "user-bc-demo",
-    type: "Bundle",
-    bundleId: "BND-001",
-    startDate: "2026-10-15",
-    endDate: "2026-10-20",
-    numGuests: 2,
-    totalAmount: 8400,
-    status: "Confirmed",
-    metadata: {
-      guestName: "Fatima Hassan",
-      guestNameAr: "فاطمة حسن",
-      guestEmail: "fatima@example.com",
-      guestPhone: "+971 55 987 6543",
-      guestAvatar: "https://i.pravatar.cc/150?img=44",
-      itemName: "Dubai Magic - 5 Days",
-      itemNameAr: "سحر دبي - 5 أيام",
-      nationality: "UAE",
-      paymentStatus: "Paid",
-      commission: 840,
-      netEarnings: 7560,
-      bookingDate: "2026-09-25",
-    },
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    id: "BK-002",
-    userId: "user-ho-demo",
-    type: "HotelRoom",
-    hotelId: "HTL-001",
-    roomId: "ROOM-002",
-    startDate: "2026-10-10",
-    endDate: "2026-10-13",
-    numGuests: 2,
-    totalAmount: 3300,
-    status: "Pending",
-    metadata: {
-      guestName: "John Smith",
-      guestNameAr: "جون سميث",
-      guestEmail: "john@example.com",
-      guestPhone: "+1 415 555 0100",
-      guestAvatar: "https://i.pravatar.cc/150?img=33",
-      itemName: "Suite",
-      itemNameAr: "جناح",
-      nationality: "USA",
-      paymentStatus: "Pending",
-      commission: 330,
-      netEarnings: 2970,
-      bookingDate: "2026-09-28",
-      nights: 3,
-    },
-    createdAt: now,
-    updatedAt: now,
-  },
-];
+export const mockBookings = [];
 
 // ─── Notifications ──────────────────────────────────────
-export const mockNotifications = [
-  {
-    id: "N-001",
-    userId: "user-bc-demo",
-    type: "booking",
-    titleEn: "New Booking Received",
-    titleAr: "حجز جديد",
-    bodyEn: "Fatima Hassan booked Dubai Magic - 5 Days",
-    bodyAr: "قامت فاطمة حسن بحجز سحر دبي - 5 أيام",
-    read: false,
-    createdAt: now,
-  },
-  {
-    id: "N-002",
-    userId: "user-ho-demo",
-    type: "payment",
-    titleEn: "Payment Received",
-    titleAr: "تم استلام الدفعة",
-    bodyEn: "Payment of 3,300 SAR received for booking BK-002",
-    bodyAr: "تم استلام دفعة بقيمة ٣٬٣٠٠ ر.س لحجز BK-002",
-    read: true,
-    createdAt: now,
-  },
-];
+export const mockNotifications = [];
 
 // ─── Reviews ────────────────────────────────────────────
-export const mockReviews = [
-  {
-    id: "R-001",
-    userId: "user-bc-demo",
-    targetId: "BND-001",
-    targetType: "bundle",
-    rating: 5,
-    commentEn: "Outstanding organization and spiritual experience.",
-    commentAr: "تنظيم متميز وتجربة روحانية.",
-    author: "Ahmed Al-Rashid",
-    createdAt: now,
-  },
-  {
-    id: "R-002",
-    userId: "user-ho-demo",
-    targetId: "HTL-001",
-    targetType: "hotel",
-    rating: 4,
-    commentEn: "Comfortable room with great city view.",
-    commentAr: "غرفة مريحة مع إطلالة رائعة على المدينة.",
-    author: "Sara Al-Otaibi",
-    createdAt: now,
-  },
-];
+export const mockReviews = [];
 
 // ─── Staff ──────────────────────────────────────────────
 export const mockStaff = [
@@ -296,68 +193,10 @@ export const mockStaff = [
 ];
 
 // ─── Staff Tasks ───────────────────────────────────────
-export const mockStaffTasks = [
-  {
-    id: "TASK-001",
-    staffId: "staff-cleaner",
-    assignedBy: "user-admin-demo",
-    hotelId: "HTL-001",
-    type: "cleaning",
-    title: "Deep clean Room 502",
-    description: "تنظيف عميق لغرفة 502",
-    location: "Room 502",
-    priority: "high",
-    status: "pending",
-    assignedAt: now,
-    startedAt: null,
-    completedAt: null,
-    dueAt: new Date(Date.now() + 86400000).toISOString(),
-  },
-  {
-    id: "TASK-002",
-    staffId: "staff-maintenance",
-    assignedBy: "user-admin-demo",
-    hotelId: "HTL-001",
-    type: "maintenance",
-    title: "Fix AC in Room 210",
-    description: "إصلاح المكيف في غرفة 210",
-    location: "Room 210",
-    priority: "urgent",
-    status: "in_progress",
-    assignedAt: now,
-    startedAt: new Date(Date.now() - 3600000).toISOString(),
-    completedAt: null,
-    dueAt: new Date(Date.now() + 86400000).toISOString(),
-  },
-];
+export const mockStaffTasks = [];
 
 // ─── Salaries ───────────────────────────────────────────
-export const mockSalaries = [
-  {
-    id: "SAL-001",
-    staffId: "staff-cleaner",
-    amount: 3200,
-    period: new Date().toISOString().slice(0, 7),
-    bonus: 200,
-    deductions: 0,
-    net: 3400,
-    status: "paid",
-    paidAt: now,
-    createdAt: now,
-  },
-  {
-    id: "SAL-002",
-    staffId: "staff-maintenance",
-    amount: 4500,
-    period: new Date().toISOString().slice(0, 7),
-    bonus: 0,
-    deductions: 50,
-    net: 4450,
-    status: "pending",
-    paidAt: null,
-    createdAt: now,
-  },
-];
+export const mockSalaries = [];
 
 // ─── Cameras ───────────────────────────────────────────
 export const mockCameras = [
@@ -366,26 +205,7 @@ export const mockCameras = [
 ];
 
 // ─── Maintenance Requests ───────────────────────────────
-export const mockMaintenance = [
-  {
-    id: "MNT-001",
-    hotelId: "HTL-001",
-    roomId: "ROOM-001",
-    reportedBy: "user-ho-demo",
-    assignedTo: "staff-maintenance",
-    title: "AC not cooling properly",
-    description: "Guest in Room 001 reported AC blowing warm air. Needs urgent servicing.",
-    location: "Room 001",
-    priority: "high",
-    status: "in_progress",
-    category: "hvac",
-    reportedAt: now,
-    startedAt: now,
-    resolvedAt: null,
-    createdAt: now,
-    updatedAt: now,
-  },
-];
+export const mockMaintenance = [];
 
 // ─── Guest Profiles ─────────────────────────────────────
 export const mockGuestProfiles = [
@@ -415,68 +235,10 @@ export const mockGuestProfiles = [
 ];
 
 // ─── Check-ins ──────────────────────────────────────────
-export const mockCheckIns = [
-  {
-    id: "CHK-001",
-    hotelId: "HTL-001",
-    guestId: "GUEST-001",
-    roomId: "ROOM-002",
-    guestName: "John Smith",
-    guestEmail: "john.smith@example.com",
-    guestPhone: "+1 415 555 0100",
-    numGuests: 2,
-    checkInAt: now,
-    expectedCheckOut: new Date(Date.now() + 3 * 86400000).toISOString(),
-    actualCheckOut: null,
-    status: "checked_in",
-    roomNumber: "502",
-    keyCardCount: 2,
-    depositCollected: 500,
-    specialRequests: "Late check-out preferred",
-    createdAt: now,
-    updatedAt: now,
-  },
-];
+export const mockCheckIns = [];
 
 // ─── Inventory ──────────────────────────────────────────
-export const mockInventory = [
-  {
-    id: "INV-001",
-    hotelId: "HTL-001",
-    name: "Bath Towels",
-    nameAr: "مناشف الحمام",
-    category: "linens",
-    unit: "piece",
-    quantity: 80,
-    minStock: 30,
-    maxStock: 150,
-    unitCost: 25,
-    supplier: "Hotel Supplies Co.",
-    location: "Linen Room A",
-    lastRestockedAt: new Date(Date.now() - 7 * 86400000).toISOString(),
-    lastRestockQty: 50,
-    createdAt: now,
-    updatedAt: now,
-  },
-  {
-    id: "INV-002",
-    hotelId: "HTL-001",
-    name: "Shampoo Bottles",
-    nameAr: "زجاجات الشامبو",
-    category: "toiletries",
-    unit: "piece",
-    quantity: 15,
-    minStock: 40,
-    maxStock: 200,
-    unitCost: 3,
-    supplier: "Toiletries Direct",
-    location: "Storage Room B",
-    lastRestockedAt: new Date(Date.now() - 14 * 86400000).toISOString(),
-    lastRestockQty: 100,
-    createdAt: now,
-    updatedAt: now,
-  },
-];
+export const mockInventory = [];
 
 // ─── Car Companies ──────────────────────────────────────
 export const mockCarCompanies = [
@@ -548,26 +310,7 @@ export const mockCars = [
 ];
 
 // ─── Car Bookings ───────────────────────────────────────
-export const mockCarBookings = [
-  {
-    id: "CBK-001",
-    carId: "CAR-001",
-    companyId: "CARCO-001",
-    guestName: "Ahmed Al-Rashid",
-    guestEmail: "ahmed@example.com",
-    guestPhone: "+966 50 333 0001",
-    pickupLocation: "Riyadh Airport",
-    dropoffLocation: "Riyadh Office",
-    startDate: new Date(Date.now() + 86400000).toISOString(),
-    endDate: new Date(Date.now() + 4 * 86400000).toISOString(),
-    days: 3,
-    totalAmount: 540,
-    deposit: 360,
-    status: "confirmed",
-    createdAt: now,
-    updatedAt: now,
-  },
-];
+export const mockCarBookings = [];
 
 // ─── Helper ──────────────────────────────────────────────
 export function isDbEnabled() {
