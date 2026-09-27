@@ -37,6 +37,17 @@ Thumbs.db
 .zscripts/
 bun.lock
 
+# dev / non-production artifacts (do NOT ship to Vercel)
+skills/
+examples/
+mini-services/
+tool-results/
+upload/
+download/
+tests/
+tripful/
+package.json.backup
+
 # npm lockfile is okay to keep if you want a reproducible install
 # keep package-lock.json tracked by default
 
