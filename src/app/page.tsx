@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLang } from "@/components/lang-provider";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { hotels, bundles, cities, testimonials } from "@/data/mock-data";
+import { getHotels, getBundles, cities, testimonials, type Hotel, type Bundle } from "@/data/mock-data";
 import { cn, t, formatPrice } from "@/lib/utils";
-import { Search, MapPin, Star, ArrowRight, Check, Shield, Award, Globe2, Headphones, Sparkles, Calendar, Users, Building2, Plane, Heart } from "lucide-react";
+import { Search, MapPin, Star, ArrowRight, Check, Shield, Award, Globe2, Headphones, Sparkles, Calendar, Users, Building2, Plane, Heart, Flame } from "lucide-react";
 
 export default function Home() {
   const { lang, setLang } = useLang();
@@ -16,6 +16,13 @@ export default function Home() {
   const [guests, setGuests] = useState(2);
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiThinking, setAiThinking] = useState(false);
+  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [bundles, setBundles] = useState<Bundle[]>([]);
+
+  useEffect(() => {
+    getHotels().then(setHotels);
+    getBundles().then(setBundles);
+  }, []);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -184,6 +191,44 @@ export default function Home() {
                 </div>
               </a>
             ))}
+          </div>
+        </div>
+      </section>
+
+
+      {/* Trending + Deals Teaser */}
+      <section className="tf-section bg-white">
+        <div className="tf-container">
+          <div className="grid md:grid-cols-2 gap-6">
+            <a href="/trending" className="group relative rounded-2xl overflow-hidden h-64 shadow-md hover:shadow-xl transition-all">
+              <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&q=80" alt="Trending" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6 text-white">
+                <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/90 backdrop-blur mb-2">
+                  <Flame className="h-3 w-3" />
+                  <span className="text-xs font-bold uppercase tracking-wider">{lang === "ar" ? "رائج الآن" : "Trending Now"}</span>
+                </div>
+                <h3 className="text-2xl font-extrabold mb-1 tf-font-display">{t(lang, "trending_destinations")}</h3>
+                <p className="text-sm text-white/80">{t(lang, "trending_subtitle")}</p>
+                <span className="inline-flex items-center gap-1 mt-3 text-sm font-bold text-amber-300 group-hover:gap-2 transition-all">{t(lang, "explore_deals")} <ArrowRight className="h-4 w-4 rtl:rotate-180" /></span>
+              </div>
+            </a>
+            <a href="/deals" className="group relative rounded-2xl overflow-hidden h-64 shadow-md hover:shadow-xl transition-all">
+              <img src="https://images.unsplash.com/photo-1605723517503-3c2a1f4a8c39?w=1200&q=80" alt="Deals" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-t from-red-900/90 via-red-900/30 to-transparent" />
+              <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1.5 rounded-full text-xs font-extrabold shadow-lg">
+                {lang === "ar" ? "حتى ٤٠٪ خصم" : "UP TO 40% OFF"}
+              </div>
+              <div className="absolute bottom-6 left-6 right-6 text-white">
+                <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-500/90 backdrop-blur mb-2">
+                  <Sparkles className="h-3 w-3" />
+                  <span className="text-xs font-bold uppercase tracking-wider">{lang === "ar" ? "عروض محدودة" : "Limited Offers"}</span>
+                </div>
+                <h3 className="text-2xl font-extrabold mb-1 tf-font-display">{t(lang, "deals")}</h3>
+                <p className="text-sm text-white/80">{t(lang, "deals_subtitle")}</p>
+                <span className="inline-flex items-center gap-1 mt-3 text-sm font-bold text-amber-300 group-hover:gap-2 transition-all">{t(lang, "view_all_deals")} <ArrowRight className="h-4 w-4 rtl:rotate-180" /></span>
+              </div>
+            </a>
           </div>
         </div>
       </section>

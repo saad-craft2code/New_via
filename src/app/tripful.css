@@ -1,165 +1,474 @@
-/* ─── Tripful Theme: Clean White + Blue ─────────────────── */
-:root {
-  --tf-blue: #1A4D8F;
-  --tf-blue-light: #2563EB;
-  --tf-blue-dark: #1E3A5F;
-  --tf-blue-50: #EFF6FF;
-  --tf-blue-100: #DBEAFE;
-  --tf-ink: #0F172A;
-  --tf-ink-light: #334155;
-  --tf-muted: #64748B;
-  --tf-border: #E2E8F0;
-  --tf-bg: #FFFFFF;
-  --tf-bg-muted: #F8FAFC;
-  --tf-radius: 16px;
+/* =================================================================
+   Tripful — Booking Site Component Library
+   All tf-* utility classes used across the site
+   ================================================================= */
+
+/* ─── Layout ────────────────────────────────────────────────────── */
+.tf-container {
+  width: 100%;
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
-.tf-font-display { font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif !important; font-weight: 800; }
-.tf-font-body { font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif !important; }
-html[dir="rtl"] .tf-font-display, html[dir="rtl"] .tf-font-body { font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif !important; letter-spacing: 0 !important; }
+@media (min-width: 1024px) {
+  .tf-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
 
-.tf-text-blue { color: #1A4D8F; }
-.tf-text-blue-light { color: #2563EB; }
-.tf-text-ink { color: #0F172A; }
-.tf-text-muted { color: #64748B; }
-.tf-bg-blue { background-color: #1A4D8F; }
-.tf-bg-blue-light { background-color: #2563EB; }
-.tf-bg-blue-50 { background-color: #EFF6FF; }
-.tf-bg-muted { background-color: #F8FAFC; }
-.tf-border-color { border-color: #E2E8F0; }
-.tf-border-blue { border-color: #2563EB; }
+.tf-section {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
 
+@media (max-width: 768px) {
+  .tf-section {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+/* ─── Typography ───────────────────────────────────────────────── */
+.tf-font-display {
+  font-family: "Plus Jakarta Sans", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+html[dir="rtl"] .tf-font-display {
+  font-family: "IBM Plex Sans Arabic", "Plus Jakarta Sans", system-ui, sans-serif;
+  letter-spacing: 0;
+  word-spacing: 0.04em;
+}
+
+/* ─── Buttons ──────────────────────────────────────────────────── */
 .tf-btn-primary {
-  background: #1A4D8F;
-  color: #FFFFFF;
-  font-weight: 700;
-  padding: 14px 28px;
-  border-radius: 12px;
-  transition: all 0.2s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-size: 15px;
-  cursor: pointer;
+  gap: 0.5rem;
+  background-color: #1A4D8F;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px -2px rgba(26, 77, 143, 0.25);
   border: none;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
 }
-.tf-btn-primary:hover { background: #2563EB; transform: translateY(-1px); box-shadow: 0 8px 20px -6px rgba(37,99,235,0.4); }
-.tf-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.tf-btn-primary:hover {
+  background-color: #2563EB;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -4px rgba(37, 99, 235, 0.35);
+}
+
+.tf-btn-primary:active { transform: translateY(0); }
+.tf-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
 .tf-btn-outline {
-  background: #FFFFFF;
-  color: #1A4D8F;
-  font-weight: 700;
-  padding: 14px 28px;
-  border-radius: 12px;
-  transition: all 0.2s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-size: 15px;
+  gap: 0.5rem;
+  background-color: transparent;
+  color: #1A4D8F;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border: 1.5px solid #1A4D8F;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
-  border: 2px solid #1A4D8F;
+  text-decoration: none;
+  white-space: nowrap;
 }
-.tf-btn-outline:hover { background: #EFF6FF; border-color: #2563EB; }
+
+.tf-btn-outline:hover {
+  background-color: #EFF6FF;
+  border-color: #2563EB;
+  color: #2563EB;
+}
 
 .tf-btn-ghost {
-  background: transparent;
-  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  color: #475569;
   font-weight: 600;
-  padding: 10px 20px;
-  border-radius: 10px;
-  transition: all 0.2s;
-  cursor: pointer;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.625rem;
+  font-size: 0.875rem;
   border: none;
-  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  text-decoration: none;
 }
-.tf-btn-ghost:hover { background: #F1F5F9; }
 
+.tf-btn-ghost:hover { background-color: #F1F5F9; color: #1A4D8F; }
+
+/* ─── Cards ────────────────────────────────────────────────────── */
 .tf-card {
-  background: #FFFFFF;
+  display: block;
+  background-color: #ffffff;
   border: 1px solid #E2E8F0;
-  border-radius: 16px;
+  border-radius: 1rem;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  text-decoration: none;
+  color: inherit;
 }
-.tf-card:hover { border-color: #2563EB; box-shadow: 0 12px 40px -12px rgba(15,23,42,0.15); transform: translateY(-2px); }
 
-.tf-navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  transition: all 0.3s;
-  padding: 16px 0;
+.tf-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px -8px rgba(15, 23, 42, 0.15);
+  border-color: #BFDBFE;
 }
-.tf-navbar.scrolled { background: #FFFFFF; box-shadow: 0 1px 12px rgba(0,0,0,0.06); padding: 10px 0; }
 
+/* ─── Inputs ───────────────────────────────────────────────────── */
 .tf-input {
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s;
-  background: #FFFFFF;
+  background-color: #ffffff;
   color: #0F172A;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
 }
-.tf-input:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-.tf-input::placeholder { color: #94A3B8; }
 
-.tf-section { padding: 64px 0; }
-@media (min-width: 768px) { .tf-section { padding: 96px 0; } }
+.tf-input::placeholder { color: #94A3B8; font-weight: 400; }
 
-.tf-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-@media (min-width: 768px) { .tf-container { padding: 0 32px; } }
+.tf-input:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
 
-.tf-star { color: #F59E0B; fill: #F59E0B; }
+.tf-input:hover:not(:focus) { border-color: #CBD5E1; }
 
+/* ─── AI Planner Box ───────────────────────────────────────────── */
+.tf-ai-box {
+  background-color: #ffffff;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  box-shadow: 0 12px 40px -12px rgba(15, 23, 42, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.tf-ai-box::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.08), transparent 70%);
+  pointer-events: none;
+}
+
+.tf-ai-input {
+  width: 100%;
+  background-color: #F8FAFC;
+  color: #0F172A;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  outline: none;
+}
+
+.tf-ai-input::placeholder { color: #94A3B8; font-weight: 400; }
+
+.tf-ai-input:focus {
+  background-color: #ffffff;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* ─── Badges ───────────────────────────────────────────────────── */
 .tf-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.5rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.tf-badge-blue { background-color: #EFF6FF; color: #1A4D8F; border: 1px solid #DBEAFE; }
+.tf-badge-green { background-color: #F0FDF4; color: #166534; border: 1px solid #DCFCE7; }
+.tf-badge-gray { background-color: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; }
+.tf-badge-amber { background-color: #FFFBEB; color: #92400E; border: 1px solid #FEF3C7; }
+.tf-badge-red { background-color: #FEF2F2; color: #991B1B; border: 1px solid #FEE2E2; }
+
+/* ─── Star rating ──────────────────────────────────────────────── */
+.tf-star { color: #F59E0B; fill: #F59E0B; }
+
+/* ─── Section dividers / chips ─────────────────────────────────── */
+.tf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: #EFF6FF;
+  color: #1A4D8F;
+  border: 1px solid #DBEAFE;
+  padding: 0.375rem 0.875rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.tf-chip-amber { background-color: #FFFBEB; color: #92400E; border-color: #FEF3C7; }
+.tf-chip-green { background-color: #F0FDF4; color: #166534; border-color: #DCFCE7; }
+.tf-chip-red { background-color: #FEF2F2; color: #991B1B; border-color: #FEE2E2; }
+
+/* ─── Status indicator (booking status) ───────────────────────── */
+.tf-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
   font-weight: 600;
 }
-.tf-badge-blue { background: #EFF6FF; color: #1A4D8F; }
-.tf-badge-green { background: #D1FAE5; color: #065F46; }
-.tf-badge-gray { background: #F1F5F9; color: #475569; }
 
-.tf-ai-box {
-  background: #FFFFFF;
-  border: 2px solid #E2E8F0;
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 20px 60px -20px rgba(15,23,42,0.2);
+.tf-status-pending { background-color: #FEF3C7; color: #92400E; }
+.tf-status-confirmed { background-color: #DCFCE7; color: #166534; }
+.tf-status-completed { background-color: #DBEAFE; color: #1A4D8F; }
+.tf-status-cancelled { background-color: #FEE2E2; color: #991B1B; }
+
+/* ─── Skeleton placeholders (loading states) ───────────────────── */
+.tf-skeleton {
+  background: linear-gradient(90deg, #F1F5F9 0%, #E2E8F0 50%, #F1F5F9 100%);
+  background-size: 200% 100%;
+  animation: tf-shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
 }
-.tf-ai-input {
-  width: 100%;
-  padding: 16px 20px;
-  border: 2px solid #E2E8F0;
-  border-radius: 14px;
-  font-size: 16px;
-  outline: none;
-  transition: all 0.2s;
+
+@keyframes tf-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
-.tf-ai-input:focus { border-color: #2563EB; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #F8FAFC; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+/* ─── Empty state ─────────────────────────────────────────────── */
+.tf-empty {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  border: 1.5px dashed #E2E8F0;
+  border-radius: 1rem;
+  background-color: #F8FAFC;
+}
 
-body { background: #FFFFFF; color: #0F172A; }
+.tf-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 999px;
+  background-color: #EFF6FF;
+  color: #1A4D8F;
+  margin-bottom: 1rem;
+}
 
-h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.15; }
-h2 { font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 800; line-height: 1.2; }
-h3 { font-size: 1.25rem; font-weight: 700; line-height: 1.35; }
-@media (min-width: 768px) { h3 { font-size: 1.5rem; } }
+/* ─── Discount badge (for deals page) ──────────────────────────── */
+.tf-discount-tag {
+  position: absolute;
+  top: 0.75rem;
+  inset-inline-start: 0.75rem;
+  background-color: #DC2626;
+  color: #ffffff;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+  box-shadow: 0 4px 12px -2px rgba(220, 38, 38, 0.4);
+  z-index: 5;
+}
 
-html[dir="rtl"] h1, html[dir="rtl"] h2, html[dir="rtl"] h3 { letter-spacing: 0 !important; line-height: 1.4; }
+/* ─── Trending ribbon ──────────────────────────────────────────── */
+.tf-trending-ribbon {
+  position: absolute;
+  top: 0.75rem;
+  inset-inline-end: 0.75rem;
+  background: linear-gradient(135deg, #F59E0B 0%, #DC2626 100%);
+  color: #ffffff;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 12px -2px rgba(220, 38, 38, 0.4);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* ─── Profile page ────────────────────────────────────────────── */
+.tf-avatar {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1A4D8F 0%, #2563EB 100%);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  box-shadow: 0 8px 20px -4px rgba(26, 77, 143, 0.3);
+}
+
+.tf-stat-card {
+  background-color: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tf-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -8px rgba(15, 23, 42, 0.12);
+}
+
+.tf-stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.tf-stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.5rem;
+}
+
+/* ─── Filter chip (active state) ──────────────────────────────── */
+.tf-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background-color: #ffffff;
+  color: #475569;
+  border: 1.5px solid #E2E8F0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.tf-filter-chip:hover {
+  border-color: #BFDBFE;
+  color: #1A4D8F;
+}
+
+.tf-filter-chip[data-active="true"] {
+  background-color: #1A4D8F;
+  color: #ffffff;
+  border-color: #1A4D8F;
+}
+
+/* ─── Misc helpers ────────────────────────────────────────────── */
+.tf-line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tf-line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tf-divider {
+  height: 1px;
+  background-color: #E2E8F0;
+  margin: 1rem 0;
+  border: none;
+}
+
+/* ─── Hero gradient overlay ───────────────────────────────────── */
+.tf-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.0) 0%, rgba(15, 23, 42, 0.6) 100%);
+}
+
+/* ─── RTL adjustments ─────────────────────────────────────────── */
+html[dir="rtl"] .tf-input,
+html[dir="rtl"] .tf-ai-input {
+  text-align: right;
+}
+
+/* ─── Smooth focus visible for keyboard nav ───────────────────── */
+.tf-card:focus-visible,
+.tf-btn-primary:focus-visible,
+.tf-btn-outline:focus-visible,
+.tf-btn-ghost:focus-visible,
+.tf-filter-chip:focus-visible {
+  outline: 2px solid #2563EB;
+  outline-offset: 2px;
+}
+
+/* ─── Responsive helpers ──────────────────────────────────────── */
+.tf-hide-mobile { display: none; }
+
+@media (min-width: 768px) {
+  .tf-hide-mobile { display: inline-flex; }
+}
+
+.tf-show-mobile-only { display: inline-flex; }
+
+@media (min-width: 768px) {
+  .tf-show-mobile-only { display: none; }
+}
+
+/* ─── Smooth fade-in for client-side routed pages ─────────────── */
+.tf-fade-in { animation: tf-fade-in 0.3s ease-out; }
+
+@keyframes tf-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
