@@ -85,30 +85,43 @@ export default function HotelsPage() {
               {loading && [1, 2, 3].map((i) => (
                 <div key={i} className="tf-skeleton h-48 rounded-2xl" />
               ))}
-              {!loading && sorted.map((hotel) => (
+              {!loading && sorted.map((hotel) => {
+                const coverImg = hotel.coverImage || hotel.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80";
+                return (
                 <a key={hotel.id} href={`/hotels/${hotel.id}`} className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-[#E2E8F0] flex flex-col sm:flex-row">
-                  <div className="sm:w-72 h-48 sm:h-auto flex-shrink-0 overflow-hidden"><img src={hotel.coverImage} alt={hotel.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" /></div>
+                  <div className="sm:w-72 h-48 sm:h-auto flex-shrink-0 overflow-hidden relative bg-[#F1F5F9]">
+                    <img src={coverImg} alt={hotel.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80"; }} />
+                    <div className="absolute top-3 left-3 bg-[#1A4D8F] text-white px-2 py-1 rounded-md text-xs font-bold">{hotel.starRating} ★</div>
+                  </div>
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div>
                           <h3 className="text-xl font-bold text-[#0F172A] group-hover:text-[#1A4D8F] transition-colors tf-font-display">{lang === "ar" ? hotel.nameAr ?? hotel.name : hotel.name}</h3>
-                          <p className="text-sm text-[#64748B] flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{hotel.location}, {hotel.city}</p>
+                          <p className="text-sm text-[#64748B] flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{hotel.location ? `${hotel.location}, ` : ""}{hotel.city}{hotel.country ? `, ${hotel.country}` : ""}</p>
                         </div>
-                        <div className="flex items-center gap-1 bg-[#EFF6FF] px-2 py-1 rounded-lg"><Star className="h-4 w-4 tf-star" /><span className="font-bold text-sm text-[#0F172A]">{hotel.rating}</span></div>
+                        <div className="flex items-center gap-1 bg-[#EFF6FF] px-2 py-1 rounded-lg"><Star className="h-4 w-4 tf-star" /><span className="font-bold text-sm text-[#0F172A]">{hotel.rating || "New"}</span></div>
                       </div>
-                      <div className="flex flex-wrap gap-1.5 mt-3">{hotel.amenities.slice(0, 5).map((a, i) => <span key={i} className="tf-badge tf-badge-gray">{lang === "ar" ? hotel.amenitiesAr[i] : a}</span>)}</div>
+                      {hotel.description && <p className="text-sm text-[#64748B] line-clamp-2 mb-3">{hotel.description}</p>}
+                      {hotel.amenities.length > 0 && <div className="flex flex-wrap gap-1.5 mt-3">{hotel.amenities.slice(0, 5).map((a, i) => <span key={i} className="tf-badge tf-badge-gray">{lang === "ar" ? hotel.amenitiesAr[i] : a}</span>)}</div>}
                     </div>
                     <div className="flex items-end justify-between mt-4 pt-4 border-t border-[#E2E8F0]">
                       <div>
-                        <span className="text-xs text-[#64748B]">{lang === "ar" ? "يبدأ من" : "From"}</span>
-                        <p className="text-2xl font-extrabold text-[#0F172A] tf-font-display">{formatPrice(hotel.startingPrice, lang)}<span className="text-xs font-normal text-[#64748B]">{t(lang, "per_night")}</span></p>
+                        {hotel.startingPrice > 0 ? (
+                          <>
+                            <span className="text-xs text-[#64748B]">{lang === "ar" ? "يبدأ من" : "From"}</span>
+                            <p className="text-2xl font-extrabold text-[#0F172A] tf-font-display">{formatPrice(hotel.startingPrice, lang)}<span className="text-xs font-normal text-[#64748B]">{t(lang, "per_night")}</span></p>
+                          </>
+                        ) : (
+                          <p className="text-sm text-[#64748B]">{lang === "ar" ? "السعر عند الطلب" : "Price on request"}</p>
+                        )}
                       </div>
                       <span className="tf-btn-primary">{t(lang, "view_details")}</span>
                     </div>
                   </div>
                 </a>
-              ))}
+                );
+              })}
               {!loading && sorted.length === 0 && (
                 <div className="tf-empty">
                   <div className="tf-empty-icon"><Building2 className="h-8 w-8" /></div>

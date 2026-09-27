@@ -25,35 +25,118 @@ const API_BASE = process.env.NEXT_PUBLIC_VIA_TRIPS_URL || "http://localhost:3000
 
 async function fetchAPI<T>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(`${API_BASE}${path}`, { headers: { "Content-Type": "application/json" } });
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: { "Content-Type": "application/json" },
+      signal: AbortSignal.timeout?.(8000) ?? undefined,
+    });
     if (!res.ok) return null;
     const json = await res.json();
     return json.data || json;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
+}
+
+/** Normalize a hotel returned by the API to ensure all fields the UI expects exist */
+function normalizeHotel(h: any): Hotel {
+  const amenities = Array.isArray(h.amenities) ? h.amenities : [];
+  const amenitiesAr = Array.isArray(h.amenitiesAr) ? h.amenitiesAr : amenities;
+  const images = Array.isArray(h.images) ? h.images : [];
+  const coverImage = h.coverImage || images[0] || "";
+  const rooms = Array.isArray(h.rooms) ? h.rooms : [];
+  return {
+    id: h.id,
+    name: h.name || "Unnamed Hotel",
+    nameAr: h.nameAr,
+    description: h.description || "",
+    starRating: Number(h.starRating) || 3,
+    location: h.location || h.city || "",
+    city: h.city || "",
+    country: h.country || "",
+    countryAr: h.countryAr || h.country || "",
+    amenities,
+    amenitiesAr,
+    images,
+    coverImage,
+    totalRooms: Number(h.totalRooms) || 0,
+    availableRooms: Number(h.availableRooms) || 0,
+    startingPrice: Number(h.startingPrice) || 0,
+    currency: h.currency || "$",
+    rating: Number(h.rating) || 4.5,
+    reviewCount: Number(h.reviewCount) || 0,
+    propertyType: h.propertyType || "Hotel",
+    rooms: rooms.map(normalizeRoom),
+  };
+}
+
+function normalizeRoom(r: any): Room {
+  return {
+    id: r.id || `room-${Math.random().toString(36).slice(2, 8)}`,
+    roomType: r.roomType || "Standard Room",
+    bedType: r.bedType || "Double",
+    maxGuests: Number(r.maxGuests) || 2,
+    pricePerNight: Number(r.pricePerNight) || 100,
+    size: r.size,
+    amenities: Array.isArray(r.amenities) ? r.amenities : [],
+    images: Array.isArray(r.images) ? r.images : [],
+    available: r.available !== false,
+  };
+}
+
+function normalizeBundle(b: any): Bundle {
+  const destinations = Array.isArray(b.destinations) ? b.destinations : [];
+  const destinationsAr = Array.isArray(b.destinationsAr) ? b.destinationsAr : destinations;
+  const includedServices = Array.isArray(b.includedServices) ? b.includedServices : [];
+  const includedServicesAr = Array.isArray(b.includedServicesAr) ? b.includedServicesAr : includedServices;
+  const images = Array.isArray(b.images) ? b.images : [];
+  const coverImage = b.coverImage || images[0] || "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=80";
+  return {
+    id: b.id,
+    title: b.title || "Untitled Bundle",
+    titleAr: b.titleAr,
+    description: b.description || "",
+    durationDays: Number(b.durationDays) || 1,
+    destinations,
+    destinationsAr,
+    coverImage,
+    images: images.length ? images : [coverImage],
+    price: Number(b.price) || 0,
+    currency: b.currency || "$",
+    difficulty: b.difficulty || "Easy",
+    groupSize: Number(b.groupSize) || 12,
+    includedServices,
+    includedServicesAr,
+    rating: Number(b.rating) || 4.5,
+    reviewCount: Number(b.reviewCount) || 0,
+    totalBookings: Number(b.totalBookings) || 0,
+  };
 }
 
 export async function getHotels(): Promise<Hotel[]> {
-  const data = await fetchAPI<Hotel[]>("/guest/hotels");
-  if (data && data.length > 0) return data;
-  // Fallback to static data
+  const data = await fetchAPI<any[]>("/guest/hotels");
+  if (data && Array.isArray(data) && data.length > 0) {
+    return data.map(normalizeHotel);
+  }
   return staticHotels;
 }
 
 export async function getBundles(): Promise<Bundle[]> {
-  const data = await fetchAPI<Bundle[]>("/guest/bundles");
-  if (data && data.length > 0) return data;
+  const data = await fetchAPI<any[]>("/guest/bundles");
+  if (data && Array.isArray(data) && data.length > 0) {
+    return data.map(normalizeBundle);
+  }
   return staticBundles;
 }
 
 export async function getHotel(id: string): Promise<Hotel | null> {
-  const data = await fetchAPI<Hotel>(`/guest/hotels/${id}`);
-  if (data) return data;
+  const data = await fetchAPI<any>(`/guest/hotels/${id}`);
+  if (data) return normalizeHotel(data);
   return staticHotels.find(h => h.id === id) || null;
 }
 
 export async function getBundle(id: string): Promise<Bundle | null> {
-  const data = await fetchAPI<Bundle>(`/guest/bundles/${id}`);
-  if (data) return data;
+  const data = await fetchAPI<any>(`/guest/bundles/${id}`);
+  if (data) return normalizeBundle(data);
   return staticBundles.find(b => b.id === id) || null;
 }
 
@@ -91,5 +174,4 @@ const staticBundles: Bundle[] = [
   { id: "BND-004", title: "Libya & Jordan Heritage Tour — 8 Days", titleAr: "جولة ليبيا والأردن التراثية — ٨ أيام", description: "A journey through 3,000 years of history.", durationDays: 8, destinations: ["Tripoli","Amman","Petra"], destinationsAr: ["طرابلس","عمّان","البتراء"], coverImage: "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200&q=80", images: ["https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200&q=80"], price: 3800, currency: "$", difficulty: "Moderate", groupSize: 12, includedServices: ["4-Star Hotels","Daily Breakfast","Archaeological Guide","Leptis Magna Tour","Petra Tour","Flights","All Transfers"], includedServicesAr: ["فنادق ٤ نجوم","إفطار يومي","مرشد أثري","جولة لبدة الكبرى","جولة البتراء","رحلات جوية","جميع التنقلات"], rating: 4.7, reviewCount: 128, totalBookings: 41 },
 ];
 
-// Export static data for components that import directly (backward compat)
 export { staticHotels as hotels, staticBundles as bundles };

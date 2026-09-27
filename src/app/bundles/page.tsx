@@ -60,32 +60,48 @@ export default function BundlesPage() {
           {loading && [1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="tf-skeleton h-96 rounded-2xl" />
           ))}
-          {!loading && sorted.map((bundle) => (
+          {!loading && sorted.map((bundle) => {
+            const cover = bundle.coverImage || bundle.images?.[0] || "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=80";
+            return (
             <a key={bundle.id} href={`/bundles/${bundle.id}`} className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-[#E2E8F0]">
-              <div className="relative h-56 overflow-hidden">
-                <img src={bundle.coverImage} alt={bundle.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="relative h-56 overflow-hidden bg-[#F1F5F9]">
+                <img src={cover} alt={bundle.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=80"; }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 text-white">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs px-2 py-0.5 bg-[#2563EB] rounded-md font-medium">{bundle.durationDays} {t(lang, "days")}</span>
                     <span className="text-xs px-2 py-0.5 bg-white/20 backdrop-blur rounded-md">{bundle.difficulty}</span>
                   </div>
-                  <h3 className="text-xl font-bold leading-tight tf-font-display">{lang === "ar" ? bundle.titleAr ?? bundle.title : bundle.title}</h3>
+                  <h3 className="text-xl font-bold leading-tight tf-font-display drop-shadow">{lang === "ar" ? bundle.titleAr ?? bundle.title : bundle.title}</h3>
                 </div>
               </div>
               <div className="p-5">
-                <div className="flex items-center gap-3 text-sm text-[#64748B] mb-3"><span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{bundle.destinations.join(", ")}</span></div>
-                <div className="flex flex-wrap gap-1.5 mb-4">{bundle.includedServices.slice(0, 4).map((s, i) => <span key={i} className="tf-badge tf-badge-blue"><Check className="h-3 w-3" />{lang === "ar" ? bundle.includedServicesAr[i] : s}</span>)}</div>
+                {bundle.destinations.length > 0 && (
+                  <div className="flex items-center gap-3 text-sm text-[#64748B] mb-3">
+                    <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{bundle.destinations.join(", ")}</span>
+                  </div>
+                )}
+                {bundle.description && <p className="text-sm text-[#64748B] line-clamp-2 mb-3">{bundle.description}</p>}
+                {bundle.includedServices.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-4">{bundle.includedServices.slice(0, 4).map((s, i) => <span key={i} className="tf-badge tf-badge-blue"><Check className="h-3 w-3" />{lang === "ar" ? bundle.includedServicesAr[i] : s}</span>)}</div>
+                )}
                 <div className="flex items-end justify-between pt-4 border-t border-[#E2E8F0]">
                   <div>
-                    <span className="text-xs text-[#64748B]">{lang === "ar" ? "يبدأ من" : "From"}</span>
-                    <p className="text-2xl font-extrabold text-[#0F172A] tf-font-display">{formatPrice(bundle.price, lang)}</p>
+                    {bundle.price > 0 ? (
+                      <>
+                        <span className="text-xs text-[#64748B]">{lang === "ar" ? "يبدأ من" : "From"}</span>
+                        <p className="text-2xl font-extrabold text-[#0F172A] tf-font-display">{formatPrice(bundle.price, lang)}</p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-[#64748B]">{lang === "ar" ? "السعر عند الطلب" : "Price on request"}</p>
+                    )}
                   </div>
                   <span className="tf-btn-primary">{t(lang, "book_now")}</span>
                 </div>
               </div>
             </a>
-          ))}
+            );
+          })}
           {!loading && sorted.length === 0 && (
             <div className="col-span-full tf-empty">
               <div className="tf-empty-icon"><Plane className="h-8 w-8" /></div>
