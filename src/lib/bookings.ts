@@ -68,6 +68,32 @@ export function addBooking(booking: Omit<TripfulBooking, "id" | "createdAt" | "s
     const all = getBookings();
     all.unshift(newBooking);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+
+    // Also POST to the Via Trips Panel API so it shows up in the hotel/bundle owner's dashboard.
+    // Fire-and-forget — don't block the UI on this. If it fails, the booking is still saved locally.
+    const API_BASE = process.env.NEXT_PUBLIC_VIA_TRIPS_URL || "http://localhost:3000/api/v1";
+    fetch(`${API_BASE}/guest/bookings`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: booking.type === "hotel" ? "HotelRoom" : "Bundle",
+        hotelId: booking.type === "hotel" ? booking.itemId : undefined,
+        bundleId: booking.type === "bundle" ? booking.itemId : undefined,
+        checkIn: booking.checkIn,
+        checkOut: booking.checkOut,
+        guests: booking.guests,
+        nights: booking.nights,
+        amount: booking.amount,
+        currency: booking.currency,
+        guestName: booking.guestName,
+        guestEmail: booking.guestEmail,
+        guestPhone: booking.guestPhone,
+        specialRequests: booking.specialRequests,
+        status: "Confirmed",
+      }),
+    }).catch((err) => {
+      console.warn("Failed to sync booking to Panel:", err);
+    });
   }
   return newBooking;
 }
