@@ -51,3 +51,6 @@ package.json.backup
 # npm lockfile is okay to keep if you want a reproducible install
 # keep package-lock.json tracked by default
 
+
+# local sqlite db (do NOT ship to Vercel — filesystem is read-only)
+db/*.db
