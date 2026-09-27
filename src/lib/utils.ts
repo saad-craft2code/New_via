@@ -57,6 +57,13 @@ export const translations = {
     footer_links: "Quick Links",
     footer_contact: "Contact",
     footer_rights: "© 2026 Tripful. All rights reserved.",
+    // Home page translations
+    why_choose: "Why Choose Tripful",
+    testimonials: "What Our Guests Say",
+    stats_hotels: "Hotels",
+    stats_bundles: "Travel Bundles",
+    stats_countries: "Countries",
+    stats_guests: "Happy Guests",
     // New keys
     profile: "Profile",
     deals: "Deals & Discounts",
@@ -157,6 +164,13 @@ export const translations = {
     footer_links: "روابط سريعة",
     footer_contact: "تواصل معنا",
     footer_rights: "© 2026 تريبفول. جميع الحقوق محفوظة.",
+    // Home page translations
+    why_choose: "لماذا تريبفول",
+    testimonials: "آراء ضيوفنا",
+    stats_hotels: "فنادق",
+    stats_bundles: "باقات سفر",
+    stats_countries: "دول",
+    stats_guests: "ضيوف سعداء",
     // New keys
     profile: "الملف الشخصي",
     deals: "العروض والخصومات",

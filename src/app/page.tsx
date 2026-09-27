@@ -55,19 +55,30 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar lang={lang} setLang={setLang} />
 
-      {/* Hero */}
-      <section className="relative bg-gradient-to-b from-[#EFF6FF] to-white pt-16 pb-20">
-        <div className="tf-container">
+      {/* Hero — with hotel image background */}
+      <section className="relative pt-16 pb-20 overflow-hidden">
+        {/* Background image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1566073771259-6a86038ce82f?w=1600&q=80"
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0F172A]/70 via-[#0F172A]/50 to-white" />
+        </div>
+
+        <div className="tf-container relative z-10">
           <div className="text-center max-w-4xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#EFF6FF] border border-[#DBEAFE] mb-6">
-              <Sparkles className="h-3.5 w-3.5 text-[#2563EB]" />
-              <span className="text-xs font-bold text-[#1A4D8F] uppercase tracking-wider">{lang === "ar" ? "منصة الشرق الأوسط الأولى للفنادق" : "#1 Middle East Hotel Platform"}</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 backdrop-blur border border-white/20 mb-6">
+              <Sparkles className="h-3.5 w-3.5 text-amber-300" />
+              <span className="text-xs font-bold text-white uppercase tracking-wider">{lang === "ar" ? "منصة الشرق الأوسط الأولى للفنادق" : "#1 Middle East Hotel Platform"}</span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold text-[#0F172A] leading-[1.1] mb-5 tf-font-display">
+            <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-[1.1] mb-5 tf-font-display drop-shadow-lg">
               {lang === "ar" ? "اكتشف وأفضل الفنادق" : "Find & Book the Best Hotels"}<br/>
-              <span className="text-[#1A4D8F]">{lang === "ar" ? "في الشرق الأوسط" : "Across the Middle East"}</span>
+              <span className="text-amber-300">{lang === "ar" ? "في الشرق الأوسط" : "Across the Middle East"}</span>
             </h1>
-            <p className="text-lg text-[#64748B] max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow">
               {lang === "ar" ? "من فنادق دبي الفاخرة إلى إقامة مكة المريحة، من شواطئ طرابلس إلى مغامرات شرم الشيخ — أكثر من ٥٠٠ فندق وباقة سفر بانتظارك." : "From luxury stays in Dubai to spiritual journeys in Makkah, Mediterranean shores of Tripoli to Red Sea adventures in Sharm — 500+ hotels and travel bundles await."}
             </p>
           </div>
