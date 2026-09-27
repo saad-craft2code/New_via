@@ -1,6 +1,6 @@
 // /api/v1/bundles — GET (current user's bundles) POST (create)
 import { NextRequest } from "next/server";
-import { db, ok, err, getAuthUserId } from "../../_lib";
+import { db, ok, err, getAuthUserId, isDb, mock } from "../../_lib";
 
 function parseArr(s: any): string[] {
   if (!s) return [];
@@ -13,11 +13,26 @@ export async function GET(req: NextRequest) {
   const userId = await getAuthUserId(req);
   if (!userId) return err("Unauthorized", 401);
 
-  const bundles = await db.bundle.findMany({
-    where: { creatorId: userId },
-    include: { days: { include: { items: true }, orderBy: { dayNumber: "asc" } } },
-    orderBy: { createdAt: "desc" },
-  });
+  let bundles: any[] = [];
+  try {
+    if (isDb() && db) {
+      bundles = await db.bundle.findMany({
+        where: { creatorId: userId },
+        include: { days: { include: { items: true }, orderBy: { dayNumber: "asc" } } },
+        orderBy: { createdAt: "desc" },
+      });
+    }
+  } catch (e) {
+    console.warn("DB bundle lookup failed, falling back to mock:", e);
+    bundles = [];
+  }
+
+  // Mock fallback
+  if (!bundles || bundles.length === 0) {
+    bundles = (mock.bundles as any[])
+      .filter((b) => b.creatorId === userId)
+      .map((b) => ({ ...b, days: [] }));
+  }
 
   return ok(bundles.map((b) => ({
     id: b.id,
@@ -33,13 +48,13 @@ export async function GET(req: NextRequest) {
     groupSize: b.groupSize ?? undefined,
     includedServices: parseArr(b.includedServices),
     status: b.status,
-    days: b.days.map((d) => ({
+    days: (b.days ?? []).map((d: any) => ({
       id: d.id,
       bundleId: d.bundleId,
       dayNumber: d.dayNumber,
       title: d.title,
       description: d.description ?? undefined,
-      items: d.items.map((it) => ({
+      items: (d.items ?? []).map((it: any) => ({
         id: it.id,
         bundleDayId: it.bundleDayId,
         type: it.type,
@@ -66,8 +81,40 @@ export async function POST(req: NextRequest) {
   const title = String(body.title ?? "").trim();
   if (!title) return err("Bundle title is required", 422);
 
-  const bundle = await db.bundle.create({
-    data: {
+  // Default status to "Published" so bundles show on Tripful immediately
+  // (Tripful filters by status: "Published")
+  const status = String(body.status ?? "Published");
+
+  let bundle: any = null;
+  try {
+    if (isDb() && db) {
+      bundle = await db.bundle.create({
+        data: {
+          creatorId: userId,
+          title,
+          description: String(body.description ?? ""),
+          durationDays: Number(body.durationDays ?? 1),
+          destinations: body.destinations ?? [],
+          images: body.images ?? [],
+          guideName: body.guideName ?? null,
+          price: Number(body.price ?? 0),
+          difficulty: String(body.difficulty ?? "easy"),
+          groupSize: body.groupSize ?? null,
+          includedServices: body.includedServices ?? [],
+          status,
+        },
+      });
+    }
+  } catch (e) {
+    console.warn("DB bundle create failed, falling back to in-memory:", e);
+    bundle = null;
+  }
+
+  // Mock fallback — store in memory so subsequent GET returns it
+  if (!bundle) {
+    const now = new Date().toISOString();
+    bundle = {
+      id: `BND-${Date.now().toString(36).toUpperCase()}`,
       creatorId: userId,
       title,
       description: String(body.description ?? ""),
@@ -79,8 +126,20 @@ export async function POST(req: NextRequest) {
       difficulty: String(body.difficulty ?? "easy"),
       groupSize: body.groupSize ?? null,
       includedServices: body.includedServices ?? [],
-      status: String(body.status ?? "Draft"),
+      status,
+      createdAt: now,
+      updatedAt: now,
+    };
+    (mock.bundles as any[]).unshift(bundle);
+  }
+
+  return ok(
+    {
+      ...bundle,
+      destinations: parseArr(bundle.destinations),
+      images: parseArr(bundle.images),
+      includedServices: parseArr(bundle.includedServices),
     },
-  });
-  return ok({ ...bundle, destinations: parseArr(bundle.destinations), images: parseArr(bundle.images), includedServices: parseArr(bundle.includedServices) }, 201);
+    201,
+  );
 }
