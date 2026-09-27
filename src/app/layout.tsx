@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./tripful.css";
-import { LangProvider } from "@/components/tripful-lang-provider";
+import { Toaster } from "react-hot-toast";
+import { SessionGate } from "@/components/provider/session-gate";
 
 export const metadata: Metadata = {
-  title: "Tripful — Book Hotels & Travel Bundles | Middle East",
-  description: "Find and book luxury hotels and curated travel bundles across the Middle East. Best prices, instant confirmation.",
+  title: "Via Trips — Provider Panel",
+  description: "Service Provider Dashboard for Via Trips — manage hotels, bundles, bookings, and earnings.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link rel="preload" href="/fonts/IBM-Plex-Sans-Arabic-Regular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/IBM-Plex-Sans-Arabic-Bold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
       </head>
-      <body className="bg-white text-[#0F172A] antialiased tf-font-body">
-        <LangProvider>{children}</LangProvider>
+      <body className="font-sans antialiased bg-background text-foreground">
+        <SessionGate>{children}</SessionGate>
+        <Toaster position="top-center" toastOptions={{ duration: 4000, style: { background: "var(--popover, #fff)", color: "var(--popover-foreground, #111)", border: "1px solid var(--border, #e5e7eb)", borderRadius: "12px", fontSize: "14px", padding: "12px 16px" } }} />
       </body>
     </html>
   );
