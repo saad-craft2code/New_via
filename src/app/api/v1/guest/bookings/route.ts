@@ -1,107 +1,103 @@
-// POST /api/v1/guest/bookings — guest creates a booking (hotel, bundle, or car)
+// POST /api/v1/guest/bookings — public endpoint for Tripful to submit bookings
+// No authentication required — guest bookings are stored with userId="guest"
+// or attached to the hotel/bundle owner for visibility in their Panel.
+
 import { NextRequest } from "next/server";
-import { db, ok, err } from "../../../_lib";
+import { db, ok, err, isDb, mock } from "../../../_lib";
 
 export async function POST(req: NextRequest) {
   let body: any = {};
   try { body = await req.json(); } catch { return err("Invalid JSON body", 400); }
 
-  const type = String(body.type ?? "Bundle");
-  const startDate = body.startDate ? new Date(body.startDate) : new Date();
-  const endDate = body.endDate ? new Date(body.endDate) : null;
-  const numGuests = Number(body.numGuests ?? 1);
-  const totalAmount = Number(body.totalAmount ?? 0);
-  const guestName = String(body.guestName ?? "Guest");
-  const guestEmail = String(body.guestEmail ?? "guest@example.com");
-  const guestPhone = String(body.guestPhone ?? "");
+  const type = String(body.type || (body.hotelId ? "HotelRoom" : "Bundle"));
+  const userId = "guest"; // public bookings are stored under the "guest" user
 
-  // ── Car booking path ─────────────────────────────────────────
-  if (type === "Car" && body.carId) {
-    const car = await db.car.findUnique({ where: { id: body.carId }, include: { company: true } });
-    if (!car) return err("Car not found", 404);
-
-    const days = body.metadata?.days ?? Math.max(1, Math.ceil((endDate!.getTime() - startDate.getTime()) / 86400000));
-    const carBooking = await db.carBooking.create({
-      data: {
-        carId: car.id,
-        companyId: car.companyId,
-        guestName,
-        guestEmail,
-        guestPhone,
-        pickupLocation: body.metadata?.pickup ?? null,
-        dropoffLocation: body.metadata?.dropoff ?? null,
-        startDate,
-        endDate,
-        days: Number(days),
-        totalAmount,
-        deposit: car.deposit,
-        status: "pending",
-        notes: body.specialRequests ?? null,
-      },
-    });
-    return ok({
-      id: carBooking.id,
-      type: "Car",
-      carId: car.id,
-      startDate: carBooking.startDate,
-      endDate: carBooking.endDate,
-      totalAmount: carBooking.totalAmount,
-      status: carBooking.status,
-    }, 201);
+  // Try to find the hotel/bundle owner so the booking appears in their Panel
+  let ownerId = "guest";
+  try {
+    if (isDb() && db) {
+      if (body.hotelId) {
+        const hotel = await db.hotel.findUnique({ where: { id: body.hotelId }, select: { ownerId: true } });
+        if (hotel) ownerId = hotel.ownerId;
+      } else if (body.bundleId) {
+        const bundle = await db.bundle.findUnique({ where: { id: body.bundleId }, select: { creatorId: true } });
+        if (bundle) ownerId = bundle.creatorId;
+      }
+    } else {
+      // Mock fallback — find owner from in-memory hotels/bundles
+      if (body.hotelId) {
+        const hotel = (mock.hotels as any[]).find((h) => h.id === body.hotelId);
+        if (hotel) ownerId = hotel.ownerId;
+      } else if (body.bundleId) {
+        const bundle = (mock.bundles as any[]).find((b) => b.id === body.bundleId);
+        if (bundle) ownerId = bundle.creatorId;
+      }
+    }
+  } catch (e) {
+    console.warn("Owner lookup failed, defaulting to 'guest':", e);
   }
 
-  // ── Hotel / Bundle booking path ───────────────────────────────
-  // Find (or create) a "guest" user to attach the booking to
-  let guest = await db.user.findUnique({ where: { email: guestEmail } });
-  if (!guest) {
-    guest = await db.user.create({
-      data: {
-        email: guestEmail,
-        name: guestName,
-        role: "BundleCreator",
-        phone: guestPhone || null,
-        kycStatus: "NotSubmitted",
-      },
-    });
+  let booking: any = null;
+  try {
+    if (isDb() && db) {
+      booking = await db.booking.create({
+        data: {
+          userId: ownerId,
+          type,
+          hotelId: body.hotelId ?? null,
+          roomId: body.roomId ?? null,
+          bundleId: body.bundleId ?? null,
+          startDate: new Date(body.checkIn || body.startDate || new Date()),
+          endDate: body.checkOut || body.endDate ? new Date(body.checkOut || body.endDate) : null,
+          numGuests: Number(body.guests || body.numGuests || 1),
+          totalAmount: Number(body.amount || body.totalAmount || 0),
+          status: String(body.status || "Confirmed"),
+          metadata: JSON.stringify({
+            guestName: body.guestName || "Guest User",
+            guestEmail: body.guestEmail || "",
+            guestPhone: body.guestPhone || "",
+            specialRequests: body.specialRequests || "",
+            source: "tripful",
+            nights: body.nights || 1,
+            currency: body.currency || "$",
+          }),
+        },
+      });
+    }
+  } catch (e) {
+    console.warn("DB booking create failed, storing in memory:", e);
+    booking = null;
   }
 
-  const booking = await db.booking.create({
-    data: {
-      userId: guest.id,
-      type: type === "HotelRoom" ? "HotelRoom" : "Bundle",
+  // Mock fallback
+  if (!booking) {
+    const now = new Date().toISOString();
+    booking = {
+      id: `BK-${Date.now().toString(36).toUpperCase()}`,
+      userId: ownerId,
+      type,
       hotelId: body.hotelId ?? null,
       roomId: body.roomId ?? null,
       bundleId: body.bundleId ?? null,
-      startDate,
-      endDate,
-      numGuests,
-      totalAmount,
-      status: "Pending",
-      metadata: JSON.stringify({
-        guestName,
-        guestEmail,
-        guestPhone,
-        specialRequests: body.specialRequests ?? "",
-        createdAt: new Date().toISOString(),
-      }),
-    },
-    include: { hotel: true, bundle: true, room: true },
-  });
+      startDate: body.checkIn || body.startDate || now,
+      endDate: body.checkOut || body.endDate || null,
+      numGuests: Number(body.guests || body.numGuests || 1),
+      totalAmount: Number(body.amount || body.totalAmount || 0),
+      status: String(body.status || "Confirmed"),
+      metadata: {
+        guestName: body.guestName || "Guest User",
+        guestEmail: body.guestEmail || "",
+        guestPhone: body.guestPhone || "",
+        specialRequests: body.specialRequests || "",
+        source: "tripful",
+        nights: body.nights || 1,
+        currency: body.currency || "$",
+      },
+      createdAt: now,
+      updatedAt: now,
+    };
+    (mock.bookings as any[]).unshift(booking);
+  }
 
-  return ok({
-    id: booking.id,
-    type: booking.type,
-    hotelId: booking.hotelId ?? undefined,
-    roomId: booking.roomId ?? undefined,
-    bundleId: booking.bundleId ?? undefined,
-    startDate: booking.startDate,
-    endDate: booking.endDate ?? undefined,
-    numGuests: booking.numGuests,
-    totalAmount: booking.totalAmount,
-    status: booking.status,
-    hotelName: booking.hotel?.name,
-    bundleTitle: booking.bundle?.title,
-    roomType: booking.room?.roomType,
-  }, 201);
+  return ok(booking, 201);
 }
-
