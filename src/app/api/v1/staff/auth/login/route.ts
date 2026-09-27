@@ -2,7 +2,7 @@
 // Body: { email, password }
 // Returns: { token, staff } where token = "staff-<staffId>"
 import { NextRequest } from "next/server";
-import { db, ok, err } from "../../../../_lib";
+import { db, ok, err, isDb, mock } from "../../../../_lib";
 
 export async function POST(req: NextRequest) {
   let body: any = {};
@@ -11,9 +11,32 @@ export async function POST(req: NextRequest) {
   const password = String(body.password ?? "");
   if (!email || !password) return err("Email and password are required", 422);
 
-  const staff = await db.staff.findUnique({ where: { email }, include: { hotel: true } });
+  let staff: any = null;
+  let hotelName: string | undefined;
+  try {
+    if (isDb() && db) {
+      const result = await db.staff.findUnique({ where: { email }, include: { hotel: true } });
+      if (result) {
+        staff = result;
+        hotelName = result.hotel?.name;
+      }
+    }
+  } catch (e) {
+    console.warn("DB staff lookup failed, falling back to mock:", e);
+    staff = null;
+  }
+
+  // Mock fallback
+  if (!staff) {
+    staff = (mock.staff as any[]).find((s) => s.email.toLowerCase() === email);
+    if (staff) {
+      const hotel = (mock.hotels as any[]).find((h) => h.id === staff.hotelId);
+      hotelName = hotel?.name;
+    }
+  }
+
   if (!staff) return err("Invalid credentials", 401);
-  if (!staff.isActive) return err("Account deactivated", 403);
+  if (staff.isActive === false) return err("Account deactivated", 403);
   // For the demo we accept any password.
 
   const token = `staff-${staff.id}`;
@@ -28,7 +51,7 @@ export async function POST(req: NextRequest) {
       role: staff.role,
       department: staff.department,
       hotelId: staff.hotelId,
-      hotelName: staff.hotel?.name,
+      hotelName,
       avatarUrl: staff.avatarUrl,
       baseSalary: staff.baseSalary,
       hourlyRate: staff.hourlyRate,

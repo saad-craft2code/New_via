@@ -1,7 +1,7 @@
 // GET /api/v1/guest/bundles — public bundle listing for guests
 // Query: ?destination=&difficulty=&search=&maxPrice=&sortBy=
 import { NextRequest } from "next/server";
-import { db, ok } from "../../../_lib";
+import { db, ok, isDb, mock } from "../../../_lib";
 
 function parseArr(s: any): string[] {
   if (!s) return [];
@@ -18,41 +18,60 @@ export async function GET(req: NextRequest) {
   const maxPrice = url.searchParams.get("maxPrice");
   const sortBy = url.searchParams.get("sortBy") ?? "createdAt";
 
-  const bundles = await db.bundle.findMany({
-    where: { status: "Published" },
-    include: {
-      days: { include: { items: true }, orderBy: { dayNumber: "asc" } },
-      creator: { select: { id: true, name: true, companyName: true, avatarUrl: true } },
-      bookings: { select: { id: true, totalAmount: true } },
-    },
-    orderBy: sortBy === "price" ? { price: "asc" } : sortBy === "durationDays" ? { durationDays: "asc" } : { createdAt: "desc" },
-  });
+  let bundles: any[] = [];
+  try {
+    if (isDb() && db) {
+      bundles = await db.bundle.findMany({
+        where: { status: "Published" },
+        include: {
+          days: { include: { items: true }, orderBy: { dayNumber: "asc" } },
+          creator: { select: { id: true, name: true, companyName: true, avatarUrl: true } },
+          bookings: { select: { id: true, totalAmount: true } },
+        },
+        orderBy: sortBy === "price" ? { price: "asc" } : sortBy === "durationDays" ? { durationDays: "asc" } : { createdAt: "desc" },
+      });
+    }
+  } catch (e) {
+    console.warn("DB bundle lookup failed, falling back to mock:", e);
+    bundles = [];
+  }
+
+  // Mock fallback
+  if (!bundles || bundles.length === 0) {
+    bundles = (mock.bundles as any[]).map((b) => ({
+      ...b,
+      days: [],
+      creator: { id: b.creatorId, name: "Via Trips", companyName: "Via Trips", avatarUrl: "" },
+      bookings: [],
+    }));
+  }
 
   const filtered = bundles.filter((b) => {
     const destinations = parseArr(b.destinations);
     if (destination && !destinations.some((d) => d.toLowerCase().includes(destination))) return false;
-    if (difficulty && b.difficulty.toLowerCase() !== difficulty.toLowerCase()) return false;
+    if (difficulty && (b.difficulty || "").toLowerCase() !== difficulty.toLowerCase()) return false;
     if (search && !(`${b.title} ${b.description} ${destinations.join(" ")}`.toLowerCase().includes(search))) return false;
     if (maxPrice && b.price > Number(maxPrice)) return false;
     return true;
   });
 
   return ok(filtered.map((b) => {
-    const totalBookings = b.bookings.length;
-    const revenue = b.bookings.reduce((acc, bk) => acc + bk.totalAmount, 0);
+    const totalBookings = b.bookings?.length ?? 0;
+    const revenue = (b.bookings ?? []).reduce((acc: number, bk: any) => acc + (bk.totalAmount || 0), 0);
     const coverImage = parseArr(b.images)[0] ?? "";
     return {
       id: b.id,
       title: b.title,
-      titleAr: b.title, // English title is also stored; AR mirror can be added later
+      titleAr: b.titleAr || b.title,
       titleEn: b.title,
       description: b.description,
-      descriptionAr: b.description,
+      descriptionAr: b.descriptionAr || b.description,
       descriptionEn: b.description,
       durationDays: b.durationDays,
       days: b.durationDays,
       nights: Math.max(0, b.durationDays - 1),
       destinations: parseArr(b.destinations),
+      destinationsAr: parseArr(b.destinationsAr || b.destinations),
       images: parseArr(b.images),
       coverImage,
       type: "Travel Bundle",
@@ -61,13 +80,16 @@ export async function GET(req: NextRequest) {
       difficulty: b.difficulty,
       groupSizeMin: b.groupSize ? Math.max(1, Math.floor(b.groupSize / 4)) : 1,
       groupSizeMax: b.groupSize ?? 12,
+      groupSize: b.groupSize ?? 12,
       guideName: b.guideName ?? "Local Expert Guide",
       includedServices: parseArr(b.includedServices),
+      includedServicesAr: parseArr(b.includedServicesAr || b.includedServices),
       status: b.status,
       creator: b.creator,
       totalBookings,
       revenue,
-      rating: 4 + Math.min(0.9, totalBookings / 100), // simulated rating
+      rating: b.rating ?? (4 + Math.min(0.9, totalBookings / 100)),
+      reviewCount: b.reviewCount ?? (totalBookings * 3 + 35),
       views: totalBookings * 47 + 1200,
       wishlist: totalBookings * 3 + 35,
       conversionRate: totalBookings > 0 ? (totalBookings / (totalBookings * 47 + 1200) * 100) : 0,
