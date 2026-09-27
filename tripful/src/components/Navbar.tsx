@@ -19,7 +19,7 @@ export function Navbar({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => vo
     )}>
       <div className="max-w-7xl mx-auto px-4 lg:px-8 flex items-center justify-between">
         <a href="/" className="flex items-center gap-2">
-          <div className="h-10 w-10 rounded-xl bg-teal-600 flex items-center justify-center shadow-lg">
+          <div className="h-10 w-10 rounded-xl bg-#1A4D8F flex items-center justify-center shadow-lg">
             <svg viewBox="0 0 24 24" className="h-6 w-6 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
               <circle cx="12" cy="10" r="3" />
@@ -33,7 +33,7 @@ export function Navbar({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => vo
           <button onClick={() => setLang(lang === "en" ? "ar" : "en")} className={cn("px-3 py-1.5 rounded-lg text-sm font-medium transition-colors", scrolled ? "text-slate-700 hover:bg-slate-100" : "text-white hover:bg-white/20")}>
             {lang === "en" ? "العربية" : "English"}
           </button>
-          <a href="/login" className={cn("px-4 py-2 rounded-lg text-sm font-bold transition-all", scrolled ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-white text-teal-600 hover:bg-teal-50")}>
+          <a href="/login" className={cn("px-4 py-2 rounded-lg text-sm font-bold transition-all", scrolled ? "bg-#1A4D8F text-white hover:bg-#2563EB" : "bg-white text-#1A4D8F hover:bg-blue-50")}>
             {t(lang, "login")}
           </a>
         </div>
